@@ -1,0 +1,14 @@
+{
+  "name": "toolcrate",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Website Tear Down — $17 AI site audit landing page",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5"
+  }
+}
