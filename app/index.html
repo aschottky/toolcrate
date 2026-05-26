@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Run Your Audit — Website Tear Down</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles/main.css" />
+    <link rel="stylesheet" href="../styles/audit-test.css" />
+  </head>
+  <body class="audit-test-page">
+    <header class="site-header">
+      <div class="container header-inner">
+        <a href="../" class="logo">Website Tear Down</a>
+        <span class="audit-badge">Step 2 · Run audit</span>
+      </div>
+    </header>
+
+    <main class="container audit-main">
+      <div id="payment-success" class="payment-success" hidden>
+        <strong>Payment received.</strong>
+        Enter your website URL below to generate your AI tear-down report.
+      </div>
+
+      <section class="audit-intro">
+        <h1>Run your website audit</h1>
+        <p>
+          Paste your business website URL. We scan your public pages and generate a
+          no-BS report on SEO, lead capture, and mobile-friendliness — plus 3 fixes you
+          can act on today.
+        </p>
+      </section>
+
+      <form id="audit-form" class="audit-form" novalidate>
+        <label for="website-url">Your website URL</label>
+        <div class="audit-form-row">
+          <input
+            id="website-url"
+            name="websiteUrl"
+            type="url"
+            inputmode="url"
+            placeholder="https://your-business.com"
+            autocomplete="url"
+            required
+          />
+          <button type="submit" class="btn btn-primary" id="run-audit-btn">
+            Run Audit
+          </button>
+        </div>
+      </form>
+
+      <div id="audit-status" class="audit-status" hidden aria-live="polite"></div>
+      <div id="audit-error" class="audit-error" hidden role="alert"></div>
+      <div id="audit-results" class="audit-results" hidden></div>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

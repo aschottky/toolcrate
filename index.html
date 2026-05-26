@@ -23,6 +23,7 @@
         <a
           href="https://buy.stripe.com/14A289aOrcr78Mx4gn1Fe00"
           class="header-cta"
+          data-stripe-cta
           target="_blank"
           rel="noopener noreferrer"
           >$17 Scan</a
@@ -44,6 +45,7 @@
             <a
               href="https://buy.stripe.com/14A289aOrcr78Mx4gn1Fe00"
               class="btn btn-primary"
+              data-stripe-cta
               target="_blank"
               rel="noopener noreferrer"
               >Scan My Website for $17</a
@@ -140,6 +142,7 @@
           <a
             href="https://buy.stripe.com/14A289aOrcr78Mx4gn1Fe00"
             class="btn btn-primary btn-large"
+            data-stripe-cta
             target="_blank"
             rel="noopener noreferrer"
             >Scan My Website for $17</a
@@ -151,11 +154,17 @@
 
     <footer class="site-footer">
       <div class="container">
-        <p>© <span id="year"></span> Website Tear Down. Built by Alexander.</p>
+        <p>
+          © <span id="year"></span> Website Tear Down. Built by Alexander.
+          <a href="./app/" class="footer-audit-link">Already paid? Run your audit →</a>
+        </p>
       </div>
     </footer>
 
-    <script>
+    <script type="module">
+      import { applyStripeCtas } from "./scripts/stripe-cta.js";
+
+      applyStripeCtas();
       document.getElementById("year").textContent = new Date().getFullYear();
     </script>
   </body>
