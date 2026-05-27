@@ -70,12 +70,19 @@ export async function scrapeWebsiteText(websiteUrl) {
     if (error.name === "AbortError") {
       throw new Error("The website took too long to respond.");
     }
-    throw new Error("Could not reach that website. Check the URL and try again.");
+    throw new Error(
+      "Could not reach that website. It may be offline or blocking automated access."
+    );
   } finally {
     clearTimeout(timeout);
   }
 
   if (!response.ok) {
+    if ([401, 403, 429].includes(response.status)) {
+      throw new Error(
+        `Website blocked our scanner (HTTP ${response.status}). Bot protection may be enabled.`
+      );
+    }
     throw new Error(`Website returned HTTP ${response.status}.`);
   }
 
@@ -85,6 +92,17 @@ export async function scrapeWebsiteText(websiteUrl) {
   }
 
   const html = await response.text();
+
+  if (!html?.trim() || html.length < 200) {
+    throw new Error(
+      "Website returned very little content. Bot protection may be enabled."
+    );
+  }
+
+  if (/cloudflare|access denied|bot detection|cf-browser-verification/i.test(html)) {
+    throw new Error("Website appears to use bot protection (e.g. Cloudflare).");
+  }
+
   const $ = cheerio.load(html);
 
   $("script, style, noscript, svg, iframe").remove();

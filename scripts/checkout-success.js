@@ -1,3 +1,5 @@
+import { readApiErrorPayload } from "./api-utils.js";
+
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
 
 let landingContent;
@@ -124,28 +126,38 @@ async function fetchAuditPdf(url, options = {}) {
   const { method = "GET", headers, body, onProgress } = options;
   onProgress?.(20);
 
-  const response = await fetch(url, { method, headers, body });
+  let response;
+
+  try {
+    response = await fetch(url, { method, headers, body });
+  } catch {
+    throw new Error(
+      "Could not reach the audit server. Check your connection and try again."
+    );
+  }
+
   onProgress?.(55);
+
+  if (!response.ok) {
+    const { error, code } = await readApiErrorPayload(response);
+    const err = new Error(error);
+    err.code = code;
+    throw err;
+  }
 
   const contentType = response.headers.get("content-type") || "";
 
-  if (contentType.includes("application/pdf")) {
-    onProgress?.(90);
-    const blob = await response.blob();
-    onProgress?.(100);
-    return blob;
+  if (!contentType.includes("application/pdf")) {
+    const { error, code } = await readApiErrorPayload(response);
+    const err = new Error(error);
+    err.code = code;
+    throw err;
   }
 
-  let payload = {};
-  try {
-    payload = await response.json();
-  } catch {
-    payload = { error: "Unexpected server response." };
-  }
-
-  const err = new Error(payload.error || "Could not generate your audit.");
-  err.code = payload.code;
-  throw err;
+  onProgress?.(90);
+  const blob = await response.blob();
+  onProgress?.(100);
+  return blob;
 }
 
 function simulateProgress() {

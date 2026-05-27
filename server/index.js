@@ -5,6 +5,7 @@ import Stripe from "stripe";
 import { runSiteAudit } from "./audit.js";
 import { sendAuditReportEmail } from "./email.js";
 import { generateAuditPDF } from "./pdf.js";
+import { sendAuditError } from "./errors.js";
 import { normalizeWebsiteUrl, scrapeWebsiteText } from "./scrape.js";
 
 const app = express();
@@ -27,20 +28,25 @@ function getWebsiteUrlFromSession(session) {
 }
 
 async function buildAuditPdf(websiteUrl, logPrefix) {
-  console.log(`${logPrefix} Normalizing URL: ${websiteUrl}`);
-  const normalizedUrl = normalizeWebsiteUrl(websiteUrl);
+  try {
+    console.log(`${logPrefix} Normalizing URL: ${websiteUrl}`);
+    const normalizedUrl = normalizeWebsiteUrl(websiteUrl);
 
-  console.log(`${logPrefix} Scraping [${normalizedUrl}]...`);
-  const scraped = await scrapeWebsiteText(normalizedUrl);
+    console.log(`${logPrefix} Scraping [${normalizedUrl}]...`);
+    const scraped = await scrapeWebsiteText(normalizedUrl);
 
-  console.log(`${logPrefix} Running AI...`);
-  const report = await runSiteAudit(scraped);
+    console.log(`${logPrefix} Running AI...`);
+    const report = await runSiteAudit(scraped);
 
-  console.log(`${logPrefix} Generating PDF...`);
-  const pdfBuffer = await generateAuditPDF(report, normalizedUrl);
+    console.log(`${logPrefix} Generating PDF...`);
+    const pdfBuffer = await generateAuditPDF(report, normalizedUrl);
 
-  console.log(`${logPrefix} PDF ready (${pdfBuffer.length} bytes)`);
-  return { pdfBuffer, normalizedUrl, report };
+    console.log(`${logPrefix} PDF ready (${pdfBuffer.length} bytes)`);
+    return { pdfBuffer, normalizedUrl, report };
+  } catch (error) {
+    console.error(`${logPrefix} Pipeline error:`, error?.message, error);
+    throw error;
+  }
 }
 
 function sendPdfResponse(res, pdfBuffer) {
@@ -50,23 +56,6 @@ function sendPdfResponse(res, pdfBuffer) {
     'attachment; filename="Website-Audit.pdf"'
   );
   return res.send(pdfBuffer);
-}
-
-function auditErrorResponse(res, error, logPrefix) {
-  const message = error?.message || "Audit failed.";
-  const isClientError =
-    message.includes("required") ||
-    message.includes("valid") ||
-    message.includes("cannot be audited") ||
-    message.includes("No such checkout.session");
-
-  console.error(`${logPrefix} Failed:`, message, error);
-
-  return res.status(isClientError ? 400 : 500).json({
-    ok: false,
-    error: message,
-    code: isClientError ? "INVALID_REQUEST" : "AUDIT_FAILED",
-  });
 }
 
 function runAuditInBackground(websiteUrl, sessionId, customerEmail) {
@@ -175,6 +164,7 @@ app.get("/api/audit-status", async (req, res) => {
   if (!sessionId) {
     return res.status(400).json({
       ok: false,
+      success: false,
       error:
         "Missing session_id. Complete checkout again or enter your website URL manually.",
       code: "MISSING_SESSION_ID",
@@ -188,6 +178,7 @@ app.get("/api/audit-status", async (req, res) => {
     if (session.payment_status !== "paid") {
       return res.status(402).json({
         ok: false,
+        success: false,
         error: "Payment not completed yet. Please finish checkout first.",
         code: "PAYMENT_INCOMPLETE",
       });
@@ -198,6 +189,7 @@ app.get("/api/audit-status", async (req, res) => {
     if (!websiteUrl) {
       return res.status(400).json({
         ok: false,
+        success: false,
         error:
           "We couldn't find your website URL on this checkout. Please enter it below.",
         code: "MISSING_WEBSITE_URL",
@@ -207,7 +199,7 @@ app.get("/api/audit-status", async (req, res) => {
     const { pdfBuffer } = await buildAuditPdf(websiteUrl, logPrefix);
     return sendPdfResponse(res, pdfBuffer);
   } catch (error) {
-    return auditErrorResponse(res, error, logPrefix);
+    return sendAuditError(res, error, logPrefix);
   }
 });
 
@@ -219,7 +211,7 @@ app.post("/api/audit-pdf", async (req, res) => {
     const { pdfBuffer } = await buildAuditPdf(websiteUrl, logPrefix);
     return sendPdfResponse(res, pdfBuffer);
   } catch (error) {
-    return auditErrorResponse(res, error, logPrefix);
+    return sendAuditError(res, error, logPrefix);
   }
 });
 
@@ -243,17 +235,15 @@ app.post("/api/audit", async (req, res) => {
       report,
     });
   } catch (error) {
-    const message = error?.message || "Audit failed.";
-    const status =
-      message.includes("required") ||
-      message.includes("valid") ||
-      message.includes("cannot be audited")
-        ? 400
-        : 500;
-
-    console.error("[audit]", message, error);
-    res.status(status).json({ ok: false, error: message });
+    return sendAuditError(res, error, "[audit]");
   }
+});
+
+app.use((err, req, res, next) => {
+  if (req.path.startsWith("/api")) {
+    return sendAuditError(res, err, "[api]");
+  }
+  next(err);
 });
 
 const server = app.listen(PORT);

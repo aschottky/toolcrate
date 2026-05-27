@@ -1,3 +1,5 @@
+import { readApiErrorPayload } from "./api-utils.js";
+
 const CATEGORY_LABELS = {
   seo: "SEO",
   leadCapture: "Lead Capture",
@@ -30,21 +32,43 @@ export function initAuditApp({ isDevPage = false } = {}) {
     const websiteUrl = urlInput.value.trim();
 
     try {
-      const response = await fetch("/api/audit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ websiteUrl }),
-      });
+      let response;
 
-      const data = await response.json();
+      try {
+        response = await fetch("/api/audit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ websiteUrl }),
+        });
+      } catch {
+        throw new Error(
+          "Could not reach the audit server. Make sure the API is running and try again."
+        );
+      }
 
-      if (!response.ok || !data.ok) {
+      if (!response.ok) {
+        const { error } = await readApiErrorPayload(response);
+        throw new Error(error);
+      }
+
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        throw new Error("The server returned an unexpected response. Please try again.");
+      }
+
+      if (!data.ok) {
         throw new Error(data.error || "Audit request failed.");
       }
 
       renderResults(data);
     } catch (error) {
-      showError(error.message || "Something went wrong.");
+      const message =
+        error?.name === "SyntaxError"
+          ? "The server returned an unexpected response. Please try again."
+          : error.message || "Something went wrong.";
+      showError(message);
     } finally {
       setLoading(false);
     }
