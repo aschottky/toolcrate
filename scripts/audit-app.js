@@ -11,6 +11,8 @@ const CATEGORY_LABELS = {
   security: "Tech Stack & Security",
 };
 
+let lastPdfBlobUrl = null;
+
 export function initAuditApp({ isDevPage = false } = {}) {
   const form = document.getElementById("audit-form");
   const urlInput = document.getElementById("website-url");
@@ -43,7 +45,10 @@ export function initAuditApp({ isDevPage = false } = {}) {
         response = await fetch(apiUrl("/api/audit"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ websiteUrl }),
+          body: JSON.stringify({
+            websiteUrl,
+            generatePdf: isDevPage,
+          }),
         });
       } catch (error) {
         throw new Error(
@@ -68,6 +73,10 @@ export function initAuditApp({ isDevPage = false } = {}) {
       }
 
       renderResults(data);
+
+      if (isDevPage && data.pdfBase64) {
+        triggerPdfDownload(data.pdfBase64);
+      }
     } catch (error) {
       const message = normalizeClientError(
         error?.name === "SyntaxError"
@@ -92,7 +101,11 @@ export function initAuditApp({ isDevPage = false } = {}) {
       statusEl.innerHTML = `
         <div class="spinner" aria-hidden="true"></div>
         <p>Scraping the site and asking the AI for a tear-down…</p>
-        <p class="audit-status-note">This usually takes 20–60 seconds.</p>
+        <p class="audit-status-note">${
+          isDevPage
+            ? "Building your on-screen report and PDF — usually 20–60 seconds."
+            : "This usually takes 20–60 seconds."
+        }</p>
       `;
     }
   }
@@ -145,11 +158,41 @@ export function initAuditApp({ isDevPage = false } = {}) {
         <h3>3 actionable fixes</h3>
         <ol>${tipsList}</ol>
       </section>
+      ${
+        isDevPage
+          ? `<section class="audit-pdf-actions">
+        <p class="audit-pdf-note">PDF generated with the same report (dev test).</p>
+        <button type="button" class="btn btn-primary" id="download-pdf-btn">Download PDF again</button>
+      </section>`
+          : ""
+      }
     `;
 
     resultsEl.hidden = false;
+
+    if (isDevPage) {
+      document.getElementById("download-pdf-btn")?.addEventListener("click", () => {
+        if (data.pdfBase64) triggerPdfDownload(data.pdfBase64);
+      });
+    }
+
     resultsEl.scrollIntoView({ behavior: "smooth", block: "start" });
   }
+}
+
+function triggerPdfDownload(pdfBase64) {
+  if (lastPdfBlobUrl) URL.revokeObjectURL(lastPdfBlobUrl);
+
+  const bytes = Uint8Array.from(atob(pdfBase64), (c) => c.charCodeAt(0));
+  const blob = new Blob([bytes], { type: "application/pdf" });
+  lastPdfBlobUrl = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = lastPdfBlobUrl;
+  link.download = "Website-Audit.pdf";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
 }
 
 function isPaymentReturn() {

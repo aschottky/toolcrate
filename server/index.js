@@ -220,14 +220,14 @@ app.post("/api/audit-pdf", async (req, res) => {
 });
 
 app.post("/api/audit", async (req, res) => {
-  const { websiteUrl } = req.body ?? {};
+  const { websiteUrl, generatePdf } = req.body ?? {};
 
   try {
     const normalizedUrl = normalizeWebsiteUrl(websiteUrl);
     const scraped = await scrapeWebsiteText(normalizedUrl);
     const report = await runSiteAudit(scraped);
 
-    res.json({
+    const payload = {
       ok: true,
       websiteUrl: normalizedUrl,
       scrapedMeta: {
@@ -238,7 +238,14 @@ app.post("/api/audit", async (req, res) => {
         technical: scraped.technical,
       },
       report,
-    });
+    };
+
+    if (generatePdf) {
+      const pdfBuffer = await generateAuditPDF(report, normalizedUrl);
+      payload.pdfBase64 = pdfBuffer.toString("base64");
+    }
+
+    res.json(payload);
   } catch (error) {
     return sendAuditError(res, error, "[audit]");
   }
