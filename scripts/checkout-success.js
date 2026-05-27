@@ -1,5 +1,4 @@
 import { apiUrl, normalizeClientError } from "./api-config.js";
-import { ensureApiProxy } from "./api-proxy.js";
 import { readApiErrorPayload } from "./api-utils.js";
 
 let landingContent;
@@ -127,8 +126,6 @@ async function fetchAuditPdfManual(websiteUrl) {
 async function fetchAuditPdf(url, options = {}) {
   const { method = "GET", headers, body, onProgress } = options;
   onProgress?.(20);
-
-  await ensureApiProxy();
 
   let response;
 

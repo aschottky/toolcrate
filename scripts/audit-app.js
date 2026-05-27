@@ -1,5 +1,4 @@
 import { apiUrl, normalizeClientError } from "./api-config.js";
-import { ensureApiProxy } from "./api-proxy.js";
 import { readApiErrorPayload } from "./api-utils.js";
 
 const CATEGORY_LABELS = {
@@ -34,8 +33,6 @@ export function initAuditApp({ isDevPage = false } = {}) {
     const websiteUrl = urlInput.value.trim();
 
     try {
-      await ensureApiProxy();
-
       let response;
 
       try {

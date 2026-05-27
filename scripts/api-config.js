@@ -1,17 +1,10 @@
-import { useDirectApiHost } from "./api-proxy.js";
-
-/** Render host — used by service worker (build) and direct-fetch fallback. */
+/** Render API host (production). Dev uses Vite proxy on /api. */
 export const API_BASE = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "");
 
 export function apiUrl(path) {
   const normalized = path.startsWith("/") ? path : `/${path}`;
 
   if (import.meta.env.DEV) {
-    return normalized;
-  }
-
-  // Same-origin /api — service worker proxies to Render (see public/sw.js).
-  if (!useDirectApiHost()) {
     return normalized;
   }
 

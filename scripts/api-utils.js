@@ -2,6 +2,10 @@
  * Safely read an error message from an API response (JSON or HTML/plain text).
  */
 export async function readApiError(response) {
+  if (response.status === 405) {
+    return "The hosting server blocked this request (405). Refresh the page — if it persists, the API URL may be misconfigured.";
+  }
+
   const contentType = response.headers.get("content-type") || "";
 
   if (contentType.includes("application/json")) {
