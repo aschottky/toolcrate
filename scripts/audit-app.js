@@ -4,7 +4,9 @@ import { readApiErrorPayload } from "./api-utils.js";
 const CATEGORY_LABELS = {
   seo: "SEO",
   leadCapture: "Lead Capture",
-  mobileFriendliness: "Mobile-Friendliness",
+  mobile: "Mobile-Friendliness",
+  trust: "Trust & Credibility",
+  messaging: "Messaging & Clarity",
 };
 
 export function initAuditApp({ isDevPage = false } = {}) {
@@ -88,7 +90,7 @@ export function initAuditApp({ isDevPage = false } = {}) {
       statusEl.innerHTML = `
         <div class="spinner" aria-hidden="true"></div>
         <p>Scraping the site and asking the AI for a tear-down…</p>
-        <p class="audit-status-note">This usually takes 10–30 seconds.</p>
+        <p class="audit-status-note">This usually takes 15–45 seconds.</p>
       `;
     }
   }
@@ -113,6 +115,7 @@ export function initAuditApp({ isDevPage = false } = {}) {
     const scoreCards = Object.entries(CATEGORY_LABELS)
       .map(([key, label]) => {
         const section = report[key];
+        if (!section) return "";
         return `
           <article class="score-card">
             <header>
@@ -125,7 +128,9 @@ export function initAuditApp({ isDevPage = false } = {}) {
       })
       .join("");
 
-    const tipsList = report.tips.map((tip) => `<li>${formatTipHtml(tip)}</li>`).join("");
+    const tipsList = report.tips
+      .map((tip) => `<li class="tip-item">${formatTipHtml(tip)}</li>`)
+      .join("");
 
     resultsEl.innerHTML = `
       <section class="results-header">
@@ -157,14 +162,14 @@ function isPaymentReturn() {
 
 function formatTipHtml(tip) {
   if (typeof tip === "string") {
-    return escapeHtml(tip);
+    return `<p class="tip-line">${escapeHtml(tip)}</p>`;
   }
 
   return [
-    `<strong>Problem:</strong> ${escapeHtml(tip.problem)}`,
-    `<strong>Solution:</strong> ${escapeHtml(tip.solution)}`,
-    `<strong>Impact:</strong> ${escapeHtml(tip.impact)}`,
-  ].join("<br>");
+    `<p class="tip-line"><strong>Problem:</strong> ${escapeHtml(tip.problem)}</p>`,
+    `<p class="tip-line"><strong>Solution:</strong> ${escapeHtml(tip.solution)}</p>`,
+    `<p class="tip-line tip-impact"><strong>Impact:</strong> ${escapeHtml(tip.impact)}</p>`,
+  ].join("");
 }
 
 function escapeHtml(value) {

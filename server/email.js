@@ -48,7 +48,7 @@ export async function sendAuditReportEmail(customerEmail, websiteUrl, pdfBuffer)
     <p>Hi there!</p>
     <p>Thanks for purchasing your <strong>$17 Website Tear Down</strong>.</p>
     <p>Your AI-generated audit for <a href="${websiteUrl}">${websiteUrl}</a> is attached below as <strong>Website-Audit.pdf</strong>.</p>
-    <p>Inside you'll find scores for SEO, lead capture, and mobile-friendliness — plus three specific fixes you can tackle right away.</p>
+    <p>Inside you'll find scores for SEO, lead capture, mobile, trust, and messaging — plus three specific fixes you can tackle right away.</p>
     <p>If anything looks off or you want a second pair of eyes on the recommendations, just reply to this email.</p>
     <p>— Alexander<br>Website Tear Down</p>
   `.trim();
@@ -59,7 +59,7 @@ Thanks for purchasing your $17 Website Tear Down.
 
 Your AI-generated audit for ${websiteUrl} is attached below (Website-Audit.pdf).
 
-Inside you'll find scores for SEO, lead capture, and mobile-friendliness — plus three specific fixes you can tackle right away.
+Inside you'll find scores for SEO, lead capture, mobile, trust, and messaging — plus three specific fixes you can tackle right away.
 
 If anything looks off or you want a second pair of eyes on the recommendations, just reply to this email.
 

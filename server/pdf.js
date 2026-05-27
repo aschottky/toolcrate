@@ -1,30 +1,23 @@
 import PDFDocument from "pdfkit";
+import { AUDIT_CATEGORIES } from "./categories.js";
 
 const BRAND = {
   primary: "#1a222d",
   accent: "#e85d2a",
+  accentSoft: "#fdeee6",
   muted: "#4a5568",
   light: "#f4f1eb",
   white: "#ffffff",
 };
 
-const CATEGORIES = [
-  { key: "seo", label: "SEO" },
-  { key: "leadCapture", label: "Lead Capture" },
-  { key: "mobileFriendliness", label: "Mobile-Friendliness" },
-];
-
-/** Right column reserved for score — keeps summary text from overlapping */
-const SCORE_COLUMN_WIDTH = 80;
+const SCORE_COLUMN_WIDTH = 88;
 const CARD_PADDING = 16;
 const BADGE_SIZE = 24;
+const TIP_AFTER_IMPACT_GAP = 12;
+const SIGN_OFF_TEXT = `A quick note from the creator: I'm Alexander. I've been building the web for decades, and I built this tool to cut through the SEO agency BS and show business owners exactly what's broken. You can hand this report to your current web guy to fix. But if you want it done right, right now, text me directly at 818-216-2428 or reply to the email that sent you this report. Let's get these leaks plugged. — Alexander Schottky, WebDev`;
 
 /**
  * Build a professional audit PDF and return it as a Buffer (for email attachments).
- *
- * @param {object} reportData - Output from runSiteAudit
- * @param {string} websiteUrl - Audited site URL
- * @returns {Promise<Buffer>}
  */
 export function generateAuditPDF(reportData, websiteUrl) {
   return new Promise((resolve, reject) => {
@@ -53,6 +46,7 @@ export function generateAuditPDF(reportData, websiteUrl) {
         drawMarkdownSection(doc, reportData.markdown);
       }
 
+      drawSignOff(doc);
       drawFooter(doc);
       doc.end();
     } catch (err) {
@@ -66,44 +60,29 @@ function contentWidth(doc) {
 }
 
 function drawHeader(doc, websiteUrl) {
-  doc
-    .fillColor(BRAND.accent)
-    .fontSize(10)
-    .text("WEBSITE TEAR DOWN", { align: "left" });
-
+  doc.fillColor(BRAND.accent).fontSize(10).text("WEBSITE TEAR DOWN", { align: "left" });
   doc.moveDown(0.4);
-
-  doc.fillColor(BRAND.primary).fontSize(26).text("Website Tear Down Audit", {
-    align: "left",
-  });
-
+  doc.fillColor(BRAND.primary).fontSize(26).text("Website Tear Down Audit", { align: "left" });
   doc.moveDown(0.6);
-
   doc.fillColor(BRAND.muted).fontSize(11).text("Audited website", { continued: false });
-
   doc
     .fillColor(BRAND.primary)
     .fontSize(12)
     .text(websiteUrl, { link: websiteUrl, underline: true });
-
   doc.moveDown(0.3);
-
   doc
     .fillColor(BRAND.muted)
     .fontSize(10)
     .text(
       `Generated ${new Date().toLocaleString("en-US", { dateStyle: "long", timeStyle: "short" })}`
     );
-
   doc.moveDown(1.2);
-
   doc
     .strokeColor(BRAND.accent)
     .lineWidth(2)
     .moveTo(doc.page.margins.left, doc.y)
     .lineTo(doc.page.width - doc.page.margins.right, doc.y)
     .stroke();
-
   doc.moveDown(1);
 }
 
@@ -111,20 +90,42 @@ function drawScores(doc, reportData) {
   doc.fillColor(BRAND.primary).fontSize(14).text("Score summary");
   doc.moveDown(0.8);
 
-  for (const { key, label } of CATEGORIES) {
+  for (const { key, label } of AUDIT_CATEGORIES) {
     const section = reportData[key];
     if (!section) continue;
-
     drawScoreCard(doc, label, section.score, section.summary);
-    doc.moveDown(0.65);
+    doc.moveDown(0.55);
   }
+}
+
+function drawScorePill(doc, rightX, topY, score) {
+  const label = `${score}/10`;
+  doc.fontSize(11);
+  const textWidth = doc.widthOfString(label);
+  const pillWidth = textWidth + 20;
+  const pillHeight = 26;
+  const pillX = rightX - pillWidth;
+
+  doc
+    .roundedRect(pillX, topY, pillWidth, pillHeight, pillHeight / 2)
+    .fillColor(BRAND.accentSoft)
+    .fill();
+
+  const textHeight = doc.heightOfString(label, { width: pillWidth });
+  doc.fillColor(BRAND.accent).fontSize(11).text(label, pillX, topY + (pillHeight - textHeight) / 2, {
+    width: pillWidth,
+    align: "center",
+    lineBreak: false,
+  });
+
+  return pillWidth;
 }
 
 function drawScoreCard(doc, label, score, summary) {
   const cardLeft = doc.page.margins.left;
   const cardWidth = contentWidth(doc);
   const summaryWidth = cardWidth - CARD_PADDING * 2 - SCORE_COLUMN_WIDTH;
-  const scoreColumnLeft = cardLeft + cardWidth - SCORE_COLUMN_WIDTH;
+  const scoreColumnRight = cardLeft + cardWidth - CARD_PADDING;
 
   doc.fontSize(10);
   const summaryHeight = doc.heightOfString(summary, {
@@ -133,7 +134,7 @@ function drawScoreCard(doc, label, score, summary) {
     lineGap: 2,
   });
 
-  const cardHeight = Math.max(88, 52 + summaryHeight);
+  const cardHeight = Math.max(92, 56 + summaryHeight);
 
   ensureSpace(doc, cardHeight + 12);
 
@@ -141,47 +142,27 @@ function drawScoreCard(doc, label, score, summary) {
 
   doc.roundedRect(cardLeft, cardTop, cardWidth, cardHeight, 6).fillColor(BRAND.light).fill();
 
-  // Label (left column)
+  const labelTop = cardTop + CARD_PADDING;
+  drawScorePill(doc, scoreColumnRight, labelTop, score);
+
   doc
     .fillColor(BRAND.primary)
     .fontSize(12)
-    .text(label, cardLeft + CARD_PADDING, cardTop + CARD_PADDING, {
+    .text(label, cardLeft + CARD_PADDING, labelTop, {
       width: summaryWidth,
-      lineBreak: false,
-    });
-
-  // Score block (fixed right column — text wraps before this zone)
-  const scoreBlockTop = cardTop + CARD_PADDING - 2;
-
-  doc
-    .fillColor(BRAND.accent)
-    .fontSize(24)
-    .text(String(score), scoreColumnLeft, scoreBlockTop, {
-      width: SCORE_COLUMN_WIDTH - 8,
-      align: "right",
-      lineBreak: false,
-    });
-
-  doc
-    .fillColor(BRAND.muted)
-    .fontSize(9)
-    .text("/10", scoreColumnLeft, scoreBlockTop + 26, {
-      width: SCORE_COLUMN_WIDTH - 8,
-      align: "right",
       lineBreak: false,
     });
 
   doc
     .fillColor(BRAND.muted)
     .fontSize(8)
-    .text(scoreLabel(score), scoreColumnLeft, scoreBlockTop + 40, {
-      width: SCORE_COLUMN_WIDTH - 8,
+    .text(scoreLabel(score), scoreColumnRight - SCORE_COLUMN_WIDTH + 8, labelTop + 30, {
+      width: SCORE_COLUMN_WIDTH - 16,
       align: "right",
       lineBreak: false,
     });
 
-  // Summary — full width minus score column (padding-right effect)
-  const summaryTop = cardTop + CARD_PADDING + 18;
+  const summaryTop = cardTop + CARD_PADDING + 22;
 
   doc.fillColor(BRAND.muted).fontSize(10).text(summary, cardLeft + CARD_PADDING, summaryTop, {
     width: summaryWidth,
@@ -196,15 +177,14 @@ function drawScoreCard(doc, label, score, summary) {
 function drawTips(doc, tips) {
   if (!tips?.length) return;
 
-  ensureSpace(doc, 140);
+  ensureSpace(doc, 120);
 
-  doc.moveDown(0.5);
+  doc.moveDown(0.4);
   doc.fillColor(BRAND.primary).fontSize(14).text("3 actionable fixes");
   doc.moveDown(0.75);
 
   tips.slice(0, 3).forEach((tip, index) => {
     drawTipItem(doc, tip, index + 1);
-    doc.moveDown(0.65);
   });
 }
 
@@ -213,26 +193,31 @@ function drawTipItem(doc, tip, number) {
   const textLeft = doc.page.margins.left + BADGE_SIZE + 14;
   const textWidth = contentWidth(doc) - BADGE_SIZE - 14;
 
-  const body =
-    `Problem: ${tipObj.problem}\n\n` +
-    `Solution: ${tipObj.solution}\n\n` +
-    `Impact: ${tipObj.impact}`;
+  const lines = [
+    { prefix: "Problem: ", text: tipObj.problem },
+    { prefix: "Solution: ", text: tipObj.solution },
+    { prefix: "Impact: ", text: tipObj.impact },
+  ];
 
   doc.fontSize(10);
-  const blockHeight = doc.heightOfString(body, { width: textWidth, lineGap: 3 });
+  let blockHeight = 0;
+  for (const line of lines) {
+    blockHeight += doc.heightOfString(line.prefix + line.text, { width: textWidth, lineGap: 2 });
+    blockHeight += 4;
+  }
+  blockHeight += TIP_AFTER_IMPACT_GAP;
+
   const rowHeight = Math.max(BADGE_SIZE + 4, blockHeight);
 
-  ensureSpace(doc, rowHeight + 16);
+  ensureSpace(doc, rowHeight + 20);
 
   const rowTop = doc.y;
   const badgeCenterX = doc.page.margins.left + BADGE_SIZE / 2;
-  const badgeCenterY = rowTop + rowHeight / 2;
+  const badgeCenterY = rowTop + BADGE_SIZE / 2;
   const radius = BADGE_SIZE / 2;
 
-  // Orange circle
   doc.circle(badgeCenterX, badgeCenterY, radius).fillColor(BRAND.accent).fill();
 
-  // Centered number inside circle (measure text for true center)
   const num = String(number);
   doc.fontSize(11).fillColor(BRAND.white);
   const numWidth = doc.widthOfString(num);
@@ -241,30 +226,48 @@ function drawTipItem(doc, tip, number) {
     lineBreak: false,
   });
 
-  // Tip copy
-  doc.fillColor(BRAND.primary).fontSize(10).text(body, textLeft, rowTop, {
-    width: textWidth,
-    align: "left",
-    lineGap: 3,
-  });
+  let textY = rowTop;
 
-  doc.y = rowTop + rowHeight + 4;
+  for (const line of lines) {
+    doc.fillColor(BRAND.primary).fontSize(10);
+    doc.text(line.prefix, textLeft, textY, { continued: true, lineBreak: false });
+    doc.fillColor(BRAND.muted).text(line.text, { width: textWidth, lineGap: 2 });
+    textY = doc.y + 4;
+
+    if (line.prefix.startsWith("Impact")) {
+      textY += TIP_AFTER_IMPACT_GAP;
+    }
+  }
+
+  doc.y = Math.max(textY, rowTop + rowHeight);
   doc.x = doc.page.margins.left;
+  doc.moveDown(0.35);
 }
 
 function drawMarkdownSection(doc, markdown) {
   ensureSpace(doc, 80);
-
   doc.moveDown(0.6);
   doc.fillColor(BRAND.primary).fontSize(14).text("Full report");
   doc.moveDown(0.5);
-
-  const plainText = stripMarkdown(markdown);
-
-  doc.fillColor(BRAND.muted).fontSize(10).text(plainText, {
+  doc.fillColor(BRAND.muted).fontSize(10).text(stripMarkdown(markdown), {
     width: contentWidth(doc),
     align: "left",
     lineGap: 3,
+  });
+}
+
+function drawSignOff(doc) {
+  doc.addPage();
+  doc.x = doc.page.margins.left;
+  doc.y = doc.page.margins.top;
+
+  doc.fillColor(BRAND.primary).fontSize(13).text("A note from Alexander");
+  doc.moveDown(0.8);
+
+  doc.fillColor(BRAND.muted).fontSize(10).text(SIGN_OFF_TEXT, {
+    width: contentWidth(doc),
+    align: "left",
+    lineGap: 4,
   });
 }
 

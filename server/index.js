@@ -76,7 +76,9 @@ function runAuditInBackground(websiteUrl, sessionId, customerEmail) {
         url: normalizedUrl,
         seo: report.seo?.score,
         leadCapture: report.leadCapture?.score,
-        mobileFriendliness: report.mobileFriendliness?.score,
+        mobile: report.mobile?.score,
+        trust: report.trust?.score,
+        messaging: report.messaging?.score,
       });
 
       console.log(`${logPrefix} Generating PDF...`);
