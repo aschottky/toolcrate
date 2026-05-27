@@ -1,4 +1,8 @@
-.checkout-success {
+.checkout-success[hidden] {
+  display: none !important;
+}
+
+.checkout-success:not([hidden]) {
   min-height: calc(100vh - 72px);
   display: flex;
   align-items: center;
@@ -85,6 +89,12 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+#success-processing[hidden],
+#success-ready[hidden],
+#success-fallback[hidden] {
+  display: none !important;
 }
 
 .success-fallback-error {
