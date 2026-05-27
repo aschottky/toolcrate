@@ -20,6 +20,37 @@ function getStripe() {
   return stripeClient;
 }
 
+function getWebsiteUrlFromSession(session) {
+  return session.custom_fields?.[0]?.text?.value?.trim() || null;
+}
+
+function runAuditInBackground(websiteUrl, sessionId) {
+  const logPrefix = `[audit:${sessionId ?? "unknown"}]`;
+
+  setImmediate(async () => {
+    try {
+      console.log(`${logPrefix} Normalizing URL: ${websiteUrl}`);
+      const normalizedUrl = normalizeWebsiteUrl(websiteUrl);
+
+      console.log(`${logPrefix} Scraping [${normalizedUrl}]...`);
+      const scraped = await scrapeWebsiteText(normalizedUrl);
+
+      console.log(`${logPrefix} Running AI...`);
+      const report = await runSiteAudit(scraped);
+
+      console.log(`${logPrefix} Audit Complete.`, {
+        url: normalizedUrl,
+        seo: report.seo?.score,
+        leadCapture: report.leadCapture?.score,
+        mobileFriendliness: report.mobileFriendliness?.score,
+      });
+    } catch (err) {
+      console.error(`${logPrefix} Audit failed:`, err.message);
+      console.error(err);
+    }
+  });
+}
+
 app.use(cors({ origin: true }));
 
 // Stripe webhook (must be BEFORE express.json)
@@ -43,10 +74,25 @@ app.post("/webhook", express.raw({ type: "application/json" }), (req, res) => {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
-    console.log(`💰 Payment successful for: ${session.customer_details?.email}`);
+    console.log(
+      `💰 Payment successful for: ${session.customer_details?.email ?? "(no email)"}`
+    );
+
+    const websiteUrl = getWebsiteUrlFromSession(session);
+
+    if (websiteUrl) {
+      console.log(`📎 Website URL received: ${websiteUrl}`);
+      res.status(200).json({ received: true });
+      runAuditInBackground(websiteUrl, session.id);
+      return;
+    }
+
+    console.warn(
+      `⚠️ No website URL on session ${session.id} (custom_fields[0] was empty)`
+    );
   }
 
-  res.json({ received: true });
+  res.status(200).json({ received: true });
 });
 
 app.use(express.json({ limit: "32kb" }));
