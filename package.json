@@ -9,9 +9,10 @@
     "dev:client": "vite",
     "dev:server": "node --watch --env-file=.env server/index.js",
     "build": "vite build",
+    "build:production": "vite build --mode production",
     "preview": "vite preview",
     "start:server": "node --env-file=.env server/index.js",
-    "deploy": "npm run build && touch dist/.nojekyll && gh-pages -d dist -t"
+    "deploy": "npm run build:production && touch dist/.nojekyll && gh-pages -d dist -t"
   },
   "dependencies": {
     "cheerio": "^1.0.0",
