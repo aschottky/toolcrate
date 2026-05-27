@@ -1,13 +1,13 @@
-.checkout-success[hidden] {
-  display: none !important;
-}
-
-.checkout-success:not([hidden]) {
+.checkout-success {
   min-height: calc(100vh - 72px);
   display: flex;
   align-items: center;
   padding: 3rem 0 5rem;
   background: linear-gradient(180deg, var(--surface) 0%, var(--surface-muted) 100%);
+}
+
+#checkout-success-mount:empty {
+  display: none;
 }
 
 .success-card {

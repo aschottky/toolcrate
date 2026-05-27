@@ -1,28 +1,57 @@
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
 
-const landingContent = document.getElementById("landing-content");
-const successView = document.getElementById("checkout-success");
-const processingPanel = document.getElementById("success-processing");
-const readyPanel = document.getElementById("success-ready");
-const fallbackPanel = document.getElementById("success-fallback");
-const progressBar = document.getElementById("success-progress-bar");
-const fallbackError = document.getElementById("fallback-error");
-const fallbackForm = document.getElementById("fallback-form");
-const downloadAgainBtn = document.getElementById("download-again-btn");
+let landingContent;
+let successView;
+let processingPanel;
+let readyPanel;
+let fallbackPanel;
+let progressBar;
+let fallbackError;
+let fallbackForm;
+let downloadAgainBtn;
 
 let latestPdfBlob = null;
 let latestPdfUrl = null;
+let listenersBound = false;
 
 export function initCheckoutSuccess() {
-  const params = new URLSearchParams(window.location.search);
+  landingContent = document.getElementById("landing-content");
 
+  const params = new URLSearchParams(window.location.search);
   if (params.get("success") !== "true") return;
 
   const sessionId = params.get("session_id")?.trim();
   if (!sessionId) return;
 
+  mountSuccessView();
+  bindListeners();
   showSuccessView();
   startAuditFetch(sessionId);
+}
+
+function mountSuccessView() {
+  if (document.getElementById("checkout-success")) return;
+
+  const template = document.getElementById("checkout-success-template");
+  const mount = document.getElementById("checkout-success-mount");
+  if (!template || !mount) return;
+
+  const fragment = template.content.cloneNode(true);
+  mount.replaceChildren(fragment);
+
+  successView = document.getElementById("checkout-success");
+  processingPanel = document.getElementById("success-processing");
+  readyPanel = document.getElementById("success-ready");
+  fallbackPanel = document.getElementById("success-fallback");
+  progressBar = document.getElementById("success-progress-bar");
+  fallbackError = document.getElementById("fallback-error");
+  fallbackForm = document.getElementById("fallback-form");
+  downloadAgainBtn = document.getElementById("download-again-btn");
+}
+
+function bindListeners() {
+  if (listenersBound) return;
+  listenersBound = true;
 
   fallbackForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -50,7 +79,6 @@ export function initCheckoutSuccess() {
 
 function showSuccessView() {
   landingContent?.setAttribute("hidden", "");
-  successView.hidden = false;
   document.title = "Processing Your Audit — Website Tear Down";
   hideAllPanels();
   processingPanel.hidden = false;
@@ -58,6 +86,7 @@ function showSuccessView() {
 }
 
 function hideAllPanels() {
+  if (!processingPanel) return;
   processingPanel.hidden = true;
   readyPanel.hidden = true;
   fallbackPanel.hidden = true;
