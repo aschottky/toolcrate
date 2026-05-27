@@ -5,6 +5,7 @@ const BRAND = {
   accent: "#e85d2a",
   muted: "#4a5568",
   light: "#f4f1eb",
+  white: "#ffffff",
 };
 
 const CATEGORIES = [
@@ -13,10 +14,15 @@ const CATEGORIES = [
   { key: "mobileFriendliness", label: "Mobile-Friendliness" },
 ];
 
+/** Right column reserved for score — keeps summary text from overlapping */
+const SCORE_COLUMN_WIDTH = 80;
+const CARD_PADDING = 16;
+const BADGE_SIZE = 24;
+
 /**
  * Build a professional audit PDF and return it as a Buffer (for email attachments).
  *
- * @param {object} reportData - Output from runSiteAudit (seo, leadCapture, mobileFriendliness, tips; optional markdown)
+ * @param {object} reportData - Output from runSiteAudit
  * @param {string} websiteUrl - Audited site URL
  * @returns {Promise<Buffer>}
  */
@@ -55,6 +61,10 @@ export function generateAuditPDF(reportData, websiteUrl) {
   });
 }
 
+function contentWidth(doc) {
+  return doc.page.width - doc.page.margins.left - doc.page.margins.right;
+}
+
 function drawHeader(doc, websiteUrl) {
   doc
     .fillColor(BRAND.accent)
@@ -69,10 +79,7 @@ function drawHeader(doc, websiteUrl) {
 
   doc.moveDown(0.6);
 
-  doc
-    .fillColor(BRAND.muted)
-    .fontSize(11)
-    .text("Audited website", { continued: false });
+  doc.fillColor(BRAND.muted).fontSize(11).text("Audited website", { continued: false });
 
   doc
     .fillColor(BRAND.primary)
@@ -84,7 +91,9 @@ function drawHeader(doc, websiteUrl) {
   doc
     .fillColor(BRAND.muted)
     .fontSize(10)
-    .text(`Generated ${new Date().toLocaleString("en-US", { dateStyle: "long", timeStyle: "short" })}`);
+    .text(
+      `Generated ${new Date().toLocaleString("en-US", { dateStyle: "long", timeStyle: "short" })}`
+    );
 
   doc.moveDown(1.2);
 
@@ -100,98 +109,147 @@ function drawHeader(doc, websiteUrl) {
 
 function drawScores(doc, reportData) {
   doc.fillColor(BRAND.primary).fontSize(14).text("Score summary");
-
   doc.moveDown(0.8);
 
   for (const { key, label } of CATEGORIES) {
     const section = reportData[key];
     if (!section) continue;
 
-    ensureSpace(doc, 90);
     drawScoreCard(doc, label, section.score, section.summary);
-    doc.moveDown(0.6);
+    doc.moveDown(0.65);
   }
 }
 
 function drawScoreCard(doc, label, score, summary) {
-  const cardTop = doc.y;
   const cardLeft = doc.page.margins.left;
-  const cardWidth = doc.page.width - doc.page.margins.left - doc.page.margins.right;
+  const cardWidth = contentWidth(doc);
+  const summaryWidth = cardWidth - CARD_PADDING * 2 - SCORE_COLUMN_WIDTH;
+  const scoreColumnLeft = cardLeft + cardWidth - SCORE_COLUMN_WIDTH;
 
+  doc.fontSize(10);
+  const summaryHeight = doc.heightOfString(summary, {
+    width: summaryWidth,
+    align: "left",
+    lineGap: 2,
+  });
+
+  const cardHeight = Math.max(88, 52 + summaryHeight);
+
+  ensureSpace(doc, cardHeight + 12);
+
+  const cardTop = doc.y;
+
+  doc.roundedRect(cardLeft, cardTop, cardWidth, cardHeight, 6).fillColor(BRAND.light).fill();
+
+  // Label (left column)
   doc
-    .roundedRect(cardLeft, cardTop, cardWidth, 72, 6)
-    .fillColor(BRAND.light)
-    .fill();
+    .fillColor(BRAND.primary)
+    .fontSize(12)
+    .text(label, cardLeft + CARD_PADDING, cardTop + CARD_PADDING, {
+      width: summaryWidth,
+      lineBreak: false,
+    });
 
-  doc.y = cardTop + 14;
-  doc.x = cardLeft + 16;
+  // Score block (fixed right column — text wraps before this zone)
+  const scoreBlockTop = cardTop + CARD_PADDING - 2;
 
-  doc.fillColor(BRAND.primary).fontSize(12).text(label, { width: cardWidth - 100 });
-
-  const scoreX = cardLeft + cardWidth - 56;
   doc
     .fillColor(BRAND.accent)
-    .fontSize(22)
-    .text(String(score), scoreX, cardTop + 10, { width: 40, align: "right" });
+    .fontSize(24)
+    .text(String(score), scoreColumnLeft, scoreBlockTop, {
+      width: SCORE_COLUMN_WIDTH - 8,
+      align: "right",
+      lineBreak: false,
+    });
 
   doc
     .fillColor(BRAND.muted)
     .fontSize(9)
-    .text("/10", scoreX, cardTop + 36, { width: 40, align: "right" });
+    .text("/10", scoreColumnLeft, scoreBlockTop + 26, {
+      width: SCORE_COLUMN_WIDTH - 8,
+      align: "right",
+      lineBreak: false,
+    });
 
   doc
     .fillColor(BRAND.muted)
-    .fontSize(10)
-    .text(scoreLabel(score), scoreX - 30, cardTop + 48, { width: 70, align: "right" });
+    .fontSize(8)
+    .text(scoreLabel(score), scoreColumnLeft, scoreBlockTop + 40, {
+      width: SCORE_COLUMN_WIDTH - 8,
+      align: "right",
+      lineBreak: false,
+    });
 
-  doc.x = cardLeft + 16;
-  doc.y = cardTop + 34;
+  // Summary — full width minus score column (padding-right effect)
+  const summaryTop = cardTop + CARD_PADDING + 18;
 
-  doc.fillColor(BRAND.muted).fontSize(10).text(summary, {
-    width: cardWidth - 32,
+  doc.fillColor(BRAND.muted).fontSize(10).text(summary, cardLeft + CARD_PADDING, summaryTop, {
+    width: summaryWidth,
     align: "left",
+    lineGap: 2,
   });
 
-  doc.y = cardTop + 72 + 4;
+  doc.y = cardTop + cardHeight + 6;
   doc.x = doc.page.margins.left;
 }
 
 function drawTips(doc, tips) {
   if (!tips?.length) return;
 
-  ensureSpace(doc, 120);
+  ensureSpace(doc, 140);
 
-  doc.moveDown(0.4);
+  doc.moveDown(0.5);
   doc.fillColor(BRAND.primary).fontSize(14).text("3 actionable fixes");
-  doc.moveDown(0.6);
+  doc.moveDown(0.75);
 
   tips.slice(0, 3).forEach((tip, index) => {
-    ensureSpace(doc, 48);
-    const tipY = doc.y;
-
-    doc
-      .circle(doc.page.margins.left + 10, tipY + 8, 10)
-      .fillColor(BRAND.accent)
-      .fill();
-
-    doc
-      .fillColor("#ffffff")
-      .fontSize(10)
-      .text(String(index + 1), doc.page.margins.left + 5, tipY + 3, {
-        width: 12,
-        align: "center",
-      });
-
-    doc
-      .fillColor(BRAND.primary)
-      .fontSize(11)
-      .text(tip, doc.page.margins.left + 28, tipY, {
-        width: doc.page.width - doc.page.margins.left - doc.page.margins.right - 28,
-        align: "left",
-      });
-
-    doc.moveDown(0.5);
+    drawTipItem(doc, tip, index + 1);
+    doc.moveDown(0.65);
   });
+}
+
+function drawTipItem(doc, tip, number) {
+  const tipObj = typeof tip === "string" ? { problem: tip, solution: "", impact: "" } : tip;
+  const textLeft = doc.page.margins.left + BADGE_SIZE + 14;
+  const textWidth = contentWidth(doc) - BADGE_SIZE - 14;
+
+  const body =
+    `Problem: ${tipObj.problem}\n\n` +
+    `Solution: ${tipObj.solution}\n\n` +
+    `Impact: ${tipObj.impact}`;
+
+  doc.fontSize(10);
+  const blockHeight = doc.heightOfString(body, { width: textWidth, lineGap: 3 });
+  const rowHeight = Math.max(BADGE_SIZE + 4, blockHeight);
+
+  ensureSpace(doc, rowHeight + 16);
+
+  const rowTop = doc.y;
+  const badgeCenterX = doc.page.margins.left + BADGE_SIZE / 2;
+  const badgeCenterY = rowTop + rowHeight / 2;
+  const radius = BADGE_SIZE / 2;
+
+  // Orange circle
+  doc.circle(badgeCenterX, badgeCenterY, radius).fillColor(BRAND.accent).fill();
+
+  // Centered number inside circle (measure text for true center)
+  const num = String(number);
+  doc.fontSize(11).fillColor(BRAND.white);
+  const numWidth = doc.widthOfString(num);
+  const numHeight = doc.heightOfString(num);
+  doc.text(num, badgeCenterX - numWidth / 2, badgeCenterY - numHeight / 2 + 0.5, {
+    lineBreak: false,
+  });
+
+  // Tip copy
+  doc.fillColor(BRAND.primary).fontSize(10).text(body, textLeft, rowTop, {
+    width: textWidth,
+    align: "left",
+    lineGap: 3,
+  });
+
+  doc.y = rowTop + rowHeight + 4;
+  doc.x = doc.page.margins.left;
 }
 
 function drawMarkdownSection(doc, markdown) {
@@ -204,7 +262,7 @@ function drawMarkdownSection(doc, markdown) {
   const plainText = stripMarkdown(markdown);
 
   doc.fillColor(BRAND.muted).fontSize(10).text(plainText, {
-    width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
+    width: contentWidth(doc),
     align: "left",
     lineGap: 3,
   });
@@ -221,7 +279,7 @@ function drawFooter(doc) {
       doc.page.margins.left,
       footerY,
       {
-        width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
+        width: contentWidth(doc),
         align: "center",
       }
     );
@@ -244,9 +302,10 @@ function stripMarkdown(text) {
 }
 
 function ensureSpace(doc, minHeight) {
-  const bottomLimit = doc.page.height - doc.page.margins.bottom - 40;
+  const bottomLimit = doc.page.height - doc.page.margins.bottom - 48;
   if (doc.y + minHeight > bottomLimit) {
     doc.addPage();
     doc.x = doc.page.margins.left;
+    doc.y = doc.page.margins.top;
   }
 }

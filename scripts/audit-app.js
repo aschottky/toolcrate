@@ -125,9 +125,7 @@ export function initAuditApp({ isDevPage = false } = {}) {
       })
       .join("");
 
-    const tipsList = report.tips
-      .map((tip) => `<li>${escapeHtml(tip)}</li>`)
-      .join("");
+    const tipsList = report.tips.map((tip) => `<li>${formatTipHtml(tip)}</li>`).join("");
 
     resultsEl.innerHTML = `
       <section class="results-header">
@@ -155,6 +153,18 @@ function isPaymentReturn() {
     params.has("payment_intent") ||
     params.has("session_id")
   );
+}
+
+function formatTipHtml(tip) {
+  if (typeof tip === "string") {
+    return escapeHtml(tip);
+  }
+
+  return [
+    `<strong>Problem:</strong> ${escapeHtml(tip.problem)}`,
+    `<strong>Solution:</strong> ${escapeHtml(tip.solution)}`,
+    `<strong>Impact:</strong> ${escapeHtml(tip.impact)}`,
+  ].join("<br>");
 }
 
 function escapeHtml(value) {
