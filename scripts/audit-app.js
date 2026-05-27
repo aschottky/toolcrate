@@ -1,4 +1,5 @@
 import { apiUrl, normalizeClientError } from "./api-config.js";
+import { ensureApiProxy } from "./api-proxy.js";
 import { readApiErrorPayload } from "./api-utils.js";
 
 const CATEGORY_LABELS = {
@@ -33,6 +34,8 @@ export function initAuditApp({ isDevPage = false } = {}) {
     const websiteUrl = urlInput.value.trim();
 
     try {
+      await ensureApiProxy();
+
       let response;
 
       try {
@@ -41,9 +44,9 @@ export function initAuditApp({ isDevPage = false } = {}) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ websiteUrl }),
         });
-      } catch {
+      } catch (error) {
         throw new Error(
-          "Could not reach the audit server. Make sure the API is running and try again."
+          normalizeClientError(error?.message || "Could not reach the audit server.")
         );
       }
 
@@ -102,6 +105,7 @@ export function initAuditApp({ isDevPage = false } = {}) {
   }
 
   function showError(message) {
+    statusEl.hidden = true;
     errorEl.hidden = false;
     errorEl.textContent = message;
   }

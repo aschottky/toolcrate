@@ -25,6 +25,8 @@ npm run deploy
 
 This runs `build:production` (live Stripe link + API URL) and pushes `dist/` to the `gh-pages` branch.
 
+The production build includes `sw.js`, a service worker that proxies `/api/*` on `usetoolcrate.com` to Render. That avoids cross-origin blocks from VPNs and browser privacy tools.
+
 Pushing to `main` does **not** update the live site unless you run `npm run deploy` or enable GitHub Actions Pages deploy.
 
 ## 3. Local dev

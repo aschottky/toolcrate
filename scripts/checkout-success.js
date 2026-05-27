@@ -1,4 +1,5 @@
-import { API_BASE } from "./api-config.js";
+import { apiUrl, normalizeClientError } from "./api-config.js";
+import { ensureApiProxy } from "./api-proxy.js";
 import { readApiErrorPayload } from "./api-utils.js";
 
 let landingContent;
@@ -107,12 +108,14 @@ async function startAuditFetch(sessionId) {
 }
 
 async function fetchAuditPdfBySession(sessionId) {
-  const url = `${API_BASE}/api/audit-status?session_id=${encodeURIComponent(sessionId)}`;
+  const url = apiUrl(
+    `/api/audit-status?session_id=${encodeURIComponent(sessionId)}`
+  );
   return fetchAuditPdf(url, { onProgress: simulateProgress });
 }
 
 async function fetchAuditPdfManual(websiteUrl) {
-  const url = `${API_BASE}/api/audit-pdf`;
+  const url = apiUrl("/api/audit-pdf");
   return fetchAuditPdf(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -125,13 +128,15 @@ async function fetchAuditPdf(url, options = {}) {
   const { method = "GET", headers, body, onProgress } = options;
   onProgress?.(20);
 
+  await ensureApiProxy();
+
   let response;
 
   try {
     response = await fetch(url, { method, headers, body });
-  } catch {
+  } catch (error) {
     throw new Error(
-      "Could not reach the audit server. Check your connection and try again."
+      normalizeClientError(error?.message || "Could not reach the audit server.")
     );
   }
 
