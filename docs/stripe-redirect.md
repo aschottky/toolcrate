@@ -6,10 +6,10 @@ After checkout, customers should land on the audit app to enter their website UR
 
 Edit each Payment Link → **After payment** → **Don’t show confirmation page** → Redirect customers to your website.
 
-| Mode | Payment Link | Redirect URL |
-|------|----------------|--------------|
-| **Test** | `test_14A289aOrcr78Mx4gn1Fe00` | `http://localhost:5173/toolcrate/app/?paid=1` |
-| **Live** | `14A289aOrcr78Mx4gn1Fe00` | `https://aschottky.github.io/toolcrate/app/?paid=1` |
+| Mode | Payment Link URL | Redirect URL |
+|------|------------------|--------------|
+| **Test** (local `.env`) | https://buy.stripe.com/test_14A289aOrcr78Mx4gn1Fe00 | `http://localhost:5173/toolcrate/app/?paid=1` |
+| **Live** (production) | https://buy.stripe.com/14A289aOrcr78Mx4gn1Fe00 | `https://aschottky.github.io/toolcrate/app/?paid=1` |
 
 The `?paid=1` query shows a “Payment received” banner on the audit page.
 
