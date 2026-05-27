@@ -79,6 +79,8 @@ function runAuditInBackground(websiteUrl, sessionId, customerEmail) {
         mobile: report.mobile?.score,
         trust: report.trust?.score,
         messaging: report.messaging?.score,
+        performance: report.performance?.score,
+        security: report.security?.score,
       });
 
       console.log(`${logPrefix} Generating PDF...`);
@@ -233,6 +235,7 @@ app.post("/api/audit", async (req, res) => {
         metaDescription: scraped.metaDescription,
         viewportMeta: scraped.viewportMeta,
         charCount: scraped.charCount,
+        technical: scraped.technical,
       },
       report,
     });

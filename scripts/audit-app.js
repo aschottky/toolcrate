@@ -7,6 +7,8 @@ const CATEGORY_LABELS = {
   mobile: "Mobile-Friendliness",
   trust: "Trust & Credibility",
   messaging: "Messaging & Clarity",
+  performance: "Performance & Bloat",
+  security: "Tech Stack & Security",
 };
 
 export function initAuditApp({ isDevPage = false } = {}) {
@@ -90,7 +92,7 @@ export function initAuditApp({ isDevPage = false } = {}) {
       statusEl.innerHTML = `
         <div class="spinner" aria-hidden="true"></div>
         <p>Scraping the site and asking the AI for a tear-down…</p>
-        <p class="audit-status-note">This usually takes 15–45 seconds.</p>
+        <p class="audit-status-note">This usually takes 20–60 seconds.</p>
       `;
     }
   }

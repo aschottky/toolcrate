@@ -1,6 +1,7 @@
 import * as cheerio from "cheerio";
 
 const MAX_TEXT_CHARS = 14_000;
+const MAX_HEAD_HTML_CHARS = 2_500;
 const FETCH_TIMEOUT_MS = 15_000;
 
 const BLOCKED_HOSTNAMES = new Set([
@@ -48,6 +49,45 @@ export function normalizeWebsiteUrl(input) {
   }
 
   return parsed.toString();
+}
+
+function extractTechnicalSignals($) {
+  const headInner = $("head").html()?.trim() || "";
+  const headHtml = headInner
+    ? `<head>${headInner}</head>`
+    : "(no head element found)";
+
+  const metaGenerator =
+    $('meta[name="generator"]').attr("content")?.trim() ||
+    $('meta[name="Generator"]').attr("content")?.trim() ||
+    "(not found)";
+
+  const scriptCount = $("script").length;
+  const images = $("img");
+  const imgCount = images.length;
+  let imagesMissingAlt = 0;
+  let imagesWithLazyLoading = 0;
+
+  images.each((_, el) => {
+    const alt = $(el).attr("alt");
+    if (!alt?.trim()) imagesMissingAlt++;
+
+    const loading = ($(el).attr("loading") || "").toLowerCase();
+    const lazyAttr = $(el).attr("data-src") || $(el).attr("data-lazy-src");
+    if (loading === "lazy" || lazyAttr) imagesWithLazyLoading++;
+  });
+
+  const imagesWithoutLazy = imgCount - imagesWithLazyLoading;
+
+  return {
+    headHtml: headHtml.slice(0, MAX_HEAD_HTML_CHARS),
+    metaGenerator,
+    scriptCount,
+    imgCount,
+    imagesMissingAlt,
+    imagesWithLazyLoading,
+    imagesWithoutLazy,
+  };
 }
 
 export async function scrapeWebsiteText(websiteUrl) {
@@ -103,8 +143,10 @@ export async function scrapeWebsiteText(websiteUrl) {
     throw new Error("Website appears to use bot protection (e.g. Cloudflare).");
   }
 
-  const $ = cheerio.load(html);
+  const $raw = cheerio.load(html);
+  const technical = extractTechnicalSignals($raw);
 
+  const $ = cheerio.load(html);
   $("script, style, noscript, svg, iframe").remove();
 
   const title = $("title").first().text().trim();
@@ -136,6 +178,17 @@ export async function scrapeWebsiteText(websiteUrl) {
     `Meta description: ${metaDescription || "(none)"}`,
     `Viewport meta: ${viewportMeta}`,
     "",
+    "Technical signals:",
+    `Meta generator (CMS hint): ${technical.metaGenerator}`,
+    `Script tags: ${technical.scriptCount}`,
+    `Image tags: ${technical.imgCount}`,
+    `Images missing alt attribute: ${technical.imagesMissingAlt}`,
+    `Images with lazy-loading (loading=lazy or data-src): ${technical.imagesWithLazyLoading}`,
+    `Images without lazy-loading: ${technical.imagesWithoutLazy}`,
+    "",
+    "Head HTML (for CMS / stack detection):",
+    technical.headHtml,
+    "",
     "Headings:",
     ...(headings.length ? headings.slice(0, 25) : ["(none)"]),
     "",
@@ -152,6 +205,7 @@ export async function scrapeWebsiteText(websiteUrl) {
     title,
     metaDescription,
     viewportMeta,
+    technical,
     textForAudit: combined,
     charCount: combined.length,
   };

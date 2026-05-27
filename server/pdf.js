@@ -14,7 +14,7 @@ const SCORE_COLUMN_WIDTH = 88;
 const CARD_PADDING = 16;
 const BADGE_SIZE = 24;
 const TIP_AFTER_IMPACT_GAP = 12;
-const SIGN_OFF_TEXT = `A quick note from the creator: I'm Alexander. I've been building the web for decades, and I built this tool to cut through the SEO agency BS and show business owners exactly what's broken. You can hand this report to your current web guy to fix. But if you want it done right, right now, text me directly at 818-216-2428 or reply to the email that sent you this report. Let's get these leaks plugged. — Alexander Schottky, WebDev`;
+const SIGN_OFF_TEXT = `Hi, I'm Alexander. I've spent decades building websites for real businesses, and I created this tool to give owners an honest look at what's working and what's broken under the hood. You can hand this report directly to your web team to implement the fixes. But if you need an experienced WebDev to step in and handle this for you, I'd be happy to help. Reply directly to this email or call/text me at 818-216-2428.`;
 
 /**
  * Build a professional audit PDF and return it as a Buffer (for email attachments).
@@ -88,14 +88,74 @@ function drawHeader(doc, websiteUrl) {
 
 function drawScores(doc, reportData) {
   doc.fillColor(BRAND.primary).fontSize(14).text("Score summary");
-  doc.moveDown(0.8);
+  doc.moveDown(0.75);
 
-  for (const { key, label } of AUDIT_CATEGORIES) {
-    const section = reportData[key];
-    if (!section) continue;
-    drawScoreCard(doc, label, section.score, section.summary);
-    doc.moveDown(0.55);
+  const fullWidth = contentWidth(doc);
+  const columnGap = 12;
+  const columnWidth = (fullWidth - columnGap) / 2;
+  const leftX = doc.page.margins.left;
+  const rightX = leftX + columnWidth + columnGap;
+
+  const categories = AUDIT_CATEGORIES.filter(({ key }) => reportData[key]);
+
+  for (let i = 0; i < categories.length; i += 2) {
+    const leftCat = categories[i];
+    const rightCat = categories[i + 1];
+    const leftSection = reportData[leftCat.key];
+    const rightSection = rightCat ? reportData[rightCat.key] : null;
+
+    const leftHeight = measureScoreCardHeight(
+      doc,
+      leftCat.label,
+      leftSection.summary,
+      columnWidth
+    );
+    const rightHeight = rightSection
+      ? measureScoreCardHeight(doc, rightCat.label, rightSection.summary, columnWidth)
+      : 0;
+    const rowHeight = Math.max(leftHeight, rightHeight);
+
+    ensureSpace(doc, rowHeight + 10);
+
+    const rowTop = doc.y;
+
+    drawScoreCardAt(
+      doc,
+      leftCat.label,
+      leftSection.score,
+      leftSection.summary,
+      leftX,
+      rowTop,
+      columnWidth
+    );
+
+    if (rightCat && rightSection) {
+      drawScoreCardAt(
+        doc,
+        rightCat.label,
+        rightSection.score,
+        rightSection.summary,
+        rightX,
+        rowTop,
+        columnWidth
+      );
+    }
+
+    doc.y = rowTop + rowHeight + 8;
+    doc.x = doc.page.margins.left;
   }
+}
+
+function measureScoreCardHeight(doc, label, summary, cardWidth) {
+  const summaryWidth = cardWidth - CARD_PADDING * 2 - SCORE_COLUMN_WIDTH;
+  doc.fontSize(10);
+  const labelHeight = doc.heightOfString(label, { width: summaryWidth });
+  const summaryHeight = doc.heightOfString(summary, {
+    width: summaryWidth,
+    align: "left",
+    lineGap: 2,
+  });
+  return Math.max(84, CARD_PADDING + labelHeight + 8 + summaryHeight + CARD_PADDING);
 }
 
 function drawScorePill(doc, rightX, topY, score) {
@@ -121,57 +181,39 @@ function drawScorePill(doc, rightX, topY, score) {
   return pillWidth;
 }
 
-function drawScoreCard(doc, label, score, summary) {
-  const cardLeft = doc.page.margins.left;
-  const cardWidth = contentWidth(doc);
+function drawScoreCardAt(doc, label, score, summary, cardLeft, cardTop, cardWidth) {
   const summaryWidth = cardWidth - CARD_PADDING * 2 - SCORE_COLUMN_WIDTH;
   const scoreColumnRight = cardLeft + cardWidth - CARD_PADDING;
-
-  doc.fontSize(10);
-  const summaryHeight = doc.heightOfString(summary, {
-    width: summaryWidth,
-    align: "left",
-    lineGap: 2,
-  });
-
-  const cardHeight = Math.max(92, 56 + summaryHeight);
-
-  ensureSpace(doc, cardHeight + 12);
-
-  const cardTop = doc.y;
+  const cardHeight = measureScoreCardHeight(doc, label, summary, cardWidth);
 
   doc.roundedRect(cardLeft, cardTop, cardWidth, cardHeight, 6).fillColor(BRAND.light).fill();
 
   const labelTop = cardTop + CARD_PADDING;
   drawScorePill(doc, scoreColumnRight, labelTop, score);
 
-  doc
-    .fillColor(BRAND.primary)
-    .fontSize(12)
-    .text(label, cardLeft + CARD_PADDING, labelTop, {
-      width: summaryWidth,
-      lineBreak: false,
-    });
+  doc.fillColor(BRAND.primary).fontSize(10).text(label, cardLeft + CARD_PADDING, labelTop, {
+    width: summaryWidth,
+    lineGap: 1,
+  });
+
+  const labelHeight = doc.heightOfString(label, { width: summaryWidth });
 
   doc
     .fillColor(BRAND.muted)
-    .fontSize(8)
-    .text(scoreLabel(score), scoreColumnRight - SCORE_COLUMN_WIDTH + 8, labelTop + 30, {
+    .fontSize(7)
+    .text(scoreLabel(score), scoreColumnRight - SCORE_COLUMN_WIDTH + 8, labelTop + 26, {
       width: SCORE_COLUMN_WIDTH - 16,
       align: "right",
       lineBreak: false,
     });
 
-  const summaryTop = cardTop + CARD_PADDING + 22;
+  const summaryTop = labelTop + labelHeight + 6;
 
-  doc.fillColor(BRAND.muted).fontSize(10).text(summary, cardLeft + CARD_PADDING, summaryTop, {
+  doc.fillColor(BRAND.muted).fontSize(9).text(summary, cardLeft + CARD_PADDING, summaryTop, {
     width: summaryWidth,
     align: "left",
     lineGap: 2,
   });
-
-  doc.y = cardTop + cardHeight + 6;
-  doc.x = doc.page.margins.left;
 }
 
 function drawTips(doc, tips) {
@@ -257,12 +299,19 @@ function drawMarkdownSection(doc, markdown) {
 }
 
 function drawSignOff(doc) {
-  doc.addPage();
+  doc.fontSize(10);
+  const blockHeight =
+    doc.heightOfString(SIGN_OFF_TEXT, { width: contentWidth(doc), lineGap: 4 }) + 48;
+
+  if (doc.y + blockHeight > doc.page.height - doc.page.margins.bottom - 56) {
+    doc.addPage();
+  }
+
   doc.x = doc.page.margins.left;
-  doc.y = doc.page.margins.top;
+  doc.moveDown(0.6);
 
   doc.fillColor(BRAND.primary).fontSize(13).text("A note from Alexander");
-  doc.moveDown(0.8);
+  doc.moveDown(0.7);
 
   doc.fillColor(BRAND.muted).fontSize(10).text(SIGN_OFF_TEXT, {
     width: contentWidth(doc),

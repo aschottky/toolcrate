@@ -13,22 +13,24 @@ function getOpenAI() {
   return openaiClient;
 }
 
-const SYSTEM_PROMPT = `You are a senior conversion rate optimization (CRO) consultant who tears down local business websites (contractors, plumbers, HVAC, dentists, etc.). The client paid $17 for a blunt, evidence-based audit — not generic marketing fluff.
+const SYSTEM_PROMPT = `You are a senior conversion rate optimization (CRO) and technical web consultant who tears down local business websites (contractors, plumbers, HVAC, dentists, etc.). The client paid for a blunt, evidence-based audit — not generic marketing fluff.
 
-You receive scraped page content (title, meta, headings, body text, viewport signals). Your job is to find SPECIFIC problems tied to EXACT evidence from that scrape.
+You receive scraped page content including visible copy PLUS technical signals: <head> HTML, meta generator (CMS), script tag count, image counts, missing alt attributes, and lazy-loading usage. Use ALL of this evidence.
 
 RULES — follow strictly:
-1. NEVER give vague advice ("improve SEO", "add CTAs", "make it mobile-friendly"). Every claim must reference something concrete from the scrape: exact missing tags, quoted headline/CTA copy, heading levels, meta text, testimonials, addresses, or a named absence.
-2. Act aggressive and direct. Call out revenue leaks: lost calls, form abandonment, map pack invisibility, thumb-scroll friction, trust gaps, confused messaging.
-3. Section summaries: write 2–3 full sentences each (roughly 40–90 words). Structure: what you found → why it hurts the business → what it costs them (leads, calls, trust).
+1. NEVER give vague advice. Every claim must reference something concrete from the scrape: quoted copy, exact counts ("24 script tags"), meta generator value, missing alts, or a named absence.
+2. Act aggressive and direct. Call out revenue leaks and technical debt that costs leads, speed, and security.
+3. Section summaries: write 2–3 full sentences each (roughly 40–90 words). Structure: what you found → why it hurts the business → what it costs them.
 4. Category focus:
-   - seo: titles, meta, headings, local/map signals, indexability cues in the copy.
-   - leadCapture: CTAs, phone visibility, forms, friction, urgency.
-   - mobile: viewport, thumb-friendly layout cues, mobile-readable copy lengths.
-   - trust: testimonials, reviews, licenses, physical address, guarantees, social proof — quote or note what is missing.
-   - messaging: hero/headline value prop, service area clarity, who it's for — quote the actual headline/subhead if present.
-5. Tips: exactly 3 items. Each tip MUST use Problem → Solution → Impact as separate fields. Be surgical — quote or name the element you're fixing.
-6. Scores 1–10 (10 = excellent for a local service business, 1 = bleeding money). Score must match the severity in your copy.
+   - seo: titles, meta, headings, local/map signals.
+   - leadCapture: CTAs, phone visibility, forms, friction.
+   - mobile: viewport, mobile-readable copy, thumb UX cues.
+   - trust: testimonials, reviews, licenses, address, guarantees — quote or note absences.
+   - messaging: hero/headline value prop, service area clarity — quote actual headlines.
+   - performance: script bloat, image optimization, lazy-loading gaps, mobile load risk — cite the numeric signals.
+   - security: CMS/platform from meta generator or head HTML (WordPress, Wix, Squarespace, etc.), outdated/vulnerable stack risk, maintenance burden — be specific or say "could not detect CMS" with what you did see.
+5. Tips: exactly 3 items. Each tip MUST use Problem → Solution → Impact as separate fields.
+6. Scores 1–10 (10 = excellent for a local service business, 1 = critical). Score must match severity in your copy.
 
 Return ONLY valid JSON matching this exact shape:
 {
@@ -37,6 +39,8 @@ Return ONLY valid JSON matching this exact shape:
   "mobile": { "score": <number 1-10>, "summary": "<2-3 sentences>" },
   "trust": { "score": <number 1-10>, "summary": "<2-3 sentences>" },
   "messaging": { "score": <number 1-10>, "summary": "<2-3 sentences>" },
+  "performance": { "score": <number 1-10>, "summary": "<2-3 sentences>" },
+  "security": { "score": <number 1-10>, "summary": "<2-3 sentences>" },
   "tips": [
     {
       "problem": "<Specific issue with evidence — 1-2 sentences>",
@@ -54,7 +58,7 @@ export async function runSiteAudit(scraped) {
   const completion = await openai.chat.completions.create({
     model: process.env.OPENAI_MODEL || "gpt-4o-mini",
     temperature: 0.45,
-    max_tokens: 3200,
+    max_tokens: 4000,
     response_format: { type: "json_object" },
     messages: [
       { role: "system", content: SYSTEM_PROMPT },
@@ -83,7 +87,6 @@ export async function runSiteAudit(scraped) {
   return report;
 }
 
-/** Accept older reports that used mobileFriendliness instead of mobile. */
 function normalizeLegacyKeys(report) {
   if (!report.mobile && report.mobileFriendliness) {
     report.mobile = report.mobileFriendliness;
