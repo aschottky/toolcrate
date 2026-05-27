@@ -19,6 +19,8 @@
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "openai": "^4.104.0",
+    "pdfkit": "^0.18.0",
+    "resend": "^6.12.4",
     "stripe": "^17.7.0"
   },
   "devDependencies": {

@@ -3,6 +3,8 @@ import cors from "cors";
 import express from "express";
 import Stripe from "stripe";
 import { runSiteAudit } from "./audit.js";
+import { sendAuditReportEmail } from "./email.js";
+import { generateAuditPDF } from "./pdf.js";
 import { normalizeWebsiteUrl, scrapeWebsiteText } from "./scrape.js";
 
 const app = express();
@@ -24,7 +26,7 @@ function getWebsiteUrlFromSession(session) {
   return session.custom_fields?.[0]?.text?.value?.trim() || null;
 }
 
-function runAuditInBackground(websiteUrl, sessionId) {
+function runAuditInBackground(websiteUrl, sessionId, customerEmail) {
   const logPrefix = `[audit:${sessionId ?? "unknown"}]`;
 
   setImmediate(async () => {
@@ -44,6 +46,19 @@ function runAuditInBackground(websiteUrl, sessionId) {
         leadCapture: report.leadCapture?.score,
         mobileFriendliness: report.mobileFriendliness?.score,
       });
+
+      console.log(`${logPrefix} Generating PDF...`);
+      const pdfBuffer = await generateAuditPDF(report, normalizedUrl);
+
+      if (!customerEmail) {
+        console.warn(`${logPrefix} No customer email — skipping send.`);
+        return;
+      }
+
+      console.log(`${logPrefix} Sending Email to ${customerEmail}...`);
+      await sendAuditReportEmail(customerEmail, normalizedUrl, pdfBuffer);
+
+      console.log(`${logPrefix} Delivery Complete!`);
     } catch (err) {
       console.error(`${logPrefix} Audit failed:`, err.message);
       console.error(err);
@@ -83,7 +98,11 @@ app.post("/webhook", express.raw({ type: "application/json" }), (req, res) => {
     if (websiteUrl) {
       console.log(`📎 Website URL received: ${websiteUrl}`);
       res.status(200).json({ received: true });
-      runAuditInBackground(websiteUrl, session.id);
+      runAuditInBackground(
+        websiteUrl,
+        session.id,
+        session.customer_details?.email
+      );
       return;
     }
 
