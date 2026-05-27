@@ -26,6 +26,49 @@ function getWebsiteUrlFromSession(session) {
   return session.custom_fields?.[0]?.text?.value?.trim() || null;
 }
 
+async function buildAuditPdf(websiteUrl, logPrefix) {
+  console.log(`${logPrefix} Normalizing URL: ${websiteUrl}`);
+  const normalizedUrl = normalizeWebsiteUrl(websiteUrl);
+
+  console.log(`${logPrefix} Scraping [${normalizedUrl}]...`);
+  const scraped = await scrapeWebsiteText(normalizedUrl);
+
+  console.log(`${logPrefix} Running AI...`);
+  const report = await runSiteAudit(scraped);
+
+  console.log(`${logPrefix} Generating PDF...`);
+  const pdfBuffer = await generateAuditPDF(report, normalizedUrl);
+
+  console.log(`${logPrefix} PDF ready (${pdfBuffer.length} bytes)`);
+  return { pdfBuffer, normalizedUrl, report };
+}
+
+function sendPdfResponse(res, pdfBuffer) {
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader(
+    "Content-Disposition",
+    'attachment; filename="Website-Audit.pdf"'
+  );
+  return res.send(pdfBuffer);
+}
+
+function auditErrorResponse(res, error, logPrefix) {
+  const message = error?.message || "Audit failed.";
+  const isClientError =
+    message.includes("required") ||
+    message.includes("valid") ||
+    message.includes("cannot be audited") ||
+    message.includes("No such checkout.session");
+
+  console.error(`${logPrefix} Failed:`, message, error);
+
+  return res.status(isClientError ? 400 : 500).json({
+    ok: false,
+    error: message,
+    code: isClientError ? "INVALID_REQUEST" : "AUDIT_FAILED",
+  });
+}
+
 function runAuditInBackground(websiteUrl, sessionId, customerEmail) {
   const logPrefix = `[audit:${sessionId ?? "unknown"}]`;
 
@@ -123,6 +166,61 @@ app.get("/api/health", (_req, res) => {
     openaiConfigured: Boolean(process.env.OPENAI_API_KEY),
     stripeConfigured: Boolean(process.env.STRIPE_SECRET_KEY),
   });
+});
+
+app.get("/api/audit-status", async (req, res) => {
+  const sessionId = String(req.query.session_id ?? "").trim();
+  const logPrefix = `[audit-status:${sessionId || "unknown"}]`;
+
+  if (!sessionId) {
+    return res.status(400).json({
+      ok: false,
+      error:
+        "Missing session_id. Complete checkout again or enter your website URL manually.",
+      code: "MISSING_SESSION_ID",
+    });
+  }
+
+  try {
+    const stripe = getStripe();
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    if (session.payment_status !== "paid") {
+      return res.status(402).json({
+        ok: false,
+        error: "Payment not completed yet. Please finish checkout first.",
+        code: "PAYMENT_INCOMPLETE",
+      });
+    }
+
+    const websiteUrl = getWebsiteUrlFromSession(session);
+
+    if (!websiteUrl) {
+      return res.status(400).json({
+        ok: false,
+        error:
+          "We couldn't find your website URL on this checkout. Please enter it below.",
+        code: "MISSING_WEBSITE_URL",
+      });
+    }
+
+    const { pdfBuffer } = await buildAuditPdf(websiteUrl, logPrefix);
+    return sendPdfResponse(res, pdfBuffer);
+  } catch (error) {
+    return auditErrorResponse(res, error, logPrefix);
+  }
+});
+
+app.post("/api/audit-pdf", async (req, res) => {
+  const websiteUrl = req.body?.websiteUrl;
+  const logPrefix = "[audit-pdf]";
+
+  try {
+    const { pdfBuffer } = await buildAuditPdf(websiteUrl, logPrefix);
+    return sendPdfResponse(res, pdfBuffer);
+  } catch (error) {
+    return auditErrorResponse(res, error, logPrefix);
+  }
 });
 
 app.post("/api/audit", async (req, res) => {

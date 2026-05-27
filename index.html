@@ -15,6 +15,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles/main.css" />
+    <link rel="stylesheet" href="styles/success.css" />
   </head>
   <body>
     <header class="site-header">
@@ -31,6 +32,56 @@
       </div>
     </header>
 
+    <section id="checkout-success" class="checkout-success" hidden>
+      <div class="container">
+        <div class="success-card">
+          <div id="success-processing">
+            <div class="success-spinner" aria-hidden="true"></div>
+            <h1>Payment successful!</h1>
+            <p>
+              Our AI is currently tearing down your website. This takes about
+              30–60 seconds…
+            </p>
+            <div class="success-progress" aria-hidden="true">
+              <div id="success-progress-bar" class="success-progress-bar"></div>
+            </div>
+          </div>
+
+          <div id="success-ready" hidden>
+            <div class="success-icon is-ready" aria-hidden="true">✓</div>
+            <h1>Your audit is ready!</h1>
+            <p>We also emailed you a copy. Download again anytime below.</p>
+            <div class="success-actions">
+              <button type="button" class="btn btn-primary btn-large" id="download-again-btn">
+                Download PDF
+              </button>
+              <a href="./" class="btn">Back to home</a>
+            </div>
+          </div>
+
+          <div id="success-fallback" hidden>
+            <div class="success-icon is-processing" aria-hidden="true">!</div>
+            <h1>One more step</h1>
+            <p id="fallback-error" class="success-fallback-error" hidden></p>
+            <form id="fallback-form" class="fallback-form">
+              <label for="fallback-url">Enter your website URL</label>
+              <input
+                id="fallback-url"
+                name="websiteUrl"
+                type="url"
+                placeholder="https://your-business.com"
+                required
+              />
+              <button type="submit" class="btn btn-primary btn-large">
+                Run my audit
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div id="landing-content">
     <main>
       <section class="hero">
         <div class="container hero-grid">
@@ -151,6 +202,7 @@
         </div>
       </section>
     </main>
+    </div>
 
     <footer class="site-footer">
       <div class="container">
@@ -163,7 +215,9 @@
 
     <script type="module">
       import { applyStripeCtas } from "./scripts/stripe-cta.js";
+      import { initCheckoutSuccess } from "./scripts/checkout-success.js";
 
+      initCheckoutSuccess();
       applyStripeCtas();
       document.getElementById("year").textContent = new Date().getFullYear();
     </script>

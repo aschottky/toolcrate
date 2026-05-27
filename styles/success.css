@@ -1,0 +1,132 @@
+.checkout-success {
+  min-height: calc(100vh - 72px);
+  display: flex;
+  align-items: center;
+  padding: 3rem 0 5rem;
+  background: linear-gradient(180deg, var(--surface) 0%, var(--surface-muted) 100%);
+}
+
+.success-card {
+  max-width: 36rem;
+  margin: 0 auto;
+  text-align: center;
+  padding: 2.5rem 2rem;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+
+.success-icon {
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto 1.25rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.success-icon.is-processing {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.success-icon.is-ready {
+  background: #e6f4ea;
+  color: #1e7a34;
+  font-size: 2rem;
+}
+
+.success-card h1 {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-serif);
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+.success-card p {
+  margin: 0 0 1.25rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.success-progress {
+  width: 100%;
+  height: 8px;
+  background: var(--surface-muted);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 1.5rem 0 0.5rem;
+}
+
+.success-progress-bar {
+  height: 100%;
+  width: 8%;
+  background: linear-gradient(90deg, var(--accent), #f59a7a);
+  border-radius: 999px;
+  transition: width 0.6s ease;
+}
+
+.success-spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  margin: 0 auto 1rem;
+  border: 3px solid var(--surface-muted);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: success-spin 0.9s linear infinite;
+}
+
+@keyframes success-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.success-fallback-error {
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius);
+  background: #fde8e4;
+  border: 1px solid #f5b5a8;
+  color: #8a2f1c;
+  font-size: 0.9375rem;
+  text-align: left;
+}
+
+.fallback-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.fallback-form input {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  margin-bottom: 0.75rem;
+  font: inherit;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.fallback-form input:focus {
+  outline: 2px solid var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.success-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.success-actions .btn {
+  width: 100%;
+}
