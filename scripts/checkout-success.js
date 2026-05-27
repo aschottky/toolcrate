@@ -1,6 +1,5 @@
+import { API_BASE } from "./api-config.js";
 import { readApiErrorPayload } from "./api-utils.js";
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
 
 let landingContent;
 let successView;

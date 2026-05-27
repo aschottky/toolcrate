@@ -11,6 +11,7 @@
     "build": "vite build",
     "build:production": "vite build --mode production",
     "preview": "vite preview",
+    "start": "node server/index.js",
     "start:server": "node --env-file=.env server/index.js",
     "deploy": "npm run build:production && touch dist/.nojekyll && gh-pages -d dist -t"
   },

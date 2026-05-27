@@ -1,3 +1,4 @@
+import { apiUrl, normalizeClientError } from "./api-config.js";
 import { readApiErrorPayload } from "./api-utils.js";
 
 const CATEGORY_LABELS = {
@@ -35,7 +36,7 @@ export function initAuditApp({ isDevPage = false } = {}) {
       let response;
 
       try {
-        response = await fetch("/api/audit", {
+        response = await fetch(apiUrl("/api/audit"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ websiteUrl }),
@@ -64,10 +65,11 @@ export function initAuditApp({ isDevPage = false } = {}) {
 
       renderResults(data);
     } catch (error) {
-      const message =
+      const message = normalizeClientError(
         error?.name === "SyntaxError"
           ? "The server returned an unexpected response. Please try again."
-          : error.message || "Something went wrong.";
+          : error.message || "Something went wrong."
+      );
       showError(message);
     } finally {
       setLoading(false);

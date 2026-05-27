@@ -1,0 +1,19 @@
+# Connect this repo on https://dashboard.render.com → New → Blueprint
+# Then add secrets in the Render dashboard (not in git):
+#   OPENAI_API_KEY, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, RESEND_API_KEY
+services:
+  - type: web
+    name: toolcrate-api
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: PORT
+        value: "4000"
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
