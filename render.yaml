@@ -3,7 +3,7 @@
 #   OPENAI_API_KEY, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, RESEND_API_KEY
 services:
   - type: web
-    name: toolcrate-api
+    name: toolcrate-backend
     runtime: node
     plan: free
     region: oregon
