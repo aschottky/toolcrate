@@ -7,6 +7,7 @@ import {
   fetchRecentAudits,
   fetchWarmLeadById,
   fetchWarmLeads,
+  insertWarmLead,
   isSupabaseConfigured,
   markWarmLeadAuditSent,
   saveCallScript,
@@ -181,6 +182,31 @@ export async function listWarmLeads(req) {
   return { ok: true, leads };
 }
 
+export async function createWarmLead(req) {
+  requireSupabase();
+
+  const email = String(req.body?.email ?? "").trim();
+  const website = String(req.body?.website ?? req.body?.websiteUrl ?? "").trim() || null;
+  const replyText =
+    String(req.body?.reply_text ?? req.body?.replyText ?? "").trim() || null;
+
+  if (!email) {
+    const err = new Error("email is required.");
+    err.statusCode = 400;
+    throw err;
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    const err = new Error("email must be a valid address.");
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const lead = await insertWarmLead({ email, website, replyText });
+
+  return { ok: true, lead };
+}
+
 function resolveLeadId(req) {
   const id =
     req.body?.lead_id?.trim() ||
@@ -263,5 +289,6 @@ export function registerAdminRoutes(app, { verifyCronSecret }) {
   app.post("/api/admin/generate-script", guard(generateScript));
   app.post("/api/admin/nurture-preview", guard(previewAllNurtureEmails));
   app.get("/api/admin/warm-leads", guard(listWarmLeads));
+  app.post("/api/admin/warm-leads", guard(createWarmLead));
   app.post("/api/admin/send-free-audit", guard(sendFreeAudit));
 }

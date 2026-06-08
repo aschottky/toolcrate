@@ -83,6 +83,36 @@
   margin: 0;
 }
 
+.admin-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.admin-add-lead-form {
+  margin: 1rem 0 0.5rem;
+  padding: 1rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  background: #faf9f7;
+}
+
+.admin-add-lead-form textarea {
+  flex: 1;
+  min-width: 220px;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  font: inherit;
+  resize: vertical;
+}
+
+.admin-add-lead-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .admin-status {
   font-size: 0.9rem;
   color: var(--admin-muted);

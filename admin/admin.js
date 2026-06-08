@@ -11,11 +11,18 @@ const sendPreviewAllBtn = document.getElementById("send-preview-all");
 const previewStatus = document.getElementById("preview-status");
 const refreshBtn = document.getElementById("refresh-audits");
 const refreshWarmLeadsBtn = document.getElementById("refresh-warm-leads");
+const addWarmLeadToggleBtn = document.getElementById("add-warm-lead-toggle");
+const addWarmLeadForm = document.getElementById("add-warm-lead-form");
+const addWarmLeadCancelBtn = document.getElementById("add-warm-lead-cancel");
+const addWarmLeadSubmitBtn = document.getElementById("add-warm-lead-submit");
+const newLeadEmail = document.getElementById("new-lead-email");
+const newLeadWebsite = document.getElementById("new-lead-website");
+const newLeadReply = document.getElementById("new-lead-reply");
 const warmLeadsStatus = document.getElementById("warm-leads-status");
 const warmLeadsTableWrap = document.getElementById("warm-leads-table-wrap");
 const warmLeadsBody = document.getElementById("warm-leads-body");
 const auditsStatus = document.getElementById("audits-status");
-const auditsTableWrap = document.querySelector(".admin-table-wrap");
+const auditsTableWrap = document.getElementById("audits-table-wrap");
 const auditsBody = document.getElementById("audits-body");
 const auditDetail = document.getElementById("audit-detail");
 const closeDetailBtn = document.getElementById("close-detail");
@@ -42,6 +49,16 @@ let selectedAuditId = null;
 let selectedAuditDetail = null;
 let scriptGenerationInFlight = false;
 let scriptAbortController = null;
+
+function serverConfigHint(errorMessage) {
+  if (/CRON_SECRET is not configured on the server/i.test(errorMessage)) {
+    return "The production API on Render does not have CRON_SECRET set. Render Dashboard → toolcrate-backend → Environment → add CRON_SECRET (same value as your local .env), then Save. Wait ~1 min and click Refresh.";
+  }
+  if (/Supabase is not configured/i.test(errorMessage)) {
+    return "Add SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to Render Environment, then Save and Refresh.";
+  }
+  return normalizeClientError(errorMessage);
+}
 
 function getSecret() {
   return sessionStorage.getItem(SECRET_KEY) || secretInput.value.trim();
@@ -310,7 +327,58 @@ async function loadWarmLeads() {
     const data = await adminFetch("/api/admin/warm-leads?limit=50");
     renderWarmLeads(data.leads);
   } catch (error) {
-    setStatus(warmLeadsStatus, normalizeClientError(error.message), true);
+    setStatus(warmLeadsStatus, serverConfigHint(error.message), true);
+  }
+}
+
+function toggleAddWarmLeadForm(show) {
+  const shouldShow = show ?? addWarmLeadForm.hidden;
+  addWarmLeadForm.hidden = !shouldShow;
+  addWarmLeadToggleBtn.textContent = shouldShow ? "Hide form" : "Add warm lead";
+
+  if (shouldShow) {
+    newLeadEmail.focus();
+  }
+}
+
+function resetAddWarmLeadForm() {
+  addWarmLeadForm.reset();
+}
+
+async function submitWarmLead(event) {
+  event.preventDefault();
+
+  const email = newLeadEmail.value.trim();
+  const website = newLeadWebsite.value.trim();
+  const reply_text = newLeadReply.value.trim();
+
+  if (!email) {
+    setStatus(warmLeadsStatus, "Email is required.", true);
+    return;
+  }
+
+  addWarmLeadSubmitBtn.disabled = true;
+  setStatus(warmLeadsStatus, "Saving lead…", false);
+
+  try {
+    const data = await adminFetch("/api/admin/warm-leads", {
+      method: "POST",
+      body: JSON.stringify({
+        email,
+        website: website || null,
+        reply_text: reply_text || null,
+      }),
+    });
+
+    warmLeadsCache = [data.lead, ...warmLeadsCache.filter((lead) => lead.id !== data.lead.id)];
+    renderWarmLeads(warmLeadsCache);
+    resetAddWarmLeadForm();
+    toggleAddWarmLeadForm(false);
+    setStatus(warmLeadsStatus, `Added ${data.lead.email}.`, false);
+  } catch (error) {
+    setStatus(warmLeadsStatus, serverConfigHint(error.message), true);
+  } finally {
+    addWarmLeadSubmitBtn.disabled = false;
   }
 }
 
@@ -347,7 +415,7 @@ async function sendFreeAuditForLead(leadId) {
       false
     );
   } catch (error) {
-    setStatus(warmLeadsStatus, normalizeClientError(error.message), true);
+    setStatus(warmLeadsStatus, serverConfigHint(error.message), true);
   } finally {
     sendingAuditLeadId = null;
     renderWarmLeads(warmLeadsCache);
@@ -584,7 +652,7 @@ async function loadAudits() {
     const data = await adminFetch("/api/admin/audits?limit=50");
     renderAudits(data.audits);
   } catch (error) {
-    setStatus(auditsStatus, normalizeClientError(error.message), true);
+    setStatus(auditsStatus, serverConfigHint(error.message), true);
   }
 }
 
@@ -654,7 +722,7 @@ async function handleTableClick(event) {
       setStatus(auditsStatus, `Day ${day} sent to ${audit.email}.`, false);
       await loadAudits();
     } catch (error) {
-      setStatus(auditsStatus, normalizeClientError(error.message), true);
+      setStatus(auditsStatus, serverConfigHint(error.message), true);
     } finally {
       button.disabled = false;
     }
@@ -697,6 +765,12 @@ async function sendAllPreviews() {
 saveSecretBtn.addEventListener("click", saveSecret);
 refreshBtn.addEventListener("click", loadAudits);
 refreshWarmLeadsBtn.addEventListener("click", loadWarmLeads);
+addWarmLeadToggleBtn.addEventListener("click", () => toggleAddWarmLeadForm(addWarmLeadForm.hidden));
+addWarmLeadForm.addEventListener("submit", submitWarmLead);
+addWarmLeadCancelBtn.addEventListener("click", () => {
+  resetAddWarmLeadForm();
+  toggleAddWarmLeadForm(false);
+});
 warmLeadsBody.addEventListener("click", handleWarmLeadsTableClick);
 sendPreviewAllBtn.addEventListener("click", sendAllPreviews);
 auditsBody.addEventListener("click", handleTableClick);

@@ -36,9 +36,10 @@
         <div class="admin-auth-row">
           <input
             id="cron-secret"
-            type="password"
-            placeholder="CRON_SECRET from .env / Render"
+            type="text"
+            placeholder="CRON_SECRET from Render Environment (not local .env only)"
             autocomplete="off"
+            spellcheck="false"
           />
           <button type="button" id="save-secret" class="btn btn-secondary">Save</button>
         </div>
@@ -76,11 +77,34 @@
       <section class="admin-warm-leads card">
         <div class="admin-audits-header">
           <h2>Warm leads</h2>
-          <button type="button" id="refresh-warm-leads" class="btn btn-secondary">Refresh</button>
+          <div class="admin-header-actions">
+            <button type="button" id="add-warm-lead-toggle" class="btn btn-primary">
+              Add warm lead
+            </button>
+            <button type="button" id="refresh-warm-leads" class="btn btn-secondary">Refresh</button>
+          </div>
         </div>
         <p class="admin-hint">
-          Replies captured from Instantly.ai. Click to generate the same PDF audit as paid buyers and email it manually.
+          Replies captured from Instantly.ai, or add one manually below. Generate the same PDF audit as paid buyers and email it when ready.
         </p>
+        <form id="add-warm-lead-form" class="admin-add-lead-form" hidden>
+          <div class="admin-preview-row">
+            <label for="new-lead-email">Email</label>
+            <input id="new-lead-email" type="email" required autocomplete="email" placeholder="prospect@company.com" />
+          </div>
+          <div class="admin-preview-row">
+            <label for="new-lead-website">Website</label>
+            <input id="new-lead-website" type="url" autocomplete="url" placeholder="https://example.com" />
+          </div>
+          <div class="admin-preview-row">
+            <label for="new-lead-reply">Reply text (optional)</label>
+            <textarea id="new-lead-reply" rows="3" placeholder="Paste their reply or notes…"></textarea>
+          </div>
+          <div class="admin-add-lead-actions">
+            <button type="submit" id="add-warm-lead-submit" class="btn btn-primary">Save lead</button>
+            <button type="button" id="add-warm-lead-cancel" class="btn btn-secondary">Cancel</button>
+          </div>
+        </form>
         <p id="warm-leads-status" class="admin-status">Enter your admin secret and click Refresh.</p>
         <div class="admin-table-wrap" id="warm-leads-table-wrap" hidden>
           <table class="admin-table" id="warm-leads-table">
@@ -105,7 +129,7 @@
           <button type="button" id="refresh-audits" class="btn btn-secondary">Refresh</button>
         </div>
         <p id="audits-status" class="admin-status">Enter your admin secret and click Refresh.</p>
-        <div class="admin-table-wrap" hidden>
+        <div class="admin-table-wrap" id="audits-table-wrap" hidden>
           <table class="admin-table" id="audits-table">
             <thead>
               <tr>
