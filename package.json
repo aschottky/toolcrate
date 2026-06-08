@@ -16,6 +16,7 @@
     "deploy": "npm run build:production && touch dist/.nojekyll && gh-pages -d dist -t"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.106.2",
     "cheerio": "^1.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",

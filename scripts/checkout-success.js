@@ -93,11 +93,21 @@ function hideAllPanels() {
   fallbackPanel.hidden = true;
 }
 
+const SESSION_FETCH_KEY = "toolcrate_audit_fetched_session";
+
 async function startAuditFetch(sessionId) {
+  const cacheKey = `${SESSION_FETCH_KEY}:${sessionId}`;
+  if (sessionStorage.getItem(cacheKey) === "done") {
+    setProgress(100);
+    showReadyState();
+    return;
+  }
+
   setProgress(12);
 
   try {
     const blob = await fetchAuditPdfBySession(sessionId);
+    sessionStorage.setItem(cacheKey, "done");
     setProgress(100);
     triggerDownload(blob);
     showReadyState();

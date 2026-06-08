@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Nurture Admin — Website Tear Down</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles/main.css" />
+    <link rel="stylesheet" href="../styles/admin.css" />
+  </head>
+  <body class="admin-page">
+    <header class="site-header">
+      <div class="container header-inner">
+        <a href="../" class="logo">Website Tear Down</a>
+        <span class="audit-badge">Nurture admin</span>
+      </div>
+    </header>
+
+    <main class="container admin-main">
+      <section class="admin-intro">
+        <h1>Audit admin</h1>
+        <p>
+          Manage nurture emails and generate AI call scripts for paid audits. Protected by your
+          <code>CRON_SECRET</code> (same as the daily cron job).
+        </p>
+      </section>
+
+      <section class="admin-auth card">
+        <label for="cron-secret">Admin secret</label>
+        <div class="admin-auth-row">
+          <input
+            id="cron-secret"
+            type="password"
+            placeholder="CRON_SECRET from .env / Render"
+            autocomplete="off"
+          />
+          <button type="button" id="save-secret" class="btn btn-secondary">Save</button>
+        </div>
+        <p id="auth-status" class="admin-hint" hidden></p>
+      </section>
+
+      <section class="admin-preview card">
+        <h2>Preview all templates</h2>
+        <p>
+          Sends all three nurture emails to your inbox using the latest audit’s website URL
+          (or a sample URL if none exist). Does <strong>not</strong> mark emails as sent in
+          Supabase.
+        </p>
+        <div class="admin-preview-row">
+          <label for="preview-email">Send previews to</label>
+          <input
+            id="preview-email"
+            type="email"
+            value="alexschottky@gmail.com"
+            autocomplete="email"
+          />
+        </div>
+        <div class="admin-preview-row">
+          <label for="preview-audit">Use website from audit (optional)</label>
+          <select id="preview-audit">
+            <option value="">Latest audit (or sample URL)</option>
+          </select>
+        </div>
+        <button type="button" id="send-preview-all" class="btn btn-primary">
+          Send all 3 emails to me
+        </button>
+        <p id="preview-status" class="admin-status" hidden></p>
+      </section>
+
+      <section class="admin-warm-leads card">
+        <div class="admin-audits-header">
+          <h2>Warm leads</h2>
+          <button type="button" id="refresh-warm-leads" class="btn btn-secondary">Refresh</button>
+        </div>
+        <p class="admin-hint">
+          Replies captured from Instantly.ai. Click to generate the same PDF audit as paid buyers and email it manually.
+        </p>
+        <p id="warm-leads-status" class="admin-status">Enter your admin secret and click Refresh.</p>
+        <div class="admin-table-wrap" id="warm-leads-table-wrap" hidden>
+          <table class="admin-table" id="warm-leads-table">
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Website</th>
+                <th>Reply</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="warm-leads-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="admin-audits card">
+        <div class="admin-audits-header">
+          <h2>Recent audits</h2>
+          <button type="button" id="refresh-audits" class="btn btn-secondary">Refresh</button>
+        </div>
+        <p id="audits-status" class="admin-status">Enter your admin secret and click Refresh.</p>
+        <div class="admin-table-wrap" hidden>
+          <table class="admin-table" id="audits-table">
+            <thead>
+              <tr>
+                <th>Website</th>
+                <th>Email</th>
+                <th>Created</th>
+                <th>Script</th>
+                <th>Day 2</th>
+                <th>Day 4</th>
+                <th>Day 7</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="audits-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="audit-detail" class="admin-detail card" hidden>
+        <div class="admin-detail-header">
+          <button type="button" id="close-detail" class="btn btn-secondary">← Back to list</button>
+          <h2 id="detail-title">Audit details</h2>
+        </div>
+        <dl class="admin-detail-meta" id="detail-meta"></dl>
+        <div id="detail-scores" class="admin-detail-scores" hidden></div>
+
+        <div class="admin-script-panel">
+          <p class="admin-script-hint">
+            Scripts are <strong>not</strong> generated automatically — click the button when you are ready (usually 20–40 seconds).
+          </p>
+          <div class="admin-script-toolbar">
+            <button type="button" id="generate-script-btn" class="btn btn-primary">
+              Generate Custom Call Script
+            </button>
+            <button type="button" id="regenerate-script-btn" class="btn btn-secondary" hidden>
+              Regenerate script
+            </button>
+            <button type="button" id="cancel-script-btn" class="btn btn-secondary" hidden>
+              Cancel
+            </button>
+          </div>
+          <p id="script-status" class="admin-status" hidden></p>
+          <p id="script-idle" class="admin-script-idle">No call script yet.</p>
+          <div id="script-loading" class="admin-script-loading" hidden>
+            <span class="admin-spinner" aria-hidden="true"></span>
+            <span id="script-loading-text">Generating your call script…</span>
+          </div>
+          <article id="script-output" class="admin-script-output" hidden></article>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="./admin.js"></script>
+  </body>
+</html>

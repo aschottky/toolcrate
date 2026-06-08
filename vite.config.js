@@ -10,6 +10,7 @@ export default defineConfig({
         main: resolve(__dirname, "index.html"),
         auditTest: resolve(__dirname, "audit-test/index.html"),
         app: resolve(__dirname, "app/index.html"),
+        admin: resolve(__dirname, "admin/index.html"),
       },
     },
   },

@@ -4,7 +4,7 @@ const DEFAULT_FROM = "Website Tear Down <onboarding@resend.dev>";
 
 let resendClient;
 
-function getResend() {
+export function getResend() {
   if (!process.env.RESEND_API_KEY) {
     throw new Error("RESEND_API_KEY is not configured on the server.");
   }
@@ -14,7 +14,7 @@ function getResend() {
   return resendClient;
 }
 
-function formatSiteLabel(websiteUrl) {
+export function formatSiteLabel(websiteUrl) {
   try {
     return new URL(websiteUrl).hostname;
   } catch {
@@ -83,6 +83,69 @@ Website Tear Down`;
 
   if (error) {
     throw new Error(error.message || "Failed to send audit email via Resend.");
+  }
+
+  return data;
+}
+
+/**
+ * Email a free audit PDF to a warm lead (Instantly reply follow-up).
+ *
+ * @param {string} customerEmail
+ * @param {string} websiteUrl
+ * @param {Buffer} pdfBuffer
+ * @returns {Promise<{ id: string }>}
+ */
+export async function sendFreeAuditEmail(customerEmail, websiteUrl, pdfBuffer) {
+  const to = customerEmail?.trim();
+  if (!to) {
+    throw new Error("Customer email is required.");
+  }
+
+  if (!Buffer.isBuffer(pdfBuffer) || pdfBuffer.length === 0) {
+    throw new Error("A valid PDF buffer is required.");
+  }
+
+  const resend = getResend();
+  const from = process.env.RESEND_FROM_EMAIL?.trim() || DEFAULT_FROM;
+  const siteLabel = formatSiteLabel(websiteUrl);
+
+  const html = `
+    <p>Hi there,</p>
+    <p>Per our conversation, attached is the free website teardown I ran for your business.</p>
+    <p>Your audit for <a href="${websiteUrl}">${websiteUrl}</a> is attached as <strong>Website-Audit.pdf</strong>.</p>
+    <p>Let me know if you have any questions about the fixes!</p>
+    <p>— Alexander<br>Website Tear Down</p>
+  `.trim();
+
+  const text = `Hi there,
+
+Per our conversation, attached is the free website teardown I ran for your business.
+
+Your audit for ${websiteUrl} is attached (Website-Audit.pdf).
+
+Let me know if you have any questions about the fixes!
+
+— Alexander
+Website Tear Down`;
+
+  const { data, error } = await resend.emails.send({
+    from,
+    to: [to],
+    subject: `Your free website teardown — ${siteLabel}`,
+    html,
+    text,
+    attachments: [
+      {
+        filename: "Website-Audit.pdf",
+        content: pdfBuffer,
+        contentType: "application/pdf",
+      },
+    ],
+  });
+
+  if (error) {
+    throw new Error(error.message || "Failed to send free audit email via Resend.");
   }
 
   return data;

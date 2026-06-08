@@ -3,15 +3,50 @@ import cors from "cors";
 import express from "express";
 import Stripe from "stripe";
 import { runSiteAudit } from "./audit.js";
+import { buildAuditPdf } from "./audit-pipeline.js";
 import { sendAuditReportEmail } from "./email.js";
 import { generateAuditPDF } from "./pdf.js";
 import { sendAuditError } from "./errors.js";
+import { handleInstantlyWebhook } from "./instantly-webhook.js";
 import { normalizeWebsiteUrl, scrapeWebsiteText } from "./scrape.js";
+import { registerAdminRoutes } from "./admin.js";
+import { processNurtureEmails } from "./nurture.js";
+import {
+  findAuditByStripeSessionId,
+  isSupabaseConfigured,
+  markInitialEmailSent,
+  saveAuditRecord,
+} from "./supabase.js";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 4000;
 
 let stripeClient;
+
+function stripeKeyMode() {
+  const key = process.env.STRIPE_SECRET_KEY || "";
+  if (key.startsWith("sk_test_")) return "test";
+  if (key.startsWith("sk_live_")) return "live";
+  return "unknown";
+}
+
+function assertStripeKeyMatchesSession(sessionId) {
+  const isTestSession = sessionId.startsWith("cs_test_");
+  const isLiveSession = sessionId.startsWith("cs_live_");
+  const mode = stripeKeyMode();
+
+  if (isTestSession && mode === "live") {
+    throw new Error(
+      "Stripe key mismatch: your .env uses sk_live_... but this is a test checkout (cs_test_...). For local dev, set STRIPE_SECRET_KEY to your sk_test_... key from Stripe Dashboard (test mode)."
+    );
+  }
+
+  if (isLiveSession && mode === "test") {
+    throw new Error(
+      "Stripe key mismatch: your .env uses sk_test_... but this is a live checkout (cs_live_...). Use sk_live_... on production only."
+    );
+  }
+}
 
 function getStripe() {
   if (!process.env.STRIPE_SECRET_KEY) {
@@ -27,28 +62,6 @@ function getWebsiteUrlFromSession(session) {
   return session.custom_fields?.[0]?.text?.value?.trim() || null;
 }
 
-async function buildAuditPdf(websiteUrl, logPrefix) {
-  try {
-    console.log(`${logPrefix} Normalizing URL: ${websiteUrl}`);
-    const normalizedUrl = normalizeWebsiteUrl(websiteUrl);
-
-    console.log(`${logPrefix} Scraping [${normalizedUrl}]...`);
-    const scraped = await scrapeWebsiteText(normalizedUrl);
-
-    console.log(`${logPrefix} Running AI...`);
-    const report = await runSiteAudit(scraped);
-
-    console.log(`${logPrefix} Generating PDF...`);
-    const pdfBuffer = await generateAuditPDF(report, normalizedUrl);
-
-    console.log(`${logPrefix} PDF ready (${pdfBuffer.length} bytes)`);
-    return { pdfBuffer, normalizedUrl, report };
-  } catch (error) {
-    console.error(`${logPrefix} Pipeline error:`, error?.message, error);
-    throw error;
-  }
-}
-
 function sendPdfResponse(res, pdfBuffer) {
   res.setHeader("Content-Type", "application/pdf");
   res.setHeader(
@@ -59,45 +72,25 @@ function sendPdfResponse(res, pdfBuffer) {
 }
 
 function runAuditInBackground(websiteUrl, sessionId, customerEmail) {
-  const logPrefix = `[audit:${sessionId ?? "unknown"}]`;
+  const logPrefix = `[webhook:${sessionId ?? "unknown"}]`;
 
   setImmediate(async () => {
     try {
-      console.log(`${logPrefix} Normalizing URL: ${websiteUrl}`);
-      const normalizedUrl = normalizeWebsiteUrl(websiteUrl);
-
-      console.log(`${logPrefix} Scraping [${normalizedUrl}]...`);
-      const scraped = await scrapeWebsiteText(normalizedUrl);
-
-      console.log(`${logPrefix} Running AI...`);
-      const report = await runSiteAudit(scraped);
-
-      console.log(`${logPrefix} Audit Complete.`, {
-        url: normalizedUrl,
-        seo: report.seo?.score,
-        leadCapture: report.leadCapture?.score,
-        mobile: report.mobile?.score,
-        trust: report.trust?.score,
-        messaging: report.messaging?.score,
-        performance: report.performance?.score,
-        security: report.security?.score,
-      });
-
-      console.log(`${logPrefix} Generating PDF...`);
-      const pdfBuffer = await generateAuditPDF(report, normalizedUrl);
-
-      if (!customerEmail) {
-        console.warn(`${logPrefix} No customer email — skipping send.`);
-        return;
+      if (isSupabaseConfigured()) {
+        const existing = await findAuditByStripeSessionId(sessionId);
+        if (existing?.initial_email_sent_at) {
+          console.log(
+            `${logPrefix} Audit already delivered for session — skipping webhook email.`
+          );
+          return;
+        }
       }
 
-      console.log(`${logPrefix} Sending Email to ${customerEmail}...`);
-      await sendAuditReportEmail(customerEmail, normalizedUrl, pdfBuffer);
-
-      console.log(`${logPrefix} Delivery Complete!`);
+      console.log(
+        `${logPrefix} Webhook received; delivery is handled by /api/audit-status on redirect.`
+      );
     } catch (err) {
-      console.error(`${logPrefix} Audit failed:`, err.message);
-      console.error(err);
+      console.error(`${logPrefix} Webhook check failed:`, err.message);
     }
   });
 }
@@ -152,12 +145,15 @@ app.post("/webhook", express.raw({ type: "application/json" }), (req, res) => {
 
 app.use(express.json({ limit: "32kb" }));
 
+app.post("/api/webhooks/instantly", handleInstantlyWebhook);
+
 app.get("/api/health", (_req, res) => {
   res.json({
     ok: true,
     service: "toolcrate-audit-api",
     openaiConfigured: Boolean(process.env.OPENAI_API_KEY),
     stripeConfigured: Boolean(process.env.STRIPE_SECRET_KEY),
+    supabaseConfigured: isSupabaseConfigured(),
   });
 });
 
@@ -176,6 +172,7 @@ app.get("/api/audit-status", async (req, res) => {
   }
 
   try {
+    assertStripeKeyMatchesSession(sessionId);
     const stripe = getStripe();
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
@@ -200,7 +197,68 @@ app.get("/api/audit-status", async (req, res) => {
       });
     }
 
-    const { pdfBuffer } = await buildAuditPdf(websiteUrl, logPrefix);
+    const customerEmail = session.customer_details?.email?.trim() || null;
+
+    if (isSupabaseConfigured()) {
+      const existing = await findAuditByStripeSessionId(sessionId);
+
+      if (existing?.report) {
+        console.log(`${logPrefix} Returning cached audit (no duplicate email).`);
+        const pdfBuffer = await generateAuditPDF(
+          existing.report,
+          existing.website_url
+        );
+
+        if (customerEmail && !existing.initial_email_sent_at) {
+          console.log(`${logPrefix} Retrying one-time delivery email...`);
+          await sendAuditReportEmail(
+            customerEmail,
+            existing.website_url,
+            pdfBuffer
+          );
+          await markInitialEmailSent(existing.id);
+        }
+
+        return sendPdfResponse(res, pdfBuffer);
+      }
+    }
+
+    const { pdfBuffer, normalizedUrl, report } = await buildAuditPdf(
+      websiteUrl,
+      logPrefix
+    );
+
+    let shouldSendEmail = Boolean(customerEmail);
+
+    if (customerEmail && isSupabaseConfigured()) {
+      console.log(`${logPrefix} Saving audit to Supabase...`);
+      const saved = await saveAuditRecord({
+        email: customerEmail,
+        websiteUrl: normalizedUrl,
+        stripeSessionId: sessionId,
+        report,
+      });
+      shouldSendEmail = saved.isNew;
+    } else if (!isSupabaseConfigured()) {
+      console.warn(`${logPrefix} Supabase not configured — audit not persisted.`);
+    }
+
+    if (shouldSendEmail) {
+      console.log(`${logPrefix} Sending delivery email to ${customerEmail}...`);
+      await sendAuditReportEmail(customerEmail, normalizedUrl, pdfBuffer);
+
+      if (isSupabaseConfigured()) {
+        const saved = await findAuditByStripeSessionId(sessionId);
+        if (saved?.id) {
+          await markInitialEmailSent(saved.id);
+        }
+      }
+    } else if (customerEmail) {
+      console.log(`${logPrefix} Delivery email already sent — skipping Resend.`);
+    } else {
+      console.warn(`${logPrefix} No customer email on session — skipping Resend.`);
+    }
+
     return sendPdfResponse(res, pdfBuffer);
   } catch (error) {
     return sendAuditError(res, error, logPrefix);
@@ -218,6 +276,45 @@ app.post("/api/audit-pdf", async (req, res) => {
     return sendAuditError(res, error, logPrefix);
   }
 });
+
+function verifyCronSecret(req) {
+  const secret = process.env.CRON_SECRET?.trim();
+  if (!secret) {
+    throw new Error("CRON_SECRET is not configured on the server.");
+  }
+
+  const bearer = req.headers.authorization?.startsWith("Bearer ")
+    ? req.headers.authorization.slice(7)
+    : null;
+  const header = req.headers["x-cron-secret"];
+  const query = req.query.secret;
+
+  if (bearer !== secret && header !== secret && query !== secret) {
+    const err = new Error("Unauthorized cron request.");
+    err.statusCode = 401;
+    throw err;
+  }
+}
+
+async function handleNurtureCron(req, res) {
+  try {
+    verifyCronSecret(req);
+    const summary = await processNurtureEmails();
+    return res.json({ ok: true, ...summary });
+  } catch (error) {
+    const status = error.statusCode ?? 500;
+    console.error("[nurture-cron] Failed:", error.message);
+    return res.status(status).json({
+      ok: false,
+      error: error.message,
+    });
+  }
+}
+
+app.post("/api/cron/process-nurture", handleNurtureCron);
+app.post("/api/cron/process-nurture-emails", handleNurtureCron);
+
+registerAdminRoutes(app, { verifyCronSecret });
 
 app.post("/api/audit", async (req, res) => {
   const { websiteUrl, generatePdf } = req.body ?? {};
