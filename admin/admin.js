@@ -294,6 +294,7 @@ function renderWarmLeads(leads) {
     .map((lead) => {
       const isSending = sendingAuditLeadId === lead.id;
       const canSend = lead.status === "pending" && lead.website?.trim();
+      const canSync = lead.status === "audit_sent" && lead.website?.trim();
       const sendLabel = isSending ? "Generating…" : "Generate & Send Free Audit";
 
       return `
@@ -310,6 +311,11 @@ function renderWarmLeads(leads) {
               data-action="send-audit"
               ${!canSend || isSending ? "disabled" : ""}
             >${sendLabel}</button>
+            ${
+              canSync
+                ? `<button type="button" class="btn btn-small" data-action="sync-audit">Add to audits list</button>`
+                : ""
+            }
           </td>
         </tr>`;
     })
@@ -414,6 +420,32 @@ async function sendFreeAuditForLead(leadId) {
       `Free audit sent to ${data.email} (${data.website}).`,
       false
     );
+    await loadAudits();
+  } catch (error) {
+    setStatus(warmLeadsStatus, serverConfigHint(error.message), true);
+  } finally {
+    sendingAuditLeadId = null;
+    renderWarmLeads(warmLeadsCache);
+  }
+}
+
+async function syncWarmLeadToAudits(leadId) {
+  const lead = warmLeadsCache.find((item) => item.id === leadId);
+  if (!lead || sendingAuditLeadId) return;
+
+  sendingAuditLeadId = leadId;
+  renderWarmLeads(warmLeadsCache);
+  setStatus(warmLeadsStatus, `Adding ${lead.website} to Recent audits…`, false);
+
+  try {
+    const data = await adminFetch(`/api/admin/warm-leads/${leadId}/sync-audit`, {
+      method: "POST",
+      body: JSON.stringify({ lead_id: leadId }),
+      timeoutMs: AUDIT_SEND_TIMEOUT_MS,
+    });
+
+    setStatus(warmLeadsStatus, data.message, false);
+    await loadAudits();
   } catch (error) {
     setStatus(warmLeadsStatus, serverConfigHint(error.message), true);
   } finally {
@@ -424,13 +456,20 @@ async function sendFreeAuditForLead(leadId) {
 
 async function handleWarmLeadsTableClick(event) {
   const button = event.target.closest("button[data-action]");
-  if (!button || button.dataset.action !== "send-audit") return;
+  if (!button) return;
 
   const row = button.closest("tr[data-lead-id]");
   const leadId = row?.dataset.leadId;
   if (!leadId) return;
 
-  await sendFreeAuditForLead(leadId);
+  if (button.dataset.action === "send-audit") {
+    await sendFreeAuditForLead(leadId);
+    return;
+  }
+
+  if (button.dataset.action === "sync-audit") {
+    await syncWarmLeadToAudits(leadId);
+  }
 }
 
 function renderScoreCards(report) {

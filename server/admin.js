@@ -5,11 +5,14 @@ import {
   fetchAuditById,
   fetchAuditDetailById,
   fetchRecentAudits,
+  findAuditByStripeSessionId,
   fetchWarmLeadById,
   fetchWarmLeads,
   insertWarmLead,
   isSupabaseConfigured,
+  markInitialEmailSent,
   markWarmLeadAuditSent,
+  saveAuditRecord,
   saveCallScript,
 } from "./supabase.js";
 import { sendAllNurturePreviews, sendNurtureStage } from "./nurture.js";
@@ -223,6 +226,56 @@ function resolveLeadId(req) {
   return id;
 }
 
+function warmLeadSessionId(leadId) {
+  return `warm_lead:${leadId}`;
+}
+
+export async function syncWarmLeadAudit(req) {
+  requireSupabase();
+  const leadId = resolveLeadId(req);
+  const lead = await fetchWarmLeadById(leadId);
+
+  if (!lead.website?.trim()) {
+    const err = new Error("This lead has no website URL.");
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const sessionId = warmLeadSessionId(leadId);
+  const existing = await findAuditByStripeSessionId(sessionId);
+
+  if (existing) {
+    return {
+      ok: true,
+      audit_id: existing.id,
+      cached: true,
+      message: "Already in Recent audits.",
+    };
+  }
+
+  const logPrefix = `[sync-audit:${leadId}]`;
+  console.log(`${logPrefix} Backfilling audit for ${lead.website}...`);
+
+  const { normalizedUrl, report } = await buildAuditPdf(lead.website, logPrefix);
+
+  const saved = await saveAuditRecord({
+    email: lead.email,
+    websiteUrl: normalizedUrl,
+    stripeSessionId: sessionId,
+    report,
+  });
+
+  await markInitialEmailSent(saved.id);
+
+  return {
+    ok: true,
+    audit_id: saved.id,
+    cached: false,
+    website: normalizedUrl,
+    message: "Added to Recent audits (no email resent).",
+  };
+}
+
 export async function sendFreeAudit(req) {
   requireSupabase();
   const leadId = resolveLeadId(req);
@@ -245,18 +298,31 @@ export async function sendFreeAudit(req) {
   const logPrefix = `[free-audit:${leadId}]`;
   console.log(`${logPrefix} Generating audit for ${lead.website} → ${lead.email}`);
 
-  const { pdfBuffer, normalizedUrl } = await buildAuditPdf(lead.website, logPrefix);
+  const { pdfBuffer, normalizedUrl, report } = await buildAuditPdf(
+    lead.website,
+    logPrefix
+  );
+
+  console.log(`${logPrefix} Saving audit to Supabase...`);
+  const saved = await saveAuditRecord({
+    email: lead.email,
+    websiteUrl: normalizedUrl,
+    stripeSessionId: warmLeadSessionId(leadId),
+    report,
+  });
 
   console.log(`${logPrefix} Emailing PDF to ${lead.email}...`);
   const emailResult = await sendFreeAuditEmail(lead.email, normalizedUrl, pdfBuffer);
 
+  await markInitialEmailSent(saved.id);
   const updated = await markWarmLeadAuditSent(leadId);
 
-  console.log(`${logPrefix} Done — status audit_sent`);
+  console.log(`${logPrefix} Done — status audit_sent, audit ${saved.id}`);
 
   return {
     ok: true,
     lead_id: updated.id,
+    audit_id: saved.id,
     email: updated.email,
     website: normalizedUrl,
     status: updated.status,
@@ -290,5 +356,6 @@ export function registerAdminRoutes(app, { verifyCronSecret }) {
   app.post("/api/admin/nurture-preview", guard(previewAllNurtureEmails));
   app.get("/api/admin/warm-leads", guard(listWarmLeads));
   app.post("/api/admin/warm-leads", guard(createWarmLead));
+  app.post("/api/admin/warm-leads/:id/sync-audit", guard(syncWarmLeadAudit));
   app.post("/api/admin/send-free-audit", guard(sendFreeAudit));
 }
