@@ -1,4 +1,4 @@
-import { insertWarmLead, isSupabaseConfigured } from "./supabase.js";
+import { upsertWarmLeadFromReply, isSupabaseConfigured } from "./supabase.js";
 
 const REPLY_EVENT_TYPES = new Set([
   "reply_received",
@@ -27,6 +27,27 @@ function verifyInstantlyWebhookSecret(req) {
   }
 }
 
+function normalizePayload(body) {
+  if (body == null) {
+    return {};
+  }
+
+  if (typeof body === "string") {
+    try {
+      const parsed = JSON.parse(body);
+      return typeof parsed === "object" && parsed !== null ? parsed : {};
+    } catch {
+      return {};
+    }
+  }
+
+  if (typeof body === "object" && !Array.isArray(body)) {
+    return body;
+  }
+
+  return {};
+}
+
 function pickString(...values) {
   for (const value of values) {
     if (typeof value === "string" && value.trim()) {
@@ -34,6 +55,14 @@ function pickString(...values) {
     }
   }
   return null;
+}
+
+function safeExtract(fn, payload) {
+  try {
+    return fn(payload);
+  } catch {
+    return null;
+  }
 }
 
 function extractWebsite(payload) {
@@ -48,7 +77,7 @@ function extractWebsite(payload) {
   if (direct) return direct;
 
   const nested = payload.payload ?? payload.lead ?? payload.custom_variables;
-  if (nested && typeof nested === "object") {
+  if (nested && typeof nested === "object" && !Array.isArray(nested)) {
     return pickString(
       nested.website,
       nested.Website,
@@ -77,7 +106,9 @@ function extractReplyText(payload) {
     payload.reply_text_snippet,
     payload.email_text,
     payload.reply_html,
-    payload.email_html
+    payload.email_html,
+    payload.body,
+    payload.message
   );
 }
 
@@ -101,7 +132,7 @@ export async function handleInstantlyWebhook(req, res) {
       });
     }
 
-    const payload = req.body ?? {};
+    const payload = normalizePayload(req.body);
 
     if (!isReplyEvent(payload)) {
       return res.json({
@@ -111,29 +142,31 @@ export async function handleInstantlyWebhook(req, res) {
       });
     }
 
-    const email = extractEmail(payload);
+    const email = safeExtract(extractEmail, payload);
     if (!email) {
+      console.warn("[instantly-webhook] Missing email in payload keys:", Object.keys(payload));
       return res.status(400).json({
         ok: false,
         error: "Missing lead email in webhook payload.",
       });
     }
 
-    const website = extractWebsite(payload);
-    const replyText = extractReplyText(payload);
+    const website = safeExtract(extractWebsite, payload);
+    const replyText = safeExtract(extractReplyText, payload);
 
-    const lead = await insertWarmLead({ email, website, replyText });
+    const lead = await upsertWarmLeadFromReply({ email, website, replyText });
 
     console.log(
-      `[instantly-webhook] Warm lead saved: ${lead.id} (${email}${website ? `, ${website}` : ""})`
+      `[instantly-webhook] Warm lead ${lead.updated ? "updated" : "created"}: ${lead.id} (${email}${website ? `, ${website}` : ""})`
     );
 
-    return res.status(201).json({
+    return res.status(lead.updated ? 200 : 201).json({
       ok: true,
       lead_id: lead.id,
       email: lead.email,
       website: lead.website,
       status: lead.status,
+      updated: lead.updated,
     });
   } catch (error) {
     const status = error.statusCode ?? 500;

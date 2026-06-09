@@ -205,8 +205,27 @@ function scriptBadge(audit) {
     : '<span class="badge badge--pending">—</span>';
 }
 
-function warmLeadStatusBadge(status) {
-  if (status === "audit_sent") {
+function warmLeadStatusBadge(lead) {
+  if (typeof lead === "string") {
+    if (lead === "completed") {
+      return '<span class="badge badge--sent">Completed</span>';
+    }
+    if (lead === "audit_sent") {
+      return '<span class="badge badge--sent">Audit sent</span>';
+    }
+    return '<span class="badge badge--pending">Pending</span>';
+  }
+
+  if (lead.status === "completed") {
+    return '<span class="badge badge--sent">Completed</span>';
+  }
+  if (lead.status === "audit_sent") {
+    if (lead.follow_up_step >= 3) {
+      return '<span class="badge badge--sent">Completed</span>';
+    }
+    if (lead.follow_up_step === 2) {
+      return '<span class="badge badge--sent">Follow-up 1 sent</span>';
+    }
     return '<span class="badge badge--sent">Audit sent</span>';
   }
   return '<span class="badge badge--pending">Pending</span>';
@@ -294,7 +313,9 @@ function renderWarmLeads(leads) {
     .map((lead) => {
       const isSending = sendingAuditLeadId === lead.id;
       const canSend = lead.status === "pending" && lead.website?.trim();
-      const canSync = lead.status === "audit_sent" && lead.website?.trim();
+      const canSync =
+        (lead.status === "audit_sent" || lead.status === "completed") &&
+        lead.website?.trim();
       const sendLabel = isSending ? "Generating…" : "Generate & Send Free Audit";
 
       return `
@@ -302,7 +323,7 @@ function renderWarmLeads(leads) {
           <td>${escapeHtml(lead.email)}</td>
           <td class="cell-url">${lead.website ? escapeHtml(lead.website) : '<span class="admin-muted">—</span>'}</td>
           <td class="cell-reply" title="${escapeHtml(lead.reply_text || "")}">${escapeHtml(truncateReply(lead.reply_text))}</td>
-          <td>${warmLeadStatusBadge(lead.status)}</td>
+          <td>${warmLeadStatusBadge(lead)}</td>
           <td>${formatDate(lead.created_at)}</td>
           <td class="cell-actions">
             <button

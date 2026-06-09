@@ -289,7 +289,7 @@ export async function sendFreeAudit(req) {
     throw err;
   }
 
-  if (lead.status === "audit_sent") {
+  if (lead.status === "audit_sent" || lead.status === "completed") {
     const err = new Error("Free audit was already sent for this lead.");
     err.statusCode = 409;
     throw err;

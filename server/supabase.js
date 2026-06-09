@@ -155,17 +155,24 @@ async function queryAudits(select, builder) {
   let query = supabase.from("audits").select(select);
   query = builder(query);
 
-  const { data, error } = await query;
+  try {
+    const { data, error } = await query;
 
-  if (!error) {
-    return (data ?? []).map(withDefaultNurtureFlags);
+    if (!error) {
+      return (data ?? []).map(withDefaultNurtureFlags);
+    }
+
+    if (select !== AUDIT_SELECT_BASIC && isMissingNurtureColumnsError(error.message)) {
+      return queryAudits(AUDIT_SELECT_BASIC, builder);
+    }
+
+    throw wrapSupabaseError(error, "fetch audits");
+  } catch (error) {
+    if (select !== AUDIT_SELECT_BASIC && isMissingNurtureColumnsError(error?.message)) {
+      return queryAudits(AUDIT_SELECT_BASIC, builder);
+    }
+    throw wrapSupabaseError(error, "fetch audits");
   }
-
-  if (select !== AUDIT_SELECT_BASIC && isMissingNurtureColumnsError(error.message)) {
-    return queryAudits(AUDIT_SELECT_BASIC, builder);
-  }
-
-  throw new Error(error.message || "Failed to fetch audits.");
 }
 
 async function queryAuditById(select, auditId) {
@@ -328,7 +335,22 @@ async function markNurtureFlag(auditId, flags) {
   }
 }
 
-const WARM_LEAD_SELECT = "id, email, website, reply_text, status, created_at";
+const WARM_LEAD_SELECT =
+  "id, email, website, reply_text, status, follow_up_step, last_emailed_at, created_at";
+
+function isMissingWarmLeadFollowUpColumns(message = "") {
+  return /follow_up_step|last_emailed_at|completed/i.test(message);
+}
+
+function wrapSupabaseError(error, context) {
+  const message = error?.message || String(error);
+  if (/fetch failed|ENOTFOUND|ECONNREFUSED|ETIMEDOUT|network/i.test(message)) {
+    return new Error(
+      `Cannot reach Supabase (${context}). Check SUPABASE_URL in Render — open Supabase Dashboard → Project Settings → API and copy the Project URL. The hostname in your env may be wrong or the project may be paused.`
+    );
+  }
+  return new Error(message || `Supabase error (${context}).`);
+}
 
 export async function insertWarmLead({ email, website, replyText }) {
   const supabase = getSupabaseAdmin();
@@ -347,27 +369,108 @@ export async function insertWarmLead({ email, website, replyText }) {
     .single();
 
   if (error) {
-    throw new Error(error.message || "Failed to insert warm lead.");
+    throw wrapSupabaseError(error, "insert warm lead");
   }
 
   return data;
+}
+
+export async function upsertWarmLeadFromReply({ email, website, replyText }) {
+  const supabase = getSupabaseAdmin();
+  const normalizedEmail = email.trim().toLowerCase();
+
+  let existing = null;
+
+  try {
+    const { data, error } = await supabase
+      .from("warm_leads")
+      .select(WARM_LEAD_SELECT)
+      .eq("email", normalizedEmail)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      throw wrapSupabaseError(error, "look up warm lead");
+    }
+    existing = data;
+  } catch (error) {
+    if (isMissingWarmLeadFollowUpColumns(error.message)) {
+      const { data, error } = await supabase
+        .from("warm_leads")
+        .select("id, email, website, reply_text, status, created_at")
+        .eq("email", normalizedEmail)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) throw wrapSupabaseError(error, "look up warm lead");
+      existing = data;
+    } else {
+      throw error;
+    }
+  }
+
+  const basePatch = {
+    reply_text: replyText?.trim() || null,
+    status: "pending",
+  };
+  if (website?.trim()) {
+    basePatch.website = website.trim();
+  }
+
+  const fullPatch = {
+    ...basePatch,
+    follow_up_step: 0,
+    last_emailed_at: null,
+  };
+
+  if (existing) {
+    let { data, error } = await supabase
+      .from("warm_leads")
+      .update(fullPatch)
+      .eq("id", existing.id)
+      .select(WARM_LEAD_SELECT)
+      .single();
+
+    if (error && isMissingWarmLeadFollowUpColumns(error.message)) {
+      ({ data, error } = await supabase
+        .from("warm_leads")
+        .update(basePatch)
+        .eq("id", existing.id)
+        .select("id, email, website, reply_text, status, created_at")
+        .single());
+    }
+
+    if (error) {
+      throw wrapSupabaseError(error, "update warm lead");
+    }
+
+    return { ...data, updated: true };
+  }
+
+  const inserted = await insertWarmLead({ email: normalizedEmail, website, replyText });
+  return { ...inserted, updated: false };
 }
 
 export async function fetchWarmLeads(limit = 50) {
   const supabase = getSupabaseAdmin();
   const safeLimit = Math.min(Math.max(Number(limit) || 50, 1), 100);
 
-  const { data, error } = await supabase
-    .from("warm_leads")
-    .select(WARM_LEAD_SELECT)
-    .order("created_at", { ascending: false })
-    .limit(safeLimit);
+  try {
+    const { data, error } = await supabase
+      .from("warm_leads")
+      .select(WARM_LEAD_SELECT)
+      .order("created_at", { ascending: false })
+      .limit(safeLimit);
 
-  if (error) {
-    throw new Error(error.message || "Failed to fetch warm leads.");
+    if (error) {
+      throw wrapSupabaseError(error, "fetch warm leads");
+    }
+
+    return data ?? [];
+  } catch (error) {
+    throw wrapSupabaseError(error, "fetch warm leads");
   }
-
-  return data ?? [];
 }
 
 export async function fetchWarmLeadById(leadId) {
@@ -394,14 +497,31 @@ export async function fetchWarmLeadById(leadId) {
 
 export async function markWarmLeadAuditSent(leadId) {
   const supabase = getSupabaseAdmin();
+  const now = new Date().toISOString();
 
-  const { data, error } = await supabase
+  const fullUpdate = {
+    status: "audit_sent",
+    follow_up_step: 1,
+    last_emailed_at: now,
+  };
+
+  let { data, error } = await supabase
     .from("warm_leads")
-    .update({ status: "audit_sent" })
+    .update(fullUpdate)
     .eq("id", leadId)
     .eq("status", "pending")
     .select(WARM_LEAD_SELECT)
     .maybeSingle();
+
+  if (error && isMissingWarmLeadFollowUpColumns(error.message)) {
+    ({ data, error } = await supabase
+      .from("warm_leads")
+      .update({ status: "audit_sent" })
+      .eq("id", leadId)
+      .eq("status", "pending")
+      .select("id, email, website, reply_text, status, created_at")
+      .maybeSingle());
+  }
 
   if (error) {
     throw new Error(error.message || "Failed to update warm lead status.");
@@ -409,7 +529,7 @@ export async function markWarmLeadAuditSent(leadId) {
 
   if (!data) {
     const existing = await fetchWarmLeadById(leadId);
-    if (existing.status === "audit_sent") {
+    if (existing.status === "audit_sent" || existing.status === "completed") {
       const err = new Error("Free audit was already sent for this lead.");
       err.statusCode = 409;
       throw err;
@@ -418,4 +538,69 @@ export async function markWarmLeadAuditSent(leadId) {
   }
 
   return data;
+}
+
+/** Step 2 due: audit sent, step 1, 48+ hours since last email. */
+export async function fetchWarmLeadsDueForStep2() {
+  return fetchWarmLeadsDueForStep(1, 48);
+}
+
+/** Step 3 due: audit sent, step 2, 96+ hours (4 days) since last email. */
+export async function fetchWarmLeadsDueForStep3() {
+  return fetchWarmLeadsDueForStep(2, 96);
+}
+
+async function fetchWarmLeadsDueForStep(currentStep, hoursSinceEmail) {
+  const supabase = getSupabaseAdmin();
+  const cutoff = hoursAgoIso(hoursSinceEmail);
+
+  try {
+    const { data, error } = await supabase
+      .from("warm_leads")
+      .select(WARM_LEAD_SELECT)
+      .eq("status", "audit_sent")
+      .eq("follow_up_step", currentStep)
+      .lte("last_emailed_at", cutoff);
+
+    if (error) {
+      throw wrapSupabaseError(error, "fetch warm lead nurture queue");
+    }
+
+    return data ?? [];
+  } catch (error) {
+    if (isMissingWarmLeadFollowUpColumns(error.message)) {
+      throw new Error(
+        "warm_leads follow-up columns missing. Run docs/supabase-warm-leads-follow-up.sql in Supabase."
+      );
+    }
+    throw error;
+  }
+}
+
+export async function markWarmLeadStep2Sent(leadId) {
+  return markWarmLeadFollowUpStep(leadId, { follow_up_step: 2 });
+}
+
+export async function markWarmLeadStep3Sent(leadId) {
+  return markWarmLeadFollowUpStep(leadId, {
+    follow_up_step: 3,
+    status: "completed",
+  });
+}
+
+async function markWarmLeadFollowUpStep(leadId, fields) {
+  const supabase = getSupabaseAdmin();
+  const now = new Date().toISOString();
+  const payload = { ...fields, last_emailed_at: now };
+
+  const { error } = await supabase.from("warm_leads").update(payload).eq("id", leadId);
+
+  if (error) {
+    if (isMissingWarmLeadFollowUpColumns(error.message)) {
+      throw new Error(
+        "warm_leads follow-up columns missing. Run docs/supabase-warm-leads-follow-up.sql in Supabase."
+      );
+    }
+    throw new Error(error.message || "Failed to update warm lead follow-up step.");
+  }
 }

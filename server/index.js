@@ -11,6 +11,7 @@ import { handleInstantlyWebhook } from "./instantly-webhook.js";
 import { normalizeWebsiteUrl, scrapeWebsiteText } from "./scrape.js";
 import { registerAdminRoutes } from "./admin.js";
 import { processNurtureEmails } from "./nurture.js";
+import { processWarmLeadNurture } from "./warm-lead-nurture.js";
 import {
   findAuditByStripeSessionId,
   isSupabaseConfigured,
@@ -154,6 +155,7 @@ app.get("/api/health", (_req, res) => {
     openaiConfigured: Boolean(process.env.OPENAI_API_KEY),
     stripeConfigured: Boolean(process.env.STRIPE_SECRET_KEY),
     supabaseConfigured: isSupabaseConfigured(),
+    cronSecretConfigured: Boolean(process.env.CRON_SECRET?.trim()),
   });
 });
 
@@ -311,8 +313,24 @@ async function handleNurtureCron(req, res) {
   }
 }
 
+async function handleWarmLeadNurtureCron(req, res) {
+  try {
+    verifyCronSecret(req);
+    const summary = await processWarmLeadNurture();
+    return res.json({ ok: true, ...summary });
+  } catch (error) {
+    const status = error.statusCode ?? 500;
+    console.error("[warm-lead-nurture-cron] Failed:", error.message);
+    return res.status(status).json({
+      ok: false,
+      error: error.message,
+    });
+  }
+}
+
 app.post("/api/cron/process-nurture", handleNurtureCron);
 app.post("/api/cron/process-nurture-emails", handleNurtureCron);
+app.post("/api/cron/warm-leads-nurture", handleWarmLeadNurtureCron);
 
 registerAdminRoutes(app, { verifyCronSecret });
 
