@@ -14,7 +14,10 @@ export function formatAuditError(error) {
   const message = error?.message || "Audit failed.";
 
   if (SCRAPE_ERROR_PATTERNS.some((pattern) => pattern.test(message))) {
-    return "We couldn't access this website. It might have bot protection enabled.";
+    if (/refund you|run it manually/i.test(message)) {
+      return message;
+    }
+    return "We couldn't access this website. It might have bot protection enabled — reply to your audit email and we'll help.";
   }
 
   return message;
