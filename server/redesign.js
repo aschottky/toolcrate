@@ -41,6 +41,7 @@ TECHNICAL RULES:
 - No JavaScript frameworks, no external CSS. Vanilla CSS only.
 - Animations are encouraged (CSS only): scroll-in effects via @keyframes, hover lifts, glowing CTAs
 - Must render beautifully at 1280px wide - it will be screenshotted by Puppeteer
+- Fully responsive at all screen sizes. Use CSS media queries with breakpoints at 768px and 480px. On mobile: single column layout, stacked navigation, full-width buttons, font sizes scaled down. The site must look as good on a phone as it does at 1280px.
 - The page must have: hero section, trust/stats bar, services section, testimonials, final CTA, footer
 - Output ONLY raw HTML. No explanations. No markdown. No code fences.
 

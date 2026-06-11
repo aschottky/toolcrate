@@ -25,6 +25,7 @@ Use their real company name, phone, location, services, colors, and any image UR
 TECHNICAL RULES:
 - All CSS in a style tag, Google Fonts via @import, no external frameworks
 - Looks great at 1280px wide - will be screenshotted by Puppeteer
+- Fully responsive at all screen sizes. Use CSS media queries with breakpoints at 768px and 480px. On mobile: single column layout, stacked navigation, full-width buttons, font sizes scaled down. The site must look as good on a phone as it does at 1280px.
 - Output ONLY raw HTML, no explanation, no markdown fences`;
 
 const MAX_ATTEMPTS = 2;
