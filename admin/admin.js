@@ -38,12 +38,24 @@ const scriptLoading = document.getElementById("script-loading");
 const scriptLoadingText = document.getElementById("script-loading-text");
 const scriptOutput = document.getElementById("script-output");
 
+const refreshRedesignsBtn = document.getElementById("refresh-redesigns");
+const redesignEngineSelect = document.getElementById("redesign-engine");
+const redesignMaxTokensInput = document.getElementById("redesign-max-tokens");
+const redesignManualUrlInput = document.getElementById("redesign-manual-url");
+const orderRedesignManualBtn = document.getElementById("order-redesign-manual");
+const redesignsStatus = document.getElementById("redesigns-status");
+const redesignsTableWrap = document.getElementById("redesigns-table-wrap");
+const redesignsBody = document.getElementById("redesigns-body");
+
 const SCRIPT_GENERATE_TIMEOUT_MS = 120000;
 const AUDIT_SEND_TIMEOUT_MS = 180000;
+const REDESIGN_ORDER_TIMEOUT_MS = 360000;
 const OPEN_DETAIL_GUARD_MS = 400;
 
 let auditsCache = [];
 let warmLeadsCache = [];
+let redesignsCache = [];
+let orderingRedesign = false;
 let sendingAuditLeadId = null;
 let selectedAuditId = null;
 let selectedAuditDetail = null;
@@ -279,6 +291,7 @@ function renderAudits(audits) {
           <td>${sentBadge(audit.day_7_sent)}</td>
           <td class="cell-actions">
             <button type="button" class="btn btn-small" data-action="open">View</button>
+            <button type="button" class="btn btn-small" data-action="order-redesign">Order redesign</button>
             <button type="button" class="btn btn-small" data-action="preview" data-day="2">Preview D2</button>
             <button type="button" class="btn btn-small" data-action="preview" data-day="4">Preview D4</button>
             <button type="button" class="btn btn-small" data-action="preview" data-day="7">Preview D7</button>
@@ -337,6 +350,11 @@ function renderWarmLeads(leads) {
                 ? `<button type="button" class="btn btn-small" data-action="sync-audit">Add to audits list</button>`
                 : ""
             }
+            ${
+              lead.website?.trim()
+                ? `<button type="button" class="btn btn-small" data-action="order-redesign">Order redesign</button>`
+                : ""
+            }
           </td>
         </tr>`;
     })
@@ -344,6 +362,124 @@ function renderWarmLeads(leads) {
 
   warmLeadsTableWrap.hidden = false;
   setStatus(warmLeadsStatus, `${leads.length} warm lead(s) loaded.`, false);
+}
+
+function previewLinkFor(redesign) {
+  // Admin lives at /admin/, the preview page at /preview/ — same origin in dev and prod.
+  return new URL(
+    `../preview/?t=${encodeURIComponent(redesign.preview_token)}`,
+    window.location.href
+  ).toString();
+}
+
+const ENGINE_LABELS = {
+  "claude-opus": "Claude Opus 4.5",
+  "claude-sonnet": "Claude Sonnet 4.5",
+  "gpt-4o": "GPT-4o",
+};
+
+function renderRedesigns(redesigns) {
+  redesignsCache = redesigns;
+
+  if (!redesigns.length) {
+    redesignsTableWrap.hidden = true;
+    setStatus(redesignsStatus, "No redesigns ordered yet.", false);
+    return;
+  }
+
+  redesignsBody.innerHTML = redesigns
+    .map(
+      (item) => `
+        <tr data-redesign-id="${item.id}">
+          <td class="cell-url">${escapeHtml(item.website_url)}</td>
+          <td>${item.email ? escapeHtml(item.email) : '<span class="admin-muted">—</span>'}</td>
+          <td>${escapeHtml(ENGINE_LABELS[item.engine] || item.engine)}</td>
+          <td>${formatDate(item.created_at)}</td>
+          <td class="cell-actions">
+            <a class="btn btn-small" href="${previewLinkFor(item)}" target="_blank" rel="noopener">Open preview</a>
+            <button type="button" class="btn btn-small" data-action="copy-preview">Copy link</button>
+          </td>
+        </tr>`
+    )
+    .join("");
+
+  redesignsTableWrap.hidden = false;
+  setStatus(redesignsStatus, `${redesigns.length} redesign(s) loaded.`, false);
+}
+
+async function loadRedesigns() {
+  setStatus(redesignsStatus, "Loading…", false);
+  redesignsTableWrap.hidden = true;
+
+  try {
+    const data = await adminFetch("/api/admin/redesigns?limit=50");
+    renderRedesigns(data.redesigns);
+  } catch (error) {
+    setStatus(redesignsStatus, serverConfigHint(error.message), true);
+  }
+}
+
+function redesignSettings() {
+  return {
+    engine: redesignEngineSelect.value,
+    max_tokens: Number(redesignMaxTokensInput.value) || 20000,
+  };
+}
+
+async function orderRedesign({ sourceType, sourceId = null, websiteUrl = null, label }) {
+  if (orderingRedesign) return;
+
+  const { engine, max_tokens } = redesignSettings();
+  const engineLabel = ENGINE_LABELS[engine] || engine;
+
+  const confirmed = confirm(
+    `Order an HTML redesign for ${label}?\n\nAgent: ${engineLabel}\nMax tokens: ${max_tokens}\n\nThis takes 30 seconds – 3 minutes depending on the agent.`
+  );
+  if (!confirmed) return;
+
+  orderingRedesign = true;
+  setStatus(redesignsStatus, `Generating redesign for ${label} with ${engineLabel}…`, false);
+
+  try {
+    const data = await adminFetch("/api/admin/redesigns", {
+      method: "POST",
+      body: JSON.stringify({
+        source_type: sourceType,
+        source_id: sourceId,
+        website_url: websiteUrl,
+        engine,
+        max_tokens,
+      }),
+      timeoutMs: REDESIGN_ORDER_TIMEOUT_MS,
+    });
+
+    redesignsCache = [data.redesign, ...redesignsCache];
+    renderRedesigns(redesignsCache);
+
+    const link = previewLinkFor(data.redesign);
+    setStatus(redesignsStatus, `Redesign ready — preview: ${link}`, false);
+    window.open(link, "_blank", "noopener");
+  } catch (error) {
+    setStatus(redesignsStatus, serverConfigHint(error.message), true);
+  } finally {
+    orderingRedesign = false;
+  }
+}
+
+async function handleRedesignsTableClick(event) {
+  const button = event.target.closest("button[data-action='copy-preview']");
+  if (!button) return;
+
+  const row = button.closest("tr[data-redesign-id]");
+  const redesign = redesignsCache.find((item) => item.id === row?.dataset.redesignId);
+  if (!redesign) return;
+
+  try {
+    await navigator.clipboard.writeText(previewLinkFor(redesign));
+    setStatus(redesignsStatus, "Preview link copied to clipboard.", false);
+  } catch {
+    setStatus(redesignsStatus, `Copy failed — link: ${previewLinkFor(redesign)}`, true);
+  }
 }
 
 async function loadWarmLeads() {
@@ -490,6 +626,23 @@ async function handleWarmLeadsTableClick(event) {
 
   if (button.dataset.action === "sync-audit") {
     await syncWarmLeadToAudits(leadId);
+    return;
+  }
+
+  if (button.dataset.action === "order-redesign") {
+    const lead = warmLeadsCache.find((item) => item.id === leadId);
+    if (!lead?.website?.trim()) return;
+
+    button.disabled = true;
+    try {
+      await orderRedesign({
+        sourceType: "warm_lead",
+        sourceId: leadId,
+        label: lead.website,
+      });
+    } finally {
+      button.disabled = false;
+    }
   }
 }
 
@@ -747,6 +900,20 @@ async function handleTableClick(event) {
     return;
   }
 
+  if (action === "order-redesign") {
+    button.disabled = true;
+    try {
+      await orderRedesign({
+        sourceType: "audit",
+        sourceId: auditId,
+        label: audit.website_url,
+      });
+    } finally {
+      button.disabled = false;
+    }
+    return;
+  }
+
   if (action === "preview") {
     const to = previewEmail.value.trim();
     if (!to) {
@@ -825,6 +992,16 @@ async function sendAllPreviews() {
 saveSecretBtn.addEventListener("click", saveSecret);
 refreshBtn.addEventListener("click", loadAudits);
 refreshWarmLeadsBtn.addEventListener("click", loadWarmLeads);
+refreshRedesignsBtn.addEventListener("click", loadRedesigns);
+redesignsBody.addEventListener("click", handleRedesignsTableClick);
+orderRedesignManualBtn.addEventListener("click", () => {
+  const url = redesignManualUrlInput.value.trim();
+  if (!url) {
+    setStatus(redesignsStatus, "Enter a website URL first.", true);
+    return;
+  }
+  orderRedesign({ sourceType: "manual", websiteUrl: url, label: url });
+});
 addWarmLeadToggleBtn.addEventListener("click", () => toggleAddWarmLeadForm(addWarmLeadForm.hidden));
 addWarmLeadForm.addEventListener("submit", submitWarmLead);
 addWarmLeadCancelBtn.addEventListener("click", () => {
@@ -851,4 +1028,5 @@ if (saved) {
   setAuthStatus("Secret loaded from session.", false);
   loadAudits();
   loadWarmLeads();
+  loadRedesigns();
 }

@@ -9,10 +9,13 @@ import { generateAuditPDF } from "./pdf.js";
 import { sendAuditError } from "./errors.js";
 import { handleInstantlyWebhook } from "./instantly-webhook.js";
 import { normalizeWebsiteUrl, scrapeWebsiteText } from "./scrape.js";
+import { generateRedesignHtml } from "./redesign.js";
+import { generateRedesignHtmlClaude } from "./redesign-claude.js";
 import { registerAdminRoutes } from "./admin.js";
 import { processNurtureEmails } from "./nurture.js";
 import { processWarmLeadNurture } from "./warm-lead-nurture.js";
 import {
+  fetchRedesignHtmlByToken,
   findAuditByStripeSessionId,
   isSupabaseConfigured,
   markInitialEmailSent,
@@ -363,6 +366,88 @@ app.post("/api/audit", async (req, res) => {
     res.json(payload);
   } catch (error) {
     return sendAuditError(res, error, "[audit]");
+  }
+});
+
+// Standalone redesign mockup — separate follow-up step after the teardown audit.
+async function handleRedesign(req, res, { websiteUrl, asHtml, generate, logPrefix }) {
+  try {
+    const normalizedUrl = normalizeWebsiteUrl(websiteUrl);
+
+    console.log(`${logPrefix} Scraping [${normalizedUrl}]...`);
+    const scraped = await scrapeWebsiteText(normalizedUrl);
+
+    console.log(`${logPrefix} Generating redesign HTML...`);
+    const html = await generate(scraped);
+    console.log(`${logPrefix} Redesign ready (${html.length} chars)`);
+
+    if (asHtml) {
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      return res.send(html);
+    }
+
+    return res.json({ ok: true, websiteUrl: normalizedUrl, html });
+  } catch (error) {
+    return sendAuditError(res, error, logPrefix);
+  }
+}
+
+function registerRedesignRoutes(path, generate, logPrefix) {
+  // Pipeline use: POST JSON { websiteUrl } → { ok, websiteUrl, html }
+  // (or raw text/html with format=html for Puppeteer's page.goto).
+  app.post(path, (req, res) => {
+    const { websiteUrl, format } = req.body ?? {};
+    const asHtml = format === "html" || req.query.format === "html";
+    return handleRedesign(req, res, { websiteUrl, asHtml, generate, logPrefix });
+  });
+
+  // Browser testing: http://localhost:4000{path}?url=example.com renders the
+  // generated page directly. Add &format=json for the JSON payload.
+  app.get(path, (req, res) => {
+    const websiteUrl = req.query.url ?? req.query.websiteUrl;
+
+    if (!websiteUrl) {
+      return res.status(400).json({
+        ok: false,
+        error: `Pass a site to redesign, e.g. ${path}?url=example.com`,
+        code: "INVALID_REQUEST",
+      });
+    }
+
+    const asHtml = req.query.format !== "json";
+    return handleRedesign(req, res, { websiteUrl, asHtml, generate, logPrefix });
+  });
+}
+
+registerRedesignRoutes("/api/redesign", generateRedesignHtml, "[redesign]");
+registerRedesignRoutes(
+  "/api/redesign-claude",
+  generateRedesignHtmlClaude,
+  "[redesign-claude]"
+);
+
+// Public preview of a stored redesign (prospect-facing, unguessable token).
+// The usetoolcrate.com/preview/ page fetches this and renders it full-screen.
+app.get("/api/preview/:token", async (req, res) => {
+  const token = String(req.params.token ?? "").trim();
+
+  if (!/^[a-z0-9-]{16,}$/i.test(token)) {
+    return res.status(400).send("Invalid preview link.");
+  }
+
+  try {
+    const redesign = await fetchRedesignHtmlByToken(token);
+
+    if (!redesign) {
+      return res.status(404).send("This preview link does not exist or has expired.");
+    }
+
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("X-Robots-Tag", "noindex, nofollow");
+    return res.send(redesign.html);
+  } catch (error) {
+    console.error("[preview] Failed:", error.message);
+    return res.status(500).send("Could not load this preview. Please try again.");
   }
 });
 

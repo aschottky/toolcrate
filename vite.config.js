@@ -11,6 +11,7 @@ export default defineConfig({
         auditTest: resolve(__dirname, "audit-test/index.html"),
         app: resolve(__dirname, "app/index.html"),
         admin: resolve(__dirname, "admin/index.html"),
+        preview: resolve(__dirname, "preview/index.html"),
       },
     },
   },

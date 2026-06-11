@@ -21,8 +21,8 @@ export function normalizeClientError(message) {
   if (/JSON\.parse/i.test(message)) {
     return "The server returned an unexpected response. Please try again.";
   }
-  if (/failed to fetch|networkerror|network error|load failed/i.test(message)) {
-    return "Could not reach the audit server. Try disabling VPN/ad blockers, wait 30s for the server to wake up, then retry.";
+  if (/failed to fetch|fetch failed|networkerror|network error|load failed|ENOTFOUND|Cannot reach Supabase/i.test(message)) {
+    return "Could not reach the audit server or Supabase. If the API just woke up, wait 30s and retry. Otherwise check SUPABASE_URL in Render matches your Supabase project.";
   }
   return message;
 }

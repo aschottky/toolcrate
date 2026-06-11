@@ -1,13 +1,21 @@
 import { buildAuditPdf } from "./audit-pipeline.js";
 import { sendFreeAuditEmail } from "./email.js";
 import { generateCallScript } from "./call-script.js";
+import { normalizeWebsiteUrl, scrapeWebsiteText } from "./scrape.js";
+import {
+  DEFAULT_REDESIGN_MAX_TOKENS,
+  listRedesignEngines,
+  resolveRedesignEngine,
+} from "./redesign-engines.js";
 import {
   fetchAuditById,
   fetchAuditDetailById,
   fetchRecentAudits,
+  fetchRecentRedesigns,
   findAuditByStripeSessionId,
   fetchWarmLeadById,
   fetchWarmLeads,
+  insertRedesign,
   insertWarmLead,
   isSupabaseConfigured,
   markInitialEmailSent,
@@ -330,6 +338,102 @@ export async function sendFreeAudit(req) {
   };
 }
 
+const MIN_REDESIGN_TOKENS = 4000;
+const MAX_REDESIGN_TOKENS = 64000;
+
+export async function listRedesigns(req) {
+  requireSupabase();
+  const limit = Number(req.query.limit) || 50;
+  const redesigns = await fetchRecentRedesigns(limit);
+  return { ok: true, redesigns, engines: listRedesignEngines() };
+}
+
+/**
+ * Order a redesign for a warm lead, a completed audit, or a manual URL.
+ * Body: { source_type: 'warm_lead'|'audit'|'manual', source_id?, website_url?, engine, max_tokens? }
+ */
+export async function orderRedesign(req) {
+  requireSupabase();
+
+  const sourceType = String(req.body?.source_type ?? "manual").trim();
+  const sourceId = req.body?.source_id?.trim() || null;
+  const engine = resolveRedesignEngine(String(req.body?.engine ?? "").trim());
+
+  const maxTokens = Math.min(
+    Math.max(Number(req.body?.max_tokens) || DEFAULT_REDESIGN_MAX_TOKENS, MIN_REDESIGN_TOKENS),
+    MAX_REDESIGN_TOKENS
+  );
+
+  let websiteUrl = String(req.body?.website_url ?? "").trim();
+  let email = null;
+
+  if (sourceType === "warm_lead") {
+    if (!sourceId) {
+      const err = new Error("source_id is required for warm_lead orders.");
+      err.statusCode = 400;
+      throw err;
+    }
+    const lead = await fetchWarmLeadById(sourceId);
+    if (!lead.website?.trim()) {
+      const err = new Error("This lead has no website URL.");
+      err.statusCode = 400;
+      throw err;
+    }
+    websiteUrl = lead.website;
+    email = lead.email;
+  } else if (sourceType === "audit") {
+    if (!sourceId) {
+      const err = new Error("source_id is required for audit orders.");
+      err.statusCode = 400;
+      throw err;
+    }
+    const audit = await fetchAuditById(sourceId);
+    websiteUrl = audit.website_url;
+    email = audit.email;
+  } else if (sourceType !== "manual") {
+    const err = new Error("source_type must be warm_lead, audit, or manual.");
+    err.statusCode = 400;
+    throw err;
+  }
+
+  if (!websiteUrl) {
+    const err = new Error("website_url is required.");
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const normalizedUrl = normalizeWebsiteUrl(websiteUrl);
+  const logPrefix = `[redesign-order:${sourceType}]`;
+
+  console.log(`${logPrefix} Scraping [${normalizedUrl}]...`);
+  const scraped = await scrapeWebsiteText(normalizedUrl);
+
+  console.log(
+    `${logPrefix} Generating with ${engine.id} (${engine.model}, max_tokens ${maxTokens})...`
+  );
+  const started = Date.now();
+  const html = await engine.generate(scraped, {
+    model: engine.model,
+    maxTokens,
+  });
+  console.log(
+    `${logPrefix} Generated ${html.length} chars in ${Math.round((Date.now() - started) / 1000)}s`
+  );
+
+  const redesign = await insertRedesign({
+    websiteUrl: normalizedUrl,
+    email,
+    sourceType,
+    sourceId,
+    engine: engine.id,
+    model: engine.model,
+    maxTokens,
+    html,
+  });
+
+  return { ok: true, redesign };
+}
+
 export function registerAdminRoutes(app, { verifyCronSecret }) {
   function guard(handler) {
     return async (req, res) => {
@@ -358,4 +462,6 @@ export function registerAdminRoutes(app, { verifyCronSecret }) {
   app.post("/api/admin/warm-leads", guard(createWarmLead));
   app.post("/api/admin/warm-leads/:id/sync-audit", guard(syncWarmLeadAudit));
   app.post("/api/admin/send-free-audit", guard(sendFreeAudit));
+  app.get("/api/admin/redesigns", guard(listRedesigns));
+  app.post("/api/admin/redesigns", guard(orderRedesign));
 }

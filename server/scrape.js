@@ -135,9 +135,41 @@ export function isBotChallengePage(html) {
   return false;
 }
 
+const MAX_IMAGE_URLS = 10;
+
+/** Absolute, embeddable image URLs (skips icons, sprites, data URIs, svg). */
+function extractImageUrls($, baseUrl) {
+  const urls = [];
+  const seen = new Set();
+
+  $("img").each((_, el) => {
+    const src =
+      $(el).attr("src") || $(el).attr("data-src") || $(el).attr("data-lazy-src");
+    if (!src || src.startsWith("data:")) return;
+
+    let absolute;
+    try {
+      absolute = new URL(src, baseUrl).toString();
+    } catch {
+      return;
+    }
+
+    if (!/^https?:/i.test(absolute)) return;
+    if (/\.(svg|gif|ico)(\?|$)/i.test(absolute)) return;
+    if (/sprite|icon|favicon|logo-?small|pixel|tracking/i.test(absolute)) return;
+    if (seen.has(absolute)) return;
+
+    seen.add(absolute);
+    urls.push(absolute);
+  });
+
+  return urls.slice(0, MAX_IMAGE_URLS);
+}
+
 function parseHtmlToScraped(websiteUrl, html, { source = "direct" } = {}) {
   const $raw = cheerio.load(html);
   const technical = extractTechnicalSignals($raw);
+  const imageUrls = extractImageUrls($raw, websiteUrl);
 
   const $ = cheerio.load(html);
   $("script, style, noscript, svg, iframe").remove();
@@ -200,6 +232,7 @@ function parseHtmlToScraped(websiteUrl, html, { source = "direct" } = {}) {
     metaDescription,
     viewportMeta,
     technical,
+    imageUrls,
     textForAudit: combined,
     charCount: combined.length,
     scrapeSource: source,
@@ -322,6 +355,7 @@ function buildScrapedFromReaderText(websiteUrl, readerText) {
       imagesWithLazyLoading: 0,
       imagesWithoutLazy: 0,
     },
+    imageUrls: [],
     textForAudit: combined,
     charCount: combined.length,
     scrapeSource: "reader-fallback",

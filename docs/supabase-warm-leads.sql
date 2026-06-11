@@ -1,4 +1,5 @@
 -- Run this in Supabase → SQL Editor (warm leads from Instantly.ai replies)
+-- Safe for NEW projects and EXISTING tables (adds missing columns).
 
 create table if not exists public.warm_leads (
   id uuid primary key default gen_random_uuid(),
@@ -6,14 +7,21 @@ create table if not exists public.warm_leads (
   email text not null,
   website text,
   reply_text text,
-  status text not null default 'pending'
-    check (status in ('pending', 'audit_sent', 'completed')),
-
-  follow_up_step integer not null default 0,
-  last_emailed_at timestamptz,
+  status text not null default 'pending',
 
   created_at timestamptz not null default now()
 );
+
+-- Add columns if you created warm_leads before follow-up tracking existed
+alter table public.warm_leads
+  add column if not exists follow_up_step integer not null default 0,
+  add column if not exists last_emailed_at timestamptz;
+
+alter table public.warm_leads drop constraint if exists warm_leads_status_check;
+
+alter table public.warm_leads
+  add constraint warm_leads_status_check
+  check (status in ('pending', 'audit_sent', 'completed'));
 
 create index if not exists warm_leads_status_created_idx
   on public.warm_leads (status, created_at desc);

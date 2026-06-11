@@ -123,6 +123,50 @@
         </div>
       </section>
 
+      <section class="admin-redesigns card">
+        <div class="admin-audits-header">
+          <h2>HTML redesigns</h2>
+          <button type="button" id="refresh-redesigns" class="btn btn-secondary">Refresh</button>
+        </div>
+        <p class="admin-hint">
+          Order an AI landing-page redesign for any warm lead or audit using the buttons in their
+          tables below. Each redesign gets a shareable preview link under
+          <code>usetoolcrate.com/preview/</code>.
+        </p>
+        <div class="admin-preview-row">
+          <label for="redesign-engine">Agent</label>
+          <select id="redesign-engine">
+            <option value="claude-opus" selected>Claude Opus 4.5 (best quality, ~2 min)</option>
+            <option value="claude-sonnet">Claude Sonnet 4.5 (fast, strong quality)</option>
+            <option value="gpt-4o">GPT-4o (fastest, cheapest)</option>
+          </select>
+        </div>
+        <div class="admin-preview-row">
+          <label for="redesign-max-tokens">Max tokens</label>
+          <input id="redesign-max-tokens" type="number" value="20000" min="4000" max="64000" step="1000" />
+        </div>
+        <div class="admin-preview-row">
+          <label for="redesign-manual-url">Or order by URL</label>
+          <input id="redesign-manual-url" type="url" placeholder="https://example.com" autocomplete="url" />
+          <button type="button" id="order-redesign-manual" class="btn btn-primary">Order redesign</button>
+        </div>
+        <p id="redesigns-status" class="admin-status">Enter your admin secret and click Refresh.</p>
+        <div class="admin-table-wrap" id="redesigns-table-wrap" hidden>
+          <table class="admin-table" id="redesigns-table">
+            <thead>
+              <tr>
+                <th>Website</th>
+                <th>Email</th>
+                <th>Agent</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="redesigns-body"></tbody>
+          </table>
+        </div>
+      </section>
+
       <section class="admin-audits card">
         <div class="admin-audits-header">
           <h2>Recent audits</h2>

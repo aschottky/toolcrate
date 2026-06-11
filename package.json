@@ -16,6 +16,7 @@
     "deploy": "npm run build:production && touch dist/.nojekyll && gh-pages -d dist -t"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.104.1",
     "@supabase/supabase-js": "^2.106.2",
     "cheerio": "^1.0.0",
     "cors": "^2.8.5",
@@ -29,6 +30,7 @@
   "devDependencies": {
     "concurrently": "^9.1.2",
     "gh-pages": "^6.3.0",
+    "puppeteer-core": "^25.1.0",
     "vite": "^6.3.5"
   }
 }

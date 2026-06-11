@@ -1,0 +1,45 @@
+-- Run this in Supabase → SQL Editor (HTML redesign mockups ordered from the admin dashboard)
+-- Safe for NEW projects and EXISTING tables (adds missing columns).
+
+create table if not exists public.redesigns (
+  id uuid primary key default gen_random_uuid(),
+
+  website_url text not null,
+  email text,
+
+  -- Where the order came from: 'warm_lead' | 'audit' | 'manual'
+  source_type text not null default 'manual',
+  source_id uuid,
+
+  -- Generation settings
+  engine text not null,        -- 'gpt-4o' | 'claude-opus' | 'claude-sonnet'
+  model text not null,         -- exact model slug used
+  max_tokens integer not null default 20000,
+
+  -- The generated single-file landing page
+  html text not null,
+
+  -- Unguessable slug for the public preview link (shared with the prospect)
+  preview_token text not null unique default replace(gen_random_uuid()::text, '-', ''),
+
+  created_at timestamptz not null default now()
+);
+
+alter table public.redesigns drop constraint if exists redesigns_source_type_check;
+
+alter table public.redesigns
+  add constraint redesigns_source_type_check
+  check (source_type in ('warm_lead', 'audit', 'manual'));
+
+create index if not exists redesigns_created_idx
+  on public.redesigns (created_at desc);
+
+create index if not exists redesigns_preview_token_idx
+  on public.redesigns (preview_token);
+
+create index if not exists redesigns_source_idx
+  on public.redesigns (source_type, source_id);
+
+comment on table public.redesigns is 'AI-generated landing page redesigns — previewed by prospects via usetoolcrate.com/preview/?t=<preview_token>';
+comment on column public.redesigns.engine is 'gpt-4o | claude-opus | claude-sonnet';
+comment on column public.redesigns.preview_token is 'Unguessable public preview slug';

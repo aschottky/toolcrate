@@ -540,6 +540,89 @@ export async function markWarmLeadAuditSent(leadId) {
   return data;
 }
 
+const REDESIGN_LIST_SELECT =
+  "id, website_url, email, source_type, source_id, engine, model, max_tokens, preview_token, created_at";
+
+function isMissingRedesignsTable(message = "") {
+  return /relation .*redesigns.* does not exist|Could not find the table/i.test(message);
+}
+
+function wrapRedesignError(error, context) {
+  if (isMissingRedesignsTable(error?.message)) {
+    return new Error(
+      "redesigns table missing. Run docs/supabase-redesigns.sql in Supabase → SQL Editor."
+    );
+  }
+  return wrapSupabaseError(error, context);
+}
+
+export async function insertRedesign({
+  websiteUrl,
+  email,
+  sourceType,
+  sourceId,
+  engine,
+  model,
+  maxTokens,
+  html,
+}) {
+  const supabase = getSupabaseAdmin();
+
+  const { data, error } = await supabase
+    .from("redesigns")
+    .insert({
+      website_url: websiteUrl,
+      email: email?.trim().toLowerCase() || null,
+      source_type: sourceType,
+      source_id: sourceId || null,
+      engine,
+      model,
+      max_tokens: maxTokens,
+      html,
+    })
+    .select(REDESIGN_LIST_SELECT)
+    .single();
+
+  if (error) {
+    throw wrapRedesignError(error, "insert redesign");
+  }
+
+  return data;
+}
+
+export async function fetchRecentRedesigns(limit = 50) {
+  const supabase = getSupabaseAdmin();
+  const safeLimit = Math.min(Math.max(Number(limit) || 50, 1), 100);
+
+  const { data, error } = await supabase
+    .from("redesigns")
+    .select(REDESIGN_LIST_SELECT)
+    .order("created_at", { ascending: false })
+    .limit(safeLimit);
+
+  if (error) {
+    throw wrapRedesignError(error, "fetch redesigns");
+  }
+
+  return data ?? [];
+}
+
+export async function fetchRedesignHtmlByToken(previewToken) {
+  const supabase = getSupabaseAdmin();
+
+  const { data, error } = await supabase
+    .from("redesigns")
+    .select("id, website_url, html")
+    .eq("preview_token", previewToken)
+    .maybeSingle();
+
+  if (error) {
+    throw wrapRedesignError(error, "fetch redesign preview");
+  }
+
+  return data ?? null;
+}
+
 /** Step 2 due: audit sent, step 1, 48+ hours since last email. */
 export async function fetchWarmLeadsDueForStep2() {
   return fetchWarmLeadsDueForStep(1, 48);
