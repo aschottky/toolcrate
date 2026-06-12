@@ -462,11 +462,16 @@ function companyNameFromUrl(websiteUrl) {
 }
 
 function previewStatusPayload(redesign) {
+  const companyName =
+    redesign.business_name?.trim() ||
+    redesign.company_name?.trim() ||
+    companyNameFromUrl(redesign.website_url);
+
   return {
     ok: true,
     ready: Boolean(redesign.html),
     failed: redesign.status === "failed",
-    companyName: companyNameFromUrl(redesign.website_url),
+    companyName,
   };
 }
 

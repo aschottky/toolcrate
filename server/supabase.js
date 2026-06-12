@@ -776,19 +776,25 @@ export async function setRedesignEmail(redesignId, email) {
 export async function fetchRedesignByToken(previewToken) {
   const supabase = getSupabaseAdmin();
 
-  let { data, error } = await supabase
-    .from("redesigns")
-    .select("id, website_url, html, status")
-    .eq("preview_token", previewToken)
-    .maybeSingle();
-
-  // Tables created before the wait-screen migration have no status column.
-  if (error && isMissingPreviewWaitColumns(error.message)) {
-    ({ data, error } = await supabase
+  const query = (select) =>
+    supabase
       .from("redesigns")
-      .select("id, website_url, html")
+      .select(select)
       .eq("preview_token", previewToken)
-      .maybeSingle());
+      .maybeSingle();
+
+  // business_name / company_name are optional columns (used to personalize the
+  // wait screen); older tables also lack status — fall back progressively.
+  let { data, error } = await query(
+    "id, website_url, html, status, business_name, company_name"
+  );
+
+  if (error && /business_name|company_name/i.test(error.message)) {
+    ({ data, error } = await query("id, website_url, html, status"));
+  }
+
+  if (error && isMissingPreviewWaitColumns(error.message)) {
+    ({ data, error } = await query("id, website_url, html"));
   }
 
   if (error) {

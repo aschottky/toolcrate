@@ -103,7 +103,10 @@ export async function sendDesignReadyEmail(customerEmail, previewUrl) {
   }
 
   const resend = getResend();
-  const from = process.env.RESEND_FROM_EMAIL?.trim() || DEFAULT_FROM;
+  // Same sending address as the other emails, but branded "ToolCrate".
+  const configuredFrom = process.env.RESEND_FROM_EMAIL?.trim() || DEFAULT_FROM;
+  const fromAddress = configuredFrom.match(/<([^>]+)>/)?.[1] || configuredFrom;
+  const from = `ToolCrate <${fromAddress}>`;
 
   const html = `
 <div style="font-family: Inter, sans-serif; max-width: 560px; margin: 0 auto; background: #0f172a; color: white; padding: 2.5rem; border-radius: 1rem;">

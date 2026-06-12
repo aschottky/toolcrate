@@ -35,11 +35,13 @@ const STAGES = [
 ];
 
 const FACTS = [
-  "75% of people judge a business's credibility by their website alone.",
-  "The average contractor loses 3-5 leads per week to a competitor with a better site.",
+  "75% of people judge a business's credibility by their website - within 3 seconds.",
+  "Local businesses with modern websites convert 2-3x more visitors into paying customers.",
   "Adding a click-to-call button increases mobile conversions by 45%.",
   "Sites that load under 3 seconds get 2x more form submissions.",
-  "Most contractor sites were last updated over 4 years ago.",
+  "A one-second delay in page load time can reduce conversions by 7%.",
+  "Most small business websites were last updated over 4 years ago.",
+  "88% of online consumers are less likely to return after a bad website experience.",
 ];
 
 const timers = [];
@@ -69,11 +71,48 @@ function showError(title, detail) {
   loader.innerHTML = `<h1>${title}</h1><p>${detail}</p>`;
 }
 
+/**
+ * Render the generated landing page in a Blob-URL iframe.
+ *
+ * Previously this used document.open()/document.write(), which intermittently
+ * painted before <style> @imports (Google Fonts) resolved — leaving the page
+ * unstyled until a refresh. An iframe gets a clean document lifecycle: its
+ * load event fires only after stylesheets resolve, and a dark loading gate
+ * stays up until one extra paint cycle after that, so a half-rendered state
+ * is never visible.
+ */
 function renderHtml(html) {
-  // Replace this loader document with the generated landing page.
-  document.open();
-  document.write(html);
-  document.close();
+  document.getElementById("loader").hidden = true;
+  document.getElementById("wait").hidden = true;
+
+  // Loading gate: dark overlay + spinner until the frame is fully painted.
+  const gate = document.createElement("div");
+  gate.className = "preview-gate";
+  gate.innerHTML = '<div class="spinner" aria-hidden="true"></div>';
+  document.body.appendChild(gate);
+
+  const blob = new Blob([html], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+
+  const iframe = document.createElement("iframe");
+  iframe.className = "preview-frame";
+  iframe.title = "Your website preview";
+  iframe.src = url;
+
+  iframe.addEventListener("load", () => {
+    URL.revokeObjectURL(url); // clean up memory
+
+    // Double rAF = one extra paint cycle after load, so styles/fonts are
+    // committed to screen before the gate lifts.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        gate.classList.add("is-hidden");
+        setTimeout(() => gate.remove(), 350);
+      });
+    });
+  });
+
+  document.body.appendChild(iframe);
 }
 
 async function fetchPreviewHtml() {
@@ -106,7 +145,8 @@ function setStage(stage, companyName) {
     stage.steps.forEach((text, i) => {
       const li = document.createElement("li");
       li.textContent = text;
-      li.style.animationDelay = `${0.4 + (i * SUB_STEP_STAGGER_MS) / 1000}s`;
+      // Drives both the step fade-in and its ✓ (which follows 2s later in CSS).
+      li.style.setProperty("--step-delay", `${0.4 + (i * SUB_STEP_STAGGER_MS) / 1000}s`);
       steps.appendChild(li);
     });
     container.classList.remove("is-fading");
@@ -133,7 +173,7 @@ function startFacts() {
 function setupQuestion() {
   const question = document.getElementById("question");
   const pills = document.getElementById("pills");
-  const thanks = document.getElementById("question-thanks");
+  const banner = document.getElementById("question-banner");
   let answered = false;
 
   later(() => question.classList.add("is-visible"), QUESTION_AT_MS);
@@ -143,9 +183,10 @@ function setupQuestion() {
     if (!pill || answered) return;
 
     answered = true;
-    pill.classList.add("is-selected");
-    pills.classList.add("is-answered");
-    thanks.hidden = false;
+
+    // Replace the question card with the permanent confirmation banner.
+    question.hidden = true;
+    banner.hidden = false;
 
     // Fire-and-forget — the wait screen shouldn't break if this fails.
     fetch(apiUrl("/api/preview-intent"), {
