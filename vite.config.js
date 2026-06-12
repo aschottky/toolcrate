@@ -12,6 +12,7 @@ export default defineConfig({
         app: resolve(__dirname, "app/index.html"),
         admin: resolve(__dirname, "admin/index.html"),
         preview: resolve(__dirname, "preview/index.html"),
+        try: resolve(__dirname, "try/index.html"),
       },
     },
   },

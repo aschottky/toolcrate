@@ -90,6 +90,9 @@ export function validateRedesignHtml(html) {
   if (!/<\/html>\s*$/i.test(html)) {
     throw new Error("AI redesign output is truncated (missing closing </html>).");
   }
+  if (!/@media/i.test(html)) {
+    throw new Error("AI redesign output has no media queries (not mobile responsive).");
+  }
 }
 
 /**

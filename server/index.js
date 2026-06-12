@@ -1,6 +1,7 @@
 import "./env.js";
 import cors from "cors";
 import express from "express";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import Stripe from "stripe";
 import { runSiteAudit } from "./audit.js";
 import { buildAuditPdf } from "./audit-pipeline.js";
@@ -11,19 +12,32 @@ import { handleInstantlyWebhook } from "./instantly-webhook.js";
 import { normalizeWebsiteUrl, scrapeWebsiteText } from "./scrape.js";
 import { generateRedesignHtml } from "./redesign.js";
 import { generateRedesignHtmlClaude } from "./redesign-claude.js";
-import { registerAdminRoutes } from "./admin.js";
+import { registerAdminRoutes, runRedesignGeneration } from "./admin.js";
+import {
+  DEFAULT_REDESIGN_MAX_TOKENS,
+  resolveRedesignEngine,
+} from "./redesign-engines.js";
+import { normalizeRootDomain } from "./url-utils.js";
 import { processNurtureEmails } from "./nurture.js";
 import { processWarmLeadNurture } from "./warm-lead-nurture.js";
 import {
-  fetchRedesignHtmlByToken,
+  fetchRedesignByToken,
   findAuditByStripeSessionId,
+  findLatestRedesignForDomain,
+  insertPendingRedesign,
+  setRedesignEmail,
   isSupabaseConfigured,
   markInitialEmailSent,
   saveAuditRecord,
+  saveRedesignLeadIntent,
 } from "./supabase.js";
 
 const app = express();
 const PORT = Number(process.env.PORT) || 4000;
+
+// Render terminates TLS at a single proxy hop — needed so req.ip (and the
+// public-redesign rate limiter) sees the real client IP, not the proxy's.
+app.set("trust proxy", 1);
 
 let stripeClient;
 
@@ -125,6 +139,13 @@ app.post("/webhook", express.raw({ type: "application/json" }), (req, res) => {
     console.log(
       `💰 Payment successful for: ${session.customer_details?.email ?? "(no email)"}`
     );
+
+    // $9 "New Design Variation" (duplicate-domain paywall on /try).
+    if (session.metadata?.type === "variation") {
+      res.status(200).json({ received: true });
+      runVariationGenerationFromSession(session);
+      return;
+    }
 
     const websiteUrl = getWebsiteUrlFromSession(session);
 
@@ -426,20 +447,49 @@ registerRedesignRoutes(
   "[redesign-claude]"
 );
 
+const PREVIEW_TOKEN_RE = /^[a-z0-9-]{16,}$/i;
+
+/** Best-effort display name from the prospect's domain, e.g. "liberty-roofing.com" → "Liberty Roofing". */
+function companyNameFromUrl(websiteUrl) {
+  try {
+    const host = new URL(websiteUrl).hostname.replace(/^www\./i, "");
+    const base = host.split(".")[0].replace(/[-_]+/g, " ").trim();
+    if (!base) return null;
+    return base.replace(/\b\w/g, (c) => c.toUpperCase());
+  } catch {
+    return null;
+  }
+}
+
+function previewStatusPayload(redesign) {
+  return {
+    ok: true,
+    ready: Boolean(redesign.html),
+    failed: redesign.status === "failed",
+    companyName: companyNameFromUrl(redesign.website_url),
+  };
+}
+
 // Public preview of a stored redesign (prospect-facing, unguessable token).
 // The usetoolcrate.com/preview/ page fetches this and renders it full-screen.
+// Returns 202 + JSON while generation is still running so the preview page
+// can show the animated wait screen instead.
 app.get("/api/preview/:token", async (req, res) => {
   const token = String(req.params.token ?? "").trim();
 
-  if (!/^[a-z0-9-]{16,}$/i.test(token)) {
+  if (!PREVIEW_TOKEN_RE.test(token)) {
     return res.status(400).send("Invalid preview link.");
   }
 
   try {
-    const redesign = await fetchRedesignHtmlByToken(token);
+    const redesign = await fetchRedesignByToken(token);
 
     if (!redesign) {
       return res.status(404).send("This preview link does not exist or has expired.");
+    }
+
+    if (!redesign.html) {
+      return res.status(202).json(previewStatusPayload(redesign));
     }
 
     res.setHeader("Content-Type", "text/html; charset=utf-8");
@@ -448,6 +498,299 @@ app.get("/api/preview/:token", async (req, res) => {
   } catch (error) {
     console.error("[preview] Failed:", error.message);
     return res.status(500).send("Could not load this preview. Please try again.");
+  }
+});
+
+// Polled by the wait screen every few seconds until generation finishes.
+app.get("/api/preview-status", async (req, res) => {
+  const token = String(req.query.t ?? "").trim();
+
+  if (!PREVIEW_TOKEN_RE.test(token)) {
+    return res.status(400).json({ ok: false, error: "Invalid preview link." });
+  }
+
+  try {
+    const redesign = await fetchRedesignByToken(token);
+
+    if (!redesign) {
+      return res.status(404).json({ ok: false, error: "Preview not found." });
+    }
+
+    return res.json(previewStatusPayload(redesign));
+  } catch (error) {
+    console.error("[preview-status] Failed:", error.message);
+    return res.status(500).json({ ok: false, error: "Could not check preview status." });
+  }
+});
+
+// Public "/try" page: anyone can request a free redesign for their domain.
+// One free design per domain — repeat submissions get the paywall splash.
+const publicRedesignLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    ok: false,
+    error:
+      "Too many preview requests - please try again in an hour, or reply to your email and we'll sort you out.",
+  },
+});
+
+// Local-testing helper: clears the caller's own IP from the public-redesign
+// rate limiter. Same secret guard as the other /api/admin routes.
+app.post("/api/admin/reset-rate-limit", (req, res) => {
+  try {
+    verifyCronSecret(req);
+  } catch (error) {
+    return res
+      .status(error.statusCode ?? 500)
+      .json({ ok: false, error: error.message });
+  }
+
+  // express-rate-limit v8 keys by ipKeyGenerator(req.ip) (IPv6 → /56 subnet),
+  // so reset the derived key — resetting raw req.ip silently misses.
+  publicRedesignLimiter.resetKey(ipKeyGenerator(req.ip));
+  return res.json({ ok: true, message: `Rate limit cleared for ${req.ip}` });
+});
+
+app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
+  const rootDomain = normalizeRootDomain(req.body?.url);
+  const email = String(req.body?.email ?? "").trim().toLowerCase();
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({
+      ok: false,
+      error: "Please enter a valid email address.",
+    });
+  }
+
+  if (!rootDomain || !rootDomain.includes(".")) {
+    return res.status(400).json({
+      ok: false,
+      error: "Please enter a valid website, e.g. yourbusiness.com",
+    });
+  }
+
+  if (!isSupabaseConfigured()) {
+    return res.status(503).json({
+      ok: false,
+      error: "Previews are temporarily unavailable. Please try again later.",
+    });
+  }
+
+  const logPrefix = `[public-redesign:${rootDomain}]`;
+
+  // Validates the domain and blocks private/loopback hosts.
+  let websiteUrl;
+  try {
+    websiteUrl = normalizeWebsiteUrl(rootDomain);
+  } catch (error) {
+    return res.status(400).json({ ok: false, error: error.message });
+  }
+
+  try {
+    const existing = await findLatestRedesignForDomain(rootDomain);
+    if (existing) {
+      // Someone may have submitted (or the admin ordered) without an email.
+      if (!existing.email) {
+        await setRedesignEmail(existing.id, email).catch((error) =>
+          console.warn(`${logPrefix} Could not backfill email:`, error.message)
+        );
+      }
+      console.log(`${logPrefix} Duplicate domain — returning existing preview.`);
+      return res.json({
+        ok: true,
+        duplicate: true,
+        status: "exists",
+        token: existing.preview_token,
+      });
+    }
+
+    const engine = resolveRedesignEngine(
+      process.env.PUBLIC_REDESIGN_ENGINE || "claude-sonnet"
+    );
+
+    const pending = await insertPendingRedesign({
+      websiteUrl,
+      email,
+      sourceType: "manual",
+      sourceId: null,
+      engine: engine.id,
+      model: engine.model,
+      maxTokens: DEFAULT_REDESIGN_MAX_TOKENS,
+    });
+
+    runRedesignGeneration({
+      redesignId: pending.id,
+      normalizedUrl: websiteUrl,
+      engine,
+      maxTokens: DEFAULT_REDESIGN_MAX_TOKENS,
+      logPrefix: `${logPrefix}:${pending.id}`,
+    });
+
+    console.log(`${logPrefix} Queued generation (${engine.id}).`);
+    return res.json({ ok: true, status: "generating", token: pending.preview_token });
+  } catch (error) {
+    console.error(`${logPrefix} Failed:`, error.message);
+    const status = error.statusCode ?? 500;
+    return res.status(status).json({
+      ok: false,
+      error:
+        status < 500
+          ? error.message
+          : "Could not start your preview. Please try again in a minute.",
+    });
+  }
+});
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** Frontend origins allowed in Stripe success/cancel URLs. */
+function siteOriginFromRequest(req) {
+  const origin = req.headers.origin || "";
+  if (
+    /^http:\/\/localhost:\d+$/.test(origin) ||
+    /^https:\/\/(www\.)?usetoolcrate\.com$/.test(origin)
+  ) {
+    return origin;
+  }
+  return "https://usetoolcrate.com";
+}
+
+// $9 "New Design Variation" checkout for the duplicate-domain paywall.
+// Creates a Checkout Session with the domain/email in metadata; the /webhook
+// handler picks up checkout.session.completed and queues the generation.
+app.post("/api/variation-checkout", async (req, res) => {
+  const rootDomain = normalizeRootDomain(req.body?.domain ?? req.body?.url);
+  const email = String(req.body?.email ?? "").trim().toLowerCase();
+
+  if (!rootDomain || !rootDomain.includes(".")) {
+    return res.status(400).json({
+      ok: false,
+      error: "Please enter a valid website, e.g. yourbusiness.com",
+    });
+  }
+  if (!EMAIL_RE.test(email)) {
+    return res.status(400).json({ ok: false, error: "Please enter a valid email address." });
+  }
+
+  const priceId = process.env.STRIPE_VARIATION_PRICE_ID?.trim();
+  if (!priceId) {
+    console.error("[variation-checkout] STRIPE_VARIATION_PRICE_ID is not configured.");
+    return res.status(503).json({
+      ok: false,
+      error: "Checkout is temporarily unavailable. Please try again later.",
+    });
+  }
+
+  try {
+    const stripe = getStripe();
+    const origin = siteOriginFromRequest(req);
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      line_items: [{ price: priceId, quantity: 1 }],
+      customer_email: email,
+      metadata: { type: "variation", domain: rootDomain, email },
+      success_url: `${origin}/try/?variation=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/try/`,
+    });
+
+    return res.json({ ok: true, url: session.url });
+  } catch (error) {
+    console.error("[variation-checkout] Failed:", error.message);
+    return res.status(500).json({
+      ok: false,
+      error: "Could not start checkout. Please try again in a minute.",
+    });
+  }
+});
+
+// Guards against Stripe redelivering the same completed session.
+const processedVariationSessions = new Set();
+
+/** checkout.session.completed with metadata.type === "variation" → queue a
+ *  fresh generation; the design-ready Resend email fires on completion. */
+function runVariationGenerationFromSession(session) {
+  const logPrefix = `[variation:${session.id}]`;
+
+  if (session.payment_status !== "paid") {
+    console.warn(`${logPrefix} Session not paid (${session.payment_status}) — skipping.`);
+    return;
+  }
+  if (processedVariationSessions.has(session.id)) {
+    console.log(`${logPrefix} Already processed — skipping duplicate webhook.`);
+    return;
+  }
+  processedVariationSessions.add(session.id);
+
+  setImmediate(async () => {
+    try {
+      const rootDomain = normalizeRootDomain(session.metadata?.domain);
+      const email =
+        session.metadata?.email?.trim().toLowerCase() ||
+        session.customer_details?.email?.trim().toLowerCase() ||
+        null;
+
+      if (!rootDomain) {
+        console.error(`${logPrefix} No usable domain in session metadata.`);
+        return;
+      }
+
+      const websiteUrl = normalizeWebsiteUrl(rootDomain);
+      const engine = resolveRedesignEngine(
+        process.env.PUBLIC_REDESIGN_ENGINE || "claude-sonnet"
+      );
+
+      const pending = await insertPendingRedesign({
+        websiteUrl,
+        email,
+        sourceType: "manual",
+        sourceId: null,
+        engine: engine.id,
+        model: engine.model,
+        maxTokens: DEFAULT_REDESIGN_MAX_TOKENS,
+      });
+
+      console.log(`${logPrefix} Paid variation queued for ${rootDomain} (${pending.id}).`);
+
+      runRedesignGeneration({
+        redesignId: pending.id,
+        normalizedUrl: websiteUrl,
+        engine,
+        maxTokens: DEFAULT_REDESIGN_MAX_TOKENS,
+        logPrefix: `${logPrefix}:${pending.id}`,
+      });
+    } catch (error) {
+      console.error(`${logPrefix} Failed to queue paid variation:`, error.message);
+    }
+  });
+}
+
+// Wait-screen question: "What's your biggest challenge right now?"
+app.post("/api/preview-intent", async (req, res) => {
+  const token = String(req.body?.token ?? "").trim();
+  const intent = String(req.body?.intent ?? "").trim().slice(0, 200);
+
+  if (!PREVIEW_TOKEN_RE.test(token)) {
+    return res.status(400).json({ ok: false, error: "Invalid preview link." });
+  }
+  if (!intent) {
+    return res.status(400).json({ ok: false, error: "intent is required." });
+  }
+
+  try {
+    const updated = await saveRedesignLeadIntent(token, intent);
+
+    if (!updated) {
+      return res.status(404).json({ ok: false, error: "Preview not found." });
+    }
+
+    return res.json({ ok: true });
+  } catch (error) {
+    console.error("[preview-intent] Failed:", error.message);
+    return res.status(500).json({ ok: false, error: "Could not save your answer." });
   }
 });
 

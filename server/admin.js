@@ -1,24 +1,30 @@
 import { buildAuditPdf } from "./audit-pipeline.js";
-import { sendFreeAuditEmail } from "./email.js";
+import { sendDesignReadyEmail, sendFreeAuditEmail } from "./email.js";
 import { generateCallScript } from "./call-script.js";
 import { normalizeWebsiteUrl, scrapeWebsiteText } from "./scrape.js";
+import { normalizeRootDomain } from "./url-utils.js";
 import {
   DEFAULT_REDESIGN_MAX_TOKENS,
   listRedesignEngines,
   resolveRedesignEngine,
 } from "./redesign-engines.js";
 import {
+  completeRedesign,
   fetchAuditById,
+  fetchRedesignNotificationInfo,
   fetchAuditDetailById,
   fetchRecentAudits,
   fetchRecentRedesigns,
   findAuditByStripeSessionId,
   fetchWarmLeadById,
   fetchWarmLeads,
+  insertPendingRedesign,
   insertRedesign,
   insertWarmLead,
   isSupabaseConfigured,
+  markDesignEmailSent,
   markInitialEmailSent,
+  markRedesignFailed,
   markWarmLeadAuditSent,
   saveAuditRecord,
   saveCallScript,
@@ -402,9 +408,67 @@ export async function orderRedesign(req) {
     throw err;
   }
 
-  const normalizedUrl = normalizeWebsiteUrl(websiteUrl);
+  // Canonicalize to the bare root domain first (same as /api/public-redesign)
+  // so duplicate detection never misses on www/protocol/path differences.
+  const rootDomain = normalizeRootDomain(websiteUrl);
+  const normalizedUrl = normalizeWebsiteUrl(rootDomain ?? websiteUrl);
   const logPrefix = `[redesign-order:${sourceType}]`;
 
+  // Preferred flow: insert a pending row first so the preview link (token)
+  // exists immediately — the /preview/ page shows a wait screen until the
+  // background generation fills in the html. Falls back to the original
+  // synchronous flow if the wait-screen columns haven't been migrated yet
+  // (docs/supabase-redesigns.sql).
+  let pending = null;
+  try {
+    pending = await insertPendingRedesign({
+      websiteUrl: normalizedUrl,
+      email,
+      sourceType,
+      sourceId,
+      engine: engine.id,
+      model: engine.model,
+      maxTokens,
+    });
+  } catch (error) {
+    console.warn(
+      `${logPrefix} Pending insert failed (${error.message}) — generating synchronously.`
+    );
+  }
+
+  if (pending) {
+    runRedesignGeneration({
+      redesignId: pending.id,
+      normalizedUrl,
+      engine,
+      maxTokens,
+      logPrefix: `${logPrefix}:${pending.id}`,
+    });
+    return { ok: true, redesign: pending, queued: true };
+  }
+
+  const html = await generateRedesignFromUrl({
+    normalizedUrl,
+    engine,
+    maxTokens,
+    logPrefix,
+  });
+
+  const redesign = await insertRedesign({
+    websiteUrl: normalizedUrl,
+    email,
+    sourceType,
+    sourceId,
+    engine: engine.id,
+    model: engine.model,
+    maxTokens,
+    html,
+  });
+
+  return { ok: true, redesign };
+}
+
+async function generateRedesignFromUrl({ normalizedUrl, engine, maxTokens, logPrefix }) {
   console.log(`${logPrefix} Scraping [${normalizedUrl}]...`);
   const scraped = await scrapeWebsiteText(normalizedUrl);
 
@@ -420,18 +484,65 @@ export async function orderRedesign(req) {
     `${logPrefix} Generated ${html.length} chars in ${Math.round((Date.now() - started) / 1000)}s`
   );
 
-  const redesign = await insertRedesign({
-    websiteUrl: normalizedUrl,
-    email,
-    sourceType,
-    sourceId,
-    engine: engine.id,
-    model: engine.model,
-    maxTokens,
-    html,
-  });
+  return html;
+}
 
-  return { ok: true, redesign };
+const PREVIEW_BASE_URL = "https://usetoolcrate.com/preview/?t=";
+
+/**
+ * Notify the prospect that their preview is live. Fires for every completed
+ * design that has an email on the record; the design_email_sent flag prevents
+ * duplicates on retries. Failures are logged, never thrown — a missed email
+ * must not mark the redesign as failed.
+ */
+async function sendDesignReadyNotification(redesignId, logPrefix) {
+  try {
+    const info = await fetchRedesignNotificationInfo(redesignId);
+
+    if (!info?.email) {
+      return; // No address on the record — skip silently.
+    }
+    if (info.design_email_sent === true) {
+      console.log(`${logPrefix} Design-ready email already sent — skipping.`);
+      return;
+    }
+    if (info.design_email_sent === null) {
+      console.warn(
+        `${logPrefix} design_email_sent column missing — skipping email. Run docs/supabase-redesigns.sql in Supabase.`
+      );
+      return;
+    }
+
+    const previewUrl = `${PREVIEW_BASE_URL}${encodeURIComponent(info.preview_token)}`;
+    await sendDesignReadyEmail(info.email, previewUrl);
+    await markDesignEmailSent(redesignId);
+    console.log(`${logPrefix} Design-ready email sent to ${info.email}.`);
+  } catch (error) {
+    console.error(`${logPrefix} Design-ready email failed:`, error.message);
+  }
+}
+
+export function runRedesignGeneration({ redesignId, normalizedUrl, engine, maxTokens, logPrefix }) {
+  setImmediate(async () => {
+    try {
+      const html = await generateRedesignFromUrl({
+        normalizedUrl,
+        engine,
+        maxTokens,
+        logPrefix,
+      });
+      await completeRedesign(redesignId, html);
+      console.log(`${logPrefix} Preview is live.`);
+      await sendDesignReadyNotification(redesignId, logPrefix);
+    } catch (error) {
+      console.error(`${logPrefix} Background generation failed:`, error.message);
+      try {
+        await markRedesignFailed(redesignId);
+      } catch (updateError) {
+        console.error(`${logPrefix} Could not mark redesign failed:`, updateError.message);
+      }
+    }
+  });
 }
 
 export function registerAdminRoutes(app, { verifyCronSecret }) {

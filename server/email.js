@@ -89,6 +89,58 @@ Website Tear Down`;
 }
 
 /**
+ * "Your design preview is ready" notification — sent automatically when a
+ * background redesign generation finishes.
+ *
+ * @param {string} customerEmail
+ * @param {string} previewUrl — full public preview link
+ * @returns {Promise<{ id: string }>}
+ */
+export async function sendDesignReadyEmail(customerEmail, previewUrl) {
+  const to = customerEmail?.trim();
+  if (!to) {
+    throw new Error("Customer email is required.");
+  }
+
+  const resend = getResend();
+  const from = process.env.RESEND_FROM_EMAIL?.trim() || DEFAULT_FROM;
+
+  const html = `
+<div style="font-family: Inter, sans-serif; max-width: 560px; margin: 0 auto; background: #0f172a; color: white; padding: 2.5rem; border-radius: 1rem;">
+  <p style="font-size: 1.5rem; font-weight: 700; margin: 0 0 0.5rem;">Your preview is ready. 🎉</p>
+  <p style="color: #94a3b8; margin: 0 0 2rem;">Our AI just finished designing a brand-new version of your site. Take a look:</p>
+  <a href="${previewUrl}" style="display: inline-block; background: linear-gradient(135deg, #f97316, #fb923c); color: white; font-weight: 700; padding: 1rem 2rem; border-radius: 9999px; text-decoration: none; font-size: 1rem;">See Your Design Preview →</a>
+  <p style="color: #475569; font-size: 0.875rem; margin: 2rem 0 0;">If you like what you see and want it live, reply to this email. Setup is $497 and takes 48 hours.<br><br>- Alexander<br>ToolCrate</p>
+</div>
+  `.trim();
+
+  const text = `Your preview is ready. 🎉
+
+Our AI just finished designing a brand-new version of your site. Take a look:
+
+${previewUrl}
+
+If you like what you see and want it live, reply to this email. Setup is $497 and takes 48 hours.
+
+- Alexander
+ToolCrate`;
+
+  const { data, error } = await resend.emails.send({
+    from,
+    to: [to],
+    subject: "Your design preview is ready ✨",
+    html,
+    text,
+  });
+
+  if (error) {
+    throw new Error(error.message || "Failed to send design-ready email via Resend.");
+  }
+
+  return data;
+}
+
+/**
  * Email a free audit PDF to a warm lead (Instantly reply follow-up).
  *
  * @param {string} customerEmail

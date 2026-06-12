@@ -38,6 +38,8 @@ const scriptLoading = document.getElementById("script-loading");
 const scriptLoadingText = document.getElementById("script-loading-text");
 const scriptOutput = document.getElementById("script-output");
 
+const resetRateLimitBtn = document.getElementById("reset-rate-limit");
+const rateLimitStatus = document.getElementById("rate-limit-status");
 const refreshRedesignsBtn = document.getElementById("refresh-redesigns");
 const redesignEngineSelect = document.getElementById("redesign-engine");
 const redesignMaxTokensInput = document.getElementById("redesign-max-tokens");
@@ -457,7 +459,13 @@ async function orderRedesign({ sourceType, sourceId = null, websiteUrl = null, l
     renderRedesigns(redesignsCache);
 
     const link = previewLinkFor(data.redesign);
-    setStatus(redesignsStatus, `Redesign ready — preview: ${link}`, false);
+    setStatus(
+      redesignsStatus,
+      data.queued
+        ? `Redesign queued — link is live now (wait screen until ready): ${link}`
+        : `Redesign ready — preview: ${link}`,
+      false
+    );
     window.open(link, "_blank", "noopener");
   } catch (error) {
     setStatus(redesignsStatus, serverConfigHint(error.message), true);
@@ -989,6 +997,31 @@ async function sendAllPreviews() {
   }
 }
 
+let rateLimitStatusTimer = null;
+
+async function resetRateLimit() {
+  resetRateLimitBtn.disabled = true;
+  clearTimeout(rateLimitStatusTimer);
+
+  try {
+    await adminFetch("/api/admin/reset-rate-limit", { method: "POST" });
+    rateLimitStatus.textContent = "Rate limit cleared for your IP";
+    rateLimitStatus.hidden = false;
+    rateLimitStatusTimer = setTimeout(() => {
+      rateLimitStatus.hidden = true;
+    }, 2000);
+  } catch (error) {
+    rateLimitStatus.textContent = serverConfigHint(error.message);
+    rateLimitStatus.hidden = false;
+    rateLimitStatusTimer = setTimeout(() => {
+      rateLimitStatus.hidden = true;
+    }, 4000);
+  } finally {
+    resetRateLimitBtn.disabled = false;
+  }
+}
+
+resetRateLimitBtn.addEventListener("click", resetRateLimit);
 saveSecretBtn.addEventListener("click", saveSecret);
 refreshBtn.addEventListener("click", loadAudits);
 refreshWarmLeadsBtn.addEventListener("click", loadWarmLeads);

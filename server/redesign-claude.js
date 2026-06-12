@@ -26,6 +26,21 @@ TECHNICAL RULES:
 - All CSS in a style tag, Google Fonts via @import, no external frameworks
 - Looks great at 1280px wide - will be screenshotted by Puppeteer
 - Fully responsive at all screen sizes. Use CSS media queries with breakpoints at 768px and 480px. On mobile: single column layout, stacked navigation, full-width buttons, font sizes scaled down. The site must look as good on a phone as it does at 1280px.
+
+MOBILE NAVIGATION:
+
+- If the design includes a hamburger menu icon, it MUST be functional using vanilla JS only (no libraries)
+- Add a <script> tag at the bottom of the body with a click toggle that shows/hides the mobile nav menu
+- The mobile menu when open should display nav links stacked vertically, full width, with a semi-transparent dark overlay background
+- The hamburger icon should animate between ☰ and ✕ on toggle using a CSS transition
+
+NO HORIZONTAL SCROLL OR ZOOM SHIFT:
+
+- Add these rules to the top of the CSS: *, *::before, *::after { box-sizing: border-box; } and html, body { overflow-x: hidden; max-width: 100%; }
+- Every section and container must use max-width with width: 100% - never fixed pixel widths wider than the viewport
+- Images must have max-width: 100%; height: auto;
+- No element should ever exceed 100vw in width
+
 - Output ONLY raw HTML, no explanation, no markdown fences`;
 
 const MAX_ATTEMPTS = 2;

@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { normalizeRootDomain } from "./url-utils.js";
 
 let supabaseAdmin;
 
@@ -607,17 +608,219 @@ export async function fetchRecentRedesigns(limit = 50) {
   return data ?? [];
 }
 
-export async function fetchRedesignHtmlByToken(previewToken) {
+function isMissingPreviewWaitColumns(message = "") {
+  return /'?(status|lead_intent)'? column|column .*(status|lead_intent)/i.test(message);
+}
+
+/**
+ * Insert a redesign row BEFORE generation so the preview token exists
+ * immediately. Requires the status column / nullable html from
+ * docs/supabase-redesigns.sql — callers fall back to the synchronous
+ * generate-then-insert flow when this throws.
+ */
+export async function insertPendingRedesign({
+  websiteUrl,
+  email,
+  sourceType,
+  sourceId,
+  engine,
+  model,
+  maxTokens,
+}) {
   const supabase = getSupabaseAdmin();
 
   const { data, error } = await supabase
     .from("redesigns")
-    .select("id, website_url, html")
+    .insert({
+      website_url: websiteUrl,
+      email: email?.trim().toLowerCase() || null,
+      source_type: sourceType,
+      source_id: sourceId || null,
+      engine,
+      model,
+      max_tokens: maxTokens,
+      html: null,
+      status: "pending",
+    })
+    .select(REDESIGN_LIST_SELECT)
+    .single();
+
+  if (error) {
+    throw wrapRedesignError(error, "insert pending redesign");
+  }
+
+  return data;
+}
+
+export async function completeRedesign(redesignId, html) {
+  const supabase = getSupabaseAdmin();
+
+  const { error } = await supabase
+    .from("redesigns")
+    .update({ html, status: "ready" })
+    .eq("id", redesignId);
+
+  if (error) {
+    throw wrapRedesignError(error, "complete redesign");
+  }
+}
+
+export async function markRedesignFailed(redesignId) {
+  const supabase = getSupabaseAdmin();
+
+  const { error } = await supabase
+    .from("redesigns")
+    .update({ status: "failed" })
+    .eq("id", redesignId);
+
+  if (error) {
+    throw wrapRedesignError(error, "mark redesign failed");
+  }
+}
+
+/**
+ * Latest redesign whose stored website_url resolves to the given root domain.
+ * The ilike pre-filter narrows the scan; the exact match happens in JS via
+ * normalizeRootDomain so www/protocol/path differences never cause misses.
+ */
+export async function findLatestRedesignForDomain(rootDomain) {
+  const supabase = getSupabaseAdmin();
+
+  let { data, error } = await supabase
+    .from("redesigns")
+    .select("id, website_url, email, preview_token, status, created_at")
+    .ilike("website_url", `%${rootDomain}%`)
+    .order("created_at", { ascending: false })
+    .limit(25);
+
+  if (error && isMissingPreviewWaitColumns(error.message)) {
+    ({ data, error } = await supabase
+      .from("redesigns")
+      .select("id, website_url, email, preview_token, created_at")
+      .ilike("website_url", `%${rootDomain}%`)
+      .order("created_at", { ascending: false })
+      .limit(25));
+  }
+
+  if (error) {
+    throw wrapRedesignError(error, "find redesign by domain");
+  }
+
+  return (
+    (data ?? []).find(
+      (row) => normalizeRootDomain(row.website_url) === rootDomain
+    ) ?? null
+  );
+}
+
+/**
+ * Everything needed to decide on / send the "design ready" notification.
+ * Returns design_email_sent: null when the column is missing (pre-migration)
+ * so callers can skip sending rather than risk duplicate emails.
+ */
+export async function fetchRedesignNotificationInfo(redesignId) {
+  const supabase = getSupabaseAdmin();
+
+  let { data, error } = await supabase
+    .from("redesigns")
+    .select("id, email, preview_token, design_email_sent")
+    .eq("id", redesignId)
+    .maybeSingle();
+
+  if (error && /design_email_sent/i.test(error.message)) {
+    ({ data, error } = await supabase
+      .from("redesigns")
+      .select("id, email, preview_token")
+      .eq("id", redesignId)
+      .maybeSingle());
+    if (!error && data) {
+      data = { ...data, design_email_sent: null };
+    }
+  }
+
+  if (error) {
+    throw wrapRedesignError(error, "fetch redesign notification info");
+  }
+
+  return data ?? null;
+}
+
+export async function markDesignEmailSent(redesignId) {
+  const supabase = getSupabaseAdmin();
+
+  const { error } = await supabase
+    .from("redesigns")
+    .update({ design_email_sent: true })
+    .eq("id", redesignId);
+
+  if (error) {
+    throw wrapRedesignError(error, "mark design email sent");
+  }
+}
+
+/** Backfill the prospect's email on a redesign row (used when a duplicate
+ *  domain is submitted and the original row had no email). */
+export async function setRedesignEmail(redesignId, email) {
+  const supabase = getSupabaseAdmin();
+
+  const { error } = await supabase
+    .from("redesigns")
+    .update({ email: email.trim().toLowerCase() })
+    .eq("id", redesignId);
+
+  if (error) {
+    throw wrapRedesignError(error, "set redesign email");
+  }
+}
+
+export async function fetchRedesignByToken(previewToken) {
+  const supabase = getSupabaseAdmin();
+
+  let { data, error } = await supabase
+    .from("redesigns")
+    .select("id, website_url, html, status")
     .eq("preview_token", previewToken)
     .maybeSingle();
 
+  // Tables created before the wait-screen migration have no status column.
+  if (error && isMissingPreviewWaitColumns(error.message)) {
+    ({ data, error } = await supabase
+      .from("redesigns")
+      .select("id, website_url, html")
+      .eq("preview_token", previewToken)
+      .maybeSingle());
+  }
+
   if (error) {
     throw wrapRedesignError(error, "fetch redesign preview");
+  }
+
+  if (!data) return null;
+
+  return {
+    ...data,
+    status: data.status ?? (data.html ? "ready" : "pending"),
+  };
+}
+
+/** Returns the updated row id, or null when the token doesn't exist. */
+export async function saveRedesignLeadIntent(previewToken, intent) {
+  const supabase = getSupabaseAdmin();
+
+  const { data, error } = await supabase
+    .from("redesigns")
+    .update({ lead_intent: intent })
+    .eq("preview_token", previewToken)
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    if (isMissingPreviewWaitColumns(error.message)) {
+      throw new Error(
+        "lead_intent column missing. Run docs/supabase-redesigns.sql in Supabase → SQL Editor."
+      );
+    }
+    throw wrapRedesignError(error, "save lead intent");
   }
 
   return data ?? null;
