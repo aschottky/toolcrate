@@ -143,6 +143,67 @@ ToolCrate`;
   return data;
 }
 
+const PREVIEW_NOTIFY_TO =
+  process.env.PREVIEW_NOTIFY_EMAIL?.trim() || "alexschottky@gmail.com";
+
+/**
+ * Notify Alexander when someone starts a free preview from /try.
+ *
+ * @param {string} businessUrl — normalized site URL
+ * @param {string|null|undefined} userEmail
+ * @returns {Promise<{ id: string }|null>}
+ */
+export async function sendPreviewStartedNotification(businessUrl, userEmail) {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn("[email] RESEND_API_KEY not set — skipping preview-started notification.");
+    return null;
+  }
+
+  const resend = getResend();
+  const configuredFrom = process.env.RESEND_FROM_EMAIL?.trim() || DEFAULT_FROM;
+  const fromAddress = configuredFrom.match(/<([^>]+)>/)?.[1] || configuredFrom;
+  const from = `ToolCrate <${fromAddress}>`;
+
+  const emailLabel = userEmail?.trim() || "None";
+  const currentTime = new Date().toLocaleString("en-US", {
+    timeZone: "America/Los_Angeles",
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+
+  const subject = `🚀 New ToolCrate Preview: ${businessUrl}`;
+
+  const html = `
+    <p>Someone just started a free preview!</p>
+    <p><strong>URL:</strong> ${businessUrl}<br>
+    <strong>Email provided:</strong> ${emailLabel}<br>
+    <strong>Time:</strong> ${currentTime}</p>
+    <p>Check it out: <a href="https://usetoolcrate.com/admin">usetoolcrate.com/admin</a></p>
+  `.trim();
+
+  const text = `Someone just started a free preview!
+
+URL: ${businessUrl}
+Email provided: ${emailLabel}
+Time: ${currentTime}
+
+Check it out: https://usetoolcrate.com/admin`;
+
+  const { data, error } = await resend.emails.send({
+    from,
+    to: [PREVIEW_NOTIFY_TO],
+    subject,
+    html,
+    text,
+  });
+
+  if (error) {
+    throw new Error(error.message || "Failed to send preview-started notification via Resend.");
+  }
+
+  return data;
+}
+
 /**
  * Email a free audit PDF to a warm lead (Instantly reply follow-up).
  *

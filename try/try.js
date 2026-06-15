@@ -97,13 +97,17 @@ form.addEventListener("submit", async (event) => {
   event.preventDefault();
   setError("");
 
-  const email = emailInput.value.trim();
+  const emailRaw = emailInput.value.trim();
   const domain = normalizeRootDomain(input.value);
 
-  if (!email || !email.includes("@")) {
-    setError("Please enter your email address.");
-    emailInput.focus();
-    return;
+  let email = null;
+  if (emailRaw) {
+    if (!emailRaw.includes("@")) {
+      setError("Please enter a valid email address.");
+      emailInput.focus();
+      return;
+    }
+    email = emailRaw;
   }
 
   if (!domain || !domain.includes(".")) {
@@ -113,14 +117,14 @@ form.addEventListener("submit", async (event) => {
   }
 
   input.value = domain;
-  lastSubmission = { domain, email };
+  lastSubmission = { domain, email: email || "" };
   setSubmitting(true);
 
   try {
     const response = await fetch(apiUrl("/api/public-redesign"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url: domain, email }),
+      body: JSON.stringify({ url: domain, email: email || "" }),
     });
 
     const data = await response.json().catch(() => ({}));

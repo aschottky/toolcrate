@@ -9,7 +9,7 @@ Edit each Payment Link → **After payment** → **Don’t show confirmation pag
 | Mode | Payment Link URL | Redirect URL |
 |------|------------------|--------------|
 | **Test** (local `.env`) | https://buy.stripe.com/test_14A289aOrcr78Mx4gn1Fe00 | `http://localhost:5173/?success=true&session_id={CHECKOUT_SESSION_ID}` |
-| **Live** (production) | https://buy.stripe.com/14A289aOrcr78Mx4gn1Fe00 | `https://usetoolcrate.com/?success=true&session_id={CHECKOUT_SESSION_ID}` |
+| **Live** (production) | https://buy.stripe.com/14A289aOrcr78Mx4gn1Fe00 | `https://usetoolcrate.com/scan/?success=true&session_id={CHECKOUT_SESSION_ID}` |
 
 Stripe replaces `{CHECKOUT_SESSION_ID}` automatically. The landing page shows a processing spinner, then downloads the PDF when ready.
 

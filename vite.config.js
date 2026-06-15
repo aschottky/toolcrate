@@ -8,6 +8,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, "index.html"),
+        scan: resolve(__dirname, "scan/index.html"),
         auditTest: resolve(__dirname, "audit-test/index.html"),
         app: resolve(__dirname, "app/index.html"),
         admin: resolve(__dirname, "admin/index.html"),

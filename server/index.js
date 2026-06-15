@@ -5,7 +5,7 @@ import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import Stripe from "stripe";
 import { runSiteAudit } from "./audit.js";
 import { buildAuditPdf } from "./audit-pipeline.js";
-import { sendAuditReportEmail } from "./email.js";
+import { sendAuditReportEmail, sendPreviewStartedNotification } from "./email.js";
 import { generateAuditPDF } from "./pdf.js";
 import { sendAuditError } from "./errors.js";
 import { handleInstantlyWebhook } from "./instantly-webhook.js";
@@ -561,13 +561,16 @@ app.post("/api/admin/reset-rate-limit", (req, res) => {
 
 app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
   const rootDomain = normalizeRootDomain(req.body?.url);
-  const email = String(req.body?.email ?? "").trim().toLowerCase();
-
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return res.status(400).json({
-      ok: false,
-      error: "Please enter a valid email address.",
-    });
+  const emailRaw = String(req.body?.email ?? "").trim().toLowerCase();
+  let email = null;
+  if (emailRaw) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailRaw)) {
+      return res.status(400).json({
+        ok: false,
+        error: "Please enter a valid email address.",
+      });
+    }
+    email = emailRaw;
   }
 
   if (!rootDomain || !rootDomain.includes(".")) {
@@ -598,7 +601,7 @@ app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
     const existing = await findLatestRedesignForDomain(rootDomain);
     if (existing) {
       // Someone may have submitted (or the admin ordered) without an email.
-      if (!existing.email) {
+      if (!existing.email && email) {
         await setRedesignEmail(existing.id, email).catch((error) =>
           console.warn(`${logPrefix} Could not backfill email:`, error.message)
         );
@@ -633,6 +636,10 @@ app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
       maxTokens: DEFAULT_REDESIGN_MAX_TOKENS,
       logPrefix: `${logPrefix}:${pending.id}`,
     });
+
+    sendPreviewStartedNotification(websiteUrl, email).catch((error) =>
+      console.warn(`${logPrefix} Preview-started notification failed:`, error.message)
+    );
 
     console.log(`${logPrefix} Queued generation (${engine.id}).`);
     return res.json({ ok: true, status: "generating", token: pending.preview_token });
