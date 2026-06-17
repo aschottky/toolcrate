@@ -109,9 +109,9 @@ function normalizeRoastBullets(raw) {
 export async function generateSiteRoast(scraped) {
   const anthropic = getAnthropic();
   const model = CLAUDE_OPUS_MODEL;
-  console.log(`[Roast] Using model: ${model}`);
+  console.log(`[Roast] Using model: ${model} (streaming)`);
 
-  const message = await anthropic.messages.create({
+  const stream = anthropic.messages.stream({
     model,
     max_tokens: 1024,
     system: buildRoastSystemPrompt(),
@@ -122,6 +122,12 @@ export async function generateSiteRoast(scraped) {
       },
     ],
   });
+
+  const message = await stream.finalMessage();
+
+  if (message.stop_reason === "max_tokens") {
+    throw new Error("Roast output was truncated (max_tokens).");
+  }
 
   const block = message.content.find((part) => part.type === "text");
   const raw = block?.text?.trim();
@@ -139,6 +145,7 @@ export async function generateSiteRoast(scraped) {
   }
 
   const roast_bullets = normalizeRoastBullets(parsed.roast_bullets);
+  console.log(`[Roast] Stream complete — ${roast_bullets.length} bullets.`);
   return { roast_bullets };
 }
 
