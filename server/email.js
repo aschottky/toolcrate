@@ -164,7 +164,7 @@ function resolveEmailRoastBullets(stored) {
  *
  * @param {object} options
  * @param {string} options.customerEmail
- * @param {string} options.previewUrl — full link to /preview-view/?t=
+ * @param {string} options.previewUrl — full link to /preview-view?t=
  * @param {string} [options.websiteUrl]
  * @param {Array<{emoji?: string, text: string}|string>|null|undefined} [options.roastBullets]
  * @param {string} [options.firstName]
@@ -196,13 +196,16 @@ export async function sendDesignReadyEmail({
 
   const subject = `we looked at ${companyName}'s site while we were at it...`;
 
+  const previewCtaLabel = "→ See Your Free Design Preview";
+  const previewCtaHtml = `<a href="${previewUrl}" style="color: #2563eb; text-decoration: underline;">${previewCtaLabel}</a>`;
+
   const html = `
 <div style="font-family: sans-serif; max-width: 600px; line-height: 1.6; color: #1a1a1a;">
   <p>${greeting}</p>
   <p>Your free redesign preview is ready — but before you see it, here's what our AI flagged on your current site:</p>
   ${bulletLinesHtml}
   <p style="margin: 1.5rem 0 0.75rem;">Now see what it could look like instead:</p>
-  <p style="margin: 0 0 1.5rem;"><a href="${previewUrl}">→ See Your Free Design Preview</a></p>
+  <p style="margin: 0 0 1.5rem;">${previewCtaHtml}</p>
   <p style="margin: 0;">— Alexander<br>ToolCrate</p>
 </div>
   `.trim();
@@ -215,7 +218,8 @@ ${bulletLinesText}
 
 Now see what it could look like instead:
 
-→ See Your Free Design Preview: ${previewUrl}
+${previewCtaLabel}
+${previewUrl}
 
 — Alexander
 ToolCrate`;

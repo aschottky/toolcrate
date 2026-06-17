@@ -517,7 +517,7 @@ async function generateRedesignFromUrl({ normalizedUrl, engine, maxTokens, logPr
   return html;
 }
 
-const PREVIEW_BASE_URL = "https://usetoolcrate.com/preview-view/?t=";
+const PREVIEW_BASE_URL = "https://usetoolcrate.com/preview-view?t=";
 
 /**
  * Phase 1: fast site-specific roast (~3–5s). Runs in parallel with redesign.

@@ -12,8 +12,10 @@ const existingPreviewLink = document.getElementById("existing-preview-link");
 const newDesignLink = document.getElementById("new-design-link");
 const variationSuccess = document.getElementById("variation-success");
 
-// Instantly cold-email CTA (URL-encode merge fields; omit &url= when website is empty):
-// https://usetoolcrate.com/try/?first={{first_name}}&email={{email}}&url={{website}}
+// Instantly cold-email CTA (plain text — no query params; form collects everything on-page):
+// https://usetoolcrate.com/try
+//
+// URL param pre-fill (?first=, ?email=, ?url=) is for HTML channels only (SMS, ManyChat, etc.).
 
 // Remembered from the duplicate submission so the $9 checkout knows
 // which domain/email to attach as session metadata.
