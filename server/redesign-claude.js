@@ -29,18 +29,13 @@ You are designing for a SPECIFIC business, not a generic roofing company. Every 
 
 1. COLOR PALETTE - Extract the dominant brand colors from the scraped site content (look for color mentions, CSS, or logo description). Use THOSE colors as the primary palette. If no colors are found, choose a palette based on the company name, location, or personality - NOT generic red/maroon. Acceptable defaults include: navy + gold, forest green + cream, charcoal + orange, slate blue + white, deep green + copper. Never default to dark red unless the business explicitly uses it.
 
-2. HERO STYLE - Vary the hero section layout. Choose ONE of the following approaches based on what feels right for this specific company:
-   - Full-width background image with text overlay (only if image is strong)
-   - Split layout: text left, image right
-   - Bold typography-first hero with a solid color background
-   - Gradient background with a strong headline and minimal imagery
-   Do NOT always use the background-image-with-dark-overlay approach.
+2. HERO STYLE - The user message includes a MANDATORY STYLE DIRECTION. That direction overrides these defaults. When no style direction conflicts, vary the hero — do NOT default to background-image-with-dark-overlay every time.
 
-3. TYPOGRAPHY - Choose a font pairing that matches the company's personality. Do not use the same serif + sans-serif pairing for every design. Options: bold slab serif for a tough/reliable feel, clean geometric sans for modern/professional, script accent for family-owned warmth, etc.
+3. TYPOGRAPHY - Match the style direction's typography rules exactly. Do not default to the same serif + sans pairing on every design.
 
-4. HEADLINE - Write a headline that is specific to THIS company. Include their city, specialty, or a unique differentiator found in the scraped content. Never use generic phrases like "Your Property's Best Friend in Roofing Excellence" or "Premium Roof Repair and Replacement." If you scraped something distinctive about them, use it.
+4. HEADLINE - Write a headline freshly conceived for this specific site and style direction. Do not default to the most obvious brand pun or the company name. Think about what makes this business unique from the scraped data — their specialty, their location, their story — and write a headline that fits the style direction's voice. A bold type-led design needs a short punchy headline (3-6 words). A light professional design needs a clear value statement. An editorial design needs something unexpected. Write the headline to match the style, not just the brand.
 
-5. LAYOUT SECTIONS - Vary the order and selection of sections. Not every site needs Services → About → Testimonials in that exact order. Use what makes sense for this business.
+5. LAYOUT SECTIONS - Vary the order and selection of sections beyond the hero. Not every site needs Services → About → Testimonials in that exact order.
 
 Before generating, briefly note to yourself: what makes THIS company different from a generic roofer? Design around that answer.
 
@@ -56,10 +51,9 @@ Instead, use ONE of these approaches:
 The design must look like it was built by a professional agency, not assembled from emoji shortcuts.
 
 SECTION CONTRAST - REQUIRED:
-The page must alternate between light and dark sections to create visual rhythm. Do not use the same background color for more than two consecutive sections.
+The page must alternate between light and dark sections to create visual rhythm. Do not use the same background color for more than two consecutive sections. The hero's light/dark treatment is defined by the MANDATORY STYLE DIRECTION — do not force a dark hero if the direction calls for white or a color block.
 
-Suggested pattern:
-- Hero: Dark (brand color or deep neutral) - dramatic, high impact
+Suggested pattern for sections AFTER the hero:
 - Stats / Trust bar: Light or white - clean, credible
 - Services: Dark or medium tone - structured
 - About / Why Us: Light with a strong image - warm, human
@@ -70,19 +64,17 @@ Suggested pattern:
 Use the brand's accent color (extracted from their site) as a punchy highlight, not as the entire palette. White space is not the enemy - it makes the dark sections hit harder.
 
 HERO SECTION - WOW FACTOR:
-The hero must feel like the most expensive part of the page. Rules:
+The hero must follow the MANDATORY STYLE DIRECTION in the user message. These rules apply when the direction does not specify otherwise:
 
-1. Headline typography: Use a large, bold display font (minimum equivalent of 56-72px). The headline should be the biggest, most confident thing on the page. If the company has a clever name or tagline, make the headline play on it.
+1. Headline typography: Match the direction's scale and weight — do not use 56-72px serif on every design.
 
-2. Subheading: Smaller (18-20px), lighter weight, gives context. Not more than 2 lines.
+2. Subheading: Smaller, lighter weight, gives context. Not more than 2 lines unless the direction says otherwise.
 
 3. CTAs: Two buttons - primary (filled, brand accent color) and secondary (ghost/outline). Both must be clearly visible against the hero background.
 
-4. Visual treatment: If using a background image, apply a gradient overlay that is DARKER at the bottom (where text lives) and lighter or transparent at the top - not a flat dark overlay across the entire image. This creates depth.
+4. Visual treatment: Only use full-bleed photo + dark overlay when the assigned style direction requires it (e.g. Style 3).
 
-5. Trust signal: A small badge or inline text row above or below the headline (e.g. "A+ BBB Rated · Family-Owned · Serving Kansas City Since 1987") adds instant credibility without taking up space. Use plain text or ★ characters for stars — never emoji.
-
-The hero should feel like the prospect is looking at a $5,000 agency site, not a $500 Squarespace template.
+5. Trust signal: A small badge or inline text row when it fits the direction. Use plain text or ★ characters for stars — never emoji.
 
 SERVICE CARDS:
 - Use a simple numbered accent (01, 02, 03...) OR a small colored top border on each card as the visual identifier - no emojis

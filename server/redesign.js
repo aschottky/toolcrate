@@ -18,13 +18,9 @@ Your job is to generate a single, complete HTML file that reimagines this busine
 
 CREATIVE DIRECTION:
 
-You have full creative freedom to choose a unique visual style, layout, and color palette. Do NOT default to the same design every time. Draw inspiration from the brand's existing colors and imagery, but elevate everything dramatically. Some directions you might explore (pick whichever fits the brand best, or invent your own):
+The user message includes a MANDATORY STYLE DIRECTION — treat every bullet as a hard constraint. Do not fall back to generic dark-overlay split heroes, default orange accents, or serif headlines unless that direction requires them.
 
-- Bold editorial: oversized typography, stark contrast, asymmetric layout
-- Premium dark mode: deep backgrounds, glowing accents, glass morphism cards
-- Clean modern: lots of whitespace, strong grid, subtle shadows, confident typography
-- High-energy local: big hero photo treatment, trust signals front and center, urgency-driven copy
-- Luxury service: muted tones, refined serif + sans pairing, understated elegance
+HEADLINE: Write a headline freshly conceived for this specific site and style direction. Do not default to the most obvious brand pun or the company name. Match the style direction's voice — short and punchy for bold type-led, clear value statement for light professional, unexpected for editorial.
 
 CONTENT RULES:
 
@@ -46,10 +42,9 @@ Instead, use ONE of these approaches:
 The design must look like it was built by a professional agency, not assembled from emoji shortcuts.
 
 SECTION CONTRAST - REQUIRED:
-The page must alternate between light and dark sections to create visual rhythm. Do not use the same background color for more than two consecutive sections.
+The page must alternate between light and dark sections to create visual rhythm. Do not use the same background color for more than two consecutive sections. The hero's light/dark treatment is defined by the MANDATORY STYLE DIRECTION in the user message.
 
-Suggested pattern:
-- Hero: Dark (brand color or deep neutral) - dramatic, high impact
+Suggested pattern for sections AFTER the hero:
 - Stats / Trust bar: Light or white - clean, credible
 - Services: Dark or medium tone - structured
 - About / Why Us: Light with a strong image - warm, human
@@ -60,19 +55,17 @@ Suggested pattern:
 Use the brand's accent color (extracted from their site) as a punchy highlight, not as the entire palette. White space is not the enemy - it makes the dark sections hit harder.
 
 HERO SECTION - WOW FACTOR:
-The hero must feel like the most expensive part of the page. Rules:
+The hero must follow the MANDATORY STYLE DIRECTION in the user message. These rules apply when the direction does not specify otherwise:
 
-1. Headline typography: Use a large, bold display font (minimum equivalent of 56-72px). The headline should be the biggest, most confident thing on the page. If the company has a clever name or tagline, make the headline play on it.
+1. Headline typography: Match the direction's scale and weight — do not use 56-72px serif on every design.
 
-2. Subheading: Smaller (18-20px), lighter weight, gives context. Not more than 2 lines.
+2. Subheading: Smaller (18-20px), lighter weight, gives context. Not more than 2 lines unless the direction says otherwise.
 
 3. CTAs: Two buttons - primary (filled, brand accent color) and secondary (ghost/outline). Both must be clearly visible against the hero background.
 
-4. Visual treatment: If using a background image, apply a gradient overlay that is DARKER at the bottom (where text lives) and lighter or transparent at the top - not a flat dark overlay across the entire image. This creates depth.
+4. Visual treatment: Only use full-bleed photo + dark overlay when the assigned style direction requires it.
 
-5. Trust signal: A small badge or inline text row above or below the headline (e.g. "★★★★★ A+ BBB Rated · Family-Owned · Serving Kansas City Since 1987") adds instant credibility without taking up space.
-
-The hero should feel like the prospect is looking at a $5,000 agency site, not a $500 Squarespace template.
+5. Trust signal: A small badge or inline text row when it fits the direction.
 
 SERVICE CARDS:
 - Use a simple numbered accent (01, 02, 03...) OR a small colored top border on each card as the visual identifier - no emojis
@@ -228,12 +221,54 @@ export function validateRedesignHtml(html) {
 const MAX_ATTEMPTS = 2;
 
 const STYLE_DIRECTIONS = [
-  "Bold editorial: oversized typography, stark contrast, asymmetric layout",
-  "Premium dark mode: deep backgrounds, glowing accents, glass morphism cards",
-  "Clean modern: lots of whitespace, strong grid, subtle shadows, confident typography",
-  "High-energy local: big hero photo treatment, trust signals front and center, urgency-driven copy",
-  "Luxury service: muted tones, refined serif + sans pairing, understated elegance",
+  `STYLE DIRECTION 1 - BOLD TYPE-LED
+- Hero: White or off-white background, NO dark overlay, text is the hero
+- Typography: Extra-bold sans-serif headline (900 weight), very large (80-100px), black or near-black text
+- Color: One strong accent color (not orange unless scraped brand uses it), used sparingly
+- Layout: Centered hero, headline takes up 60% of the viewport, CTA buttons below
+- Unique element: A large typographic "stamp" or badge (e.g. "EST. 2004" or service area) as a decorative element
+- Feel: Modernist poster, bold, confident, no photography required in the hero`,
+
+  `STYLE DIRECTION 2 - LIGHT PROFESSIONAL
+- Hero: Light gray or pure white background, image confined to a right-column card with rounded corners and a drop shadow - NOT full bleed
+- Typography: Clean geometric sans-serif, medium weight
+- Color: Light palette, one muted accent (slate blue, forest green, warm gray - whatever fits the brand)
+- Layout: Classic split - text left 55%, image card right 45%
+- Unique element: A horizontal stat bar below the hero ("1,200+ Roofs Replaced · A+ BBB · 20 Years in KC")
+- Feel: Established professional firm, trust-forward, approachable`,
+
+  `STYLE DIRECTION 3 - DARK DRAMATIC
+- Hero: Dark background ONLY if a high-quality photo justifies it, photo must be full bleed with overlay
+- Typography: Serif display font for headline, contrasting weight between headline and subtext
+- Color: Deep background, single warm accent
+- Layout: Text lower-left anchored, image fills upper right - NOT centered
+- Unique element: Vertical text element or side label along one edge
+- Feel: Premium, cinematic - ONLY use this direction if verified photos are high quality. If no good photos exist, adapt toward Style 2 instead.`,
+
+  `STYLE DIRECTION 4 - HIGH ENERGY LOCAL
+- Hero: Bold color block background (NOT dark - think deep red, navy, forest green, burnt orange based on brand colors)
+- Typography: Tall condensed sans-serif headline in white, large
+- Color: High contrast - saturated background block, white text, one bright accent for CTAs
+- Layout: Full-width stacked, headline centered and dominant, trust badges in a row below
+- Unique element: A "service area" callout prominently placed ("Proudly Serving Kansas City & Surrounding Areas")
+- Feel: Energetic local business, approachable, community-rooted`,
+
+  `STYLE DIRECTION 5 - EDITORIAL MAGAZINE
+- Hero: Asymmetric grid layout - headline in large serif on one side, image cropped unconventionally on the other
+- Typography: Mix of serif display (headline) and clean sans-serif (body) - intentional contrast
+- Color: Mostly neutral with one editorial accent (deep burgundy, forest, slate)
+- Layout: Intentional white space, elements do NOT fill every pixel
+- Unique element: A pull-quote or short brand manifesto line in large italic type below the hero
+- Feel: Architecture firm or high-end home services brand, sophisticated`,
 ];
+
+function pickStyleDirection(imageUrls) {
+  let pool = STYLE_DIRECTIONS;
+  if (!imageUrls?.length) {
+    pool = STYLE_DIRECTIONS.filter((d) => !d.startsWith("STYLE DIRECTION 3"));
+  }
+  return pool[Math.floor(Math.random() * pool.length)];
+}
 
 const IMAGE_CHECK_TIMEOUT_MS = 5000;
 
@@ -283,15 +318,14 @@ export function buildUserMessage(scraped, imageUrls) {
     );
   }
 
-  // Anti-convergence nudge: a randomly suggested starting direction per request,
-  // so back-to-back generations don't all land on the same look.
-  const suggestion =
-    STYLE_DIRECTIONS[Math.floor(Math.random() * STYLE_DIRECTIONS.length)];
+  const direction = pickStyleDirection(imageUrls);
   parts.push(
     "",
-    `Style suggestion for this one (use it only if it fits the brand, otherwise pick your own): ${suggestion}`,
+    "MANDATORY STYLE DIRECTION — treat every bullet below as a hard constraint, not a loose suggestion. Do not fall back to generic dark-overlay split heroes, default orange accents, or serif headlines unless this direction requires them:",
     "",
-    "Remember: alternate light and dark sections for visual rhythm; no emoji icons anywhere; hero headline at 56-72px display scale with dual CTAs."
+    direction,
+    "",
+    "Alternate light and dark sections for visual rhythm in the rest of the page. No emoji icons anywhere. Follow this direction's hero scale and layout rules — not a generic template."
   );
 
   return parts.join("\n");
