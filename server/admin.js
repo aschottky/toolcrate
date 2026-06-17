@@ -495,31 +495,57 @@ async function generateRedesignFromUrl({ normalizedUrl, engine, maxTokens, logPr
   return html;
 }
 
-const PREVIEW_BASE_URL = "https://usetoolcrate.com/roast/?t=";
+const PREVIEW_BASE_URL = "https://usetoolcrate.com/preview-view/?t=";
 
 /**
  * Phase 1: fast site-specific roast (~3–5s). Runs in parallel with redesign.
  */
 export function runRoastGeneration({ redesignId, normalizedUrl, logPrefix }) {
   setImmediate(async () => {
-    try {
-      console.log(`${logPrefix} [roast] Scraping [${normalizedUrl}]...`);
-      const scraped = await scrapeWebsiteText(normalizedUrl);
+    let lastError = null;
 
-      console.log(`${logPrefix} [roast] Generating site roast...`);
-      const started = Date.now();
-      const { roast_bullets } = await generateSiteRoast(scraped);
-      await saveRoastBullets(redesignId, roast_bullets);
-      console.log(
-        `${logPrefix} [roast] Saved ${roast_bullets.length} bullets in ${Math.round((Date.now() - started) / 1000)}s`
-      );
-    } catch (error) {
-      console.error(`${logPrefix} [roast] Failed:`, error.message);
+    for (let attempt = 1; attempt <= 2; attempt++) {
       try {
-        await markRoastFailed(redesignId);
-      } catch (updateError) {
-        console.error(`${logPrefix} [roast] Could not mark failed:`, updateError.message);
+        console.log(`${logPrefix} [roast] Attempt ${attempt}/2 — scraping ${normalizedUrl}...`);
+        const scraped = await scrapeWebsiteText(normalizedUrl);
+        console.log(
+          `${logPrefix} [roast] Scrape OK (${scraped.scrapeSource}, ${scraped.charCount} chars)`
+        );
+
+        console.log(`${logPrefix} [roast] Generating site roast...`);
+        const started = Date.now();
+        const { roast_bullets } = await generateSiteRoast(scraped);
+        await saveRoastBullets(redesignId, roast_bullets);
+        console.log(
+          `${logPrefix} [roast] Saved ${roast_bullets.length} bullets in ${Math.round((Date.now() - started) / 1000)}s`
+        );
+        return;
+      } catch (error) {
+        lastError = error;
+        const phase = /scrape|access this website|blocking/i.test(error.message)
+          ? "scrape"
+          : "roast-ai";
+        console.error(
+          `${logPrefix} [roast] Attempt ${attempt}/2 failed (${phase}):`,
+          error.message
+        );
+        if (error.stack) {
+          console.error(error.stack.split("\n").slice(0, 4).join("\n"));
+        }
+        if (attempt < 2) {
+          await new Promise((resolve) => setTimeout(resolve, 1200));
+        }
       }
+    }
+
+    console.error(
+      `${logPrefix} [roast] Giving up after 2 attempts:`,
+      lastError?.message || "unknown error"
+    );
+    try {
+      await markRoastFailed(redesignId);
+    } catch (updateError) {
+      console.error(`${logPrefix} [roast] Could not mark failed:`, updateError.message);
     }
   });
 }
@@ -549,7 +575,17 @@ async function sendDesignReadyNotification(redesignId, logPrefix) {
     }
 
     const previewUrl = `${PREVIEW_BASE_URL}${encodeURIComponent(info.preview_token)}`;
-    await sendDesignReadyEmail(info.email, previewUrl);
+    const roastBullets =
+      info.roast_status === "ready" && Array.isArray(info.roast_bullets)
+        ? info.roast_bullets
+        : null;
+
+    await sendDesignReadyEmail({
+      customerEmail: info.email,
+      previewUrl,
+      websiteUrl: info.website_url,
+      roastBullets,
+    });
     await markDesignEmailSent(redesignId);
     console.log(`${logPrefix} Design-ready email sent to ${info.email}.`);
   } catch (error) {

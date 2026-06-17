@@ -4,19 +4,12 @@ const MAX_TEXT_CHARS = 14_000;
 const MAX_HEAD_HTML_CHARS = 2_500;
 const FETCH_TIMEOUT_MS = 15_000;
 const JINA_TIMEOUT_MS = 25_000;
-
-const BLOCKED_HOSTNAMES = new Set([
-  "localhost",
-  "127.0.0.1",
-  "0.0.0.0",
-  "[::1]",
-]);
+const SCRAPE_RETRY_DELAY_MS = 800;
 
 const BROWSER_HEADERS = {
   "User-Agent":
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-  Accept:
-    "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+  Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
   "Accept-Language": "en-US,en;q=0.9",
   "Cache-Control": "no-cache",
   "Sec-Fetch-Dest": "document",
@@ -25,6 +18,27 @@ const BROWSER_HEADERS = {
   "Sec-Fetch-User": "?1",
   "Upgrade-Insecure-Requests": "1",
 };
+
+const BLOCKED_HOSTNAMES = new Set([
+  "localhost",
+  "127.0.0.1",
+  "0.0.0.0",
+  "[::1]",
+]);
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isRetryableFetchError(error) {
+  const message = error?.message || "";
+  return (
+    error?.name === "AbortError" ||
+    message.startsWith("BLOCKED_") ||
+    /^Website returned HTTP (5\d\d|408)/.test(message) ||
+    /fetch failed|ECONNRESET|ETIMEDOUT|ENOTFOUND|socket hang up/i.test(message)
+  );
+}
 
 function isPrivateIpv4(hostname) {
   const parts = hostname.split(".").map(Number);
@@ -239,7 +253,7 @@ function parseHtmlToScraped(websiteUrl, html, { source = "direct" } = {}) {
   };
 }
 
-async function fetchHtmlDirect(websiteUrl) {
+async function fetchHtmlDirect(websiteUrl, attempt = 1) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
@@ -274,6 +288,15 @@ async function fetchHtmlDirect(websiteUrl) {
 
     return html;
   } catch (error) {
+    if (attempt === 1 && isRetryableFetchError(error)) {
+      console.warn(
+        `[scrape] Direct fetch attempt 1 failed for ${websiteUrl}: ${error.message}; retrying...`
+      );
+      clearTimeout(timeout);
+      await sleep(SCRAPE_RETRY_DELAY_MS);
+      return fetchHtmlDirect(websiteUrl, 2);
+    }
+
     if (error.name === "AbortError") {
       throw new Error("The website took too long to respond.");
     }
@@ -363,7 +386,8 @@ function buildScrapedFromReaderText(websiteUrl, readerText) {
 }
 
 async function fetchViaJinaReader(websiteUrl) {
-  const jinaUrl = `https://r.jina.ai/${websiteUrl}`;
+  const normalizedTarget = websiteUrl.replace(/\/$/, "");
+  const jinaUrl = `https://r.jina.ai/${encodeURI(normalizedTarget)}`;
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), JINA_TIMEOUT_MS);
 
@@ -429,8 +453,7 @@ export async function scrapeWebsiteText(websiteUrl) {
       return scraped;
     } catch (fallbackError) {
       console.error(
-        `[scrape] Reader fallback failed for ${websiteUrl}:`,
-        fallbackError.message
+        `[scrape] All fetch attempts failed for ${websiteUrl} — direct: ${directError.message}; reader: ${fallbackError.message}`
       );
       throw new Error(
         "We couldn't access this website — it may be blocking our scanner. Reply to your audit email and we'll run it manually or refund you."

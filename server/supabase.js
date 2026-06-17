@@ -758,9 +758,17 @@ export async function fetchRedesignNotificationInfo(redesignId) {
 
   let { data, error } = await supabase
     .from("redesigns")
-    .select("id, email, preview_token, design_email_sent")
+    .select("id, email, preview_token, design_email_sent, website_url, roast_bullets, roast_status")
     .eq("id", redesignId)
     .maybeSingle();
+
+  if (error && /roast_bullets|roast_status|website_url/i.test(error.message)) {
+    ({ data, error } = await supabase
+      .from("redesigns")
+      .select("id, email, preview_token, design_email_sent, website_url")
+      .eq("id", redesignId)
+      .maybeSingle());
+  }
 
   if (error && /design_email_sent/i.test(error.message)) {
     ({ data, error } = await supabase

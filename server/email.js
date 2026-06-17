@@ -99,47 +99,123 @@ Website Tear Down`;
   return data;
 }
 
+const DEFAULT_EMAIL_ROAST_BULLETS = [
+  { emoji: "⚠️", text: "No phone number visible above the fold" },
+  { emoji: "📵", text: "No reviews or social proof on the homepage" },
+  { emoji: "🐌", text: "Headline doesn't explain what you actually do" },
+  { emoji: "👻", text: "Site likely loads slowly on mobile" },
+];
+
+const EMAIL_ROAST_EMOJIS = ["⚠️", "📵", "🐌", "👻"];
+
+function trimBulletWords(text, maxWords = 12) {
+  const words = String(text ?? "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (words.length <= maxWords) return words.join(" ");
+  return `${words.slice(0, maxWords).join(" ")}…`;
+}
+
+function firstNameFromEmail(email) {
+  const local = email.split("@")[0]?.split(/[._+-]/)[0]?.trim() || "";
+  if (!local || /^\d+$/.test(local)) return "there";
+  return local.charAt(0).toUpperCase() + local.slice(1).toLowerCase();
+}
+
+function companyNameFromUrl(websiteUrl) {
+  try {
+    const host = new URL(websiteUrl).hostname.replace(/^www\./i, "");
+    const base = host.split(".")[0].replace(/[-_]+/g, " ").trim();
+    if (!base) return "your business";
+    return base.replace(/\b\w/g, (c) => c.toUpperCase());
+  } catch {
+    return "your business";
+  }
+}
+
+function resolveEmailRoastBullets(stored) {
+  const hasEnough = Array.isArray(stored) && stored.length >= 4;
+  const source = hasEnough ? stored.slice(0, 4) : DEFAULT_EMAIL_ROAST_BULLETS;
+
+  return source.map((bullet, index) => {
+    const text =
+      typeof bullet === "string" ? bullet : bullet?.text || DEFAULT_EMAIL_ROAST_BULLETS[index].text;
+    const emoji =
+      (typeof bullet === "object" && bullet?.emoji) ||
+      EMAIL_ROAST_EMOJIS[index] ||
+      "⚠️";
+
+    return {
+      emoji,
+      text: trimBulletWords(text),
+    };
+  });
+}
+
 /**
- * "Your design preview is ready" notification — sent automatically when a
- * background redesign generation finishes.
+ * "Your design preview is ready" notification — sent when background generation finishes.
  *
- * @param {string} customerEmail
- * @param {string} previewUrl — full public preview link
+ * @param {object} options
+ * @param {string} options.customerEmail
+ * @param {string} options.previewUrl — full link to /preview-view/?t=
+ * @param {string} [options.websiteUrl]
+ * @param {Array<{emoji?: string, text: string}|string>|null|undefined} [options.roastBullets]
  * @returns {Promise<{ id: string }>}
  */
-export async function sendDesignReadyEmail(customerEmail, previewUrl) {
+export async function sendDesignReadyEmail({
+  customerEmail,
+  previewUrl,
+  websiteUrl,
+  roastBullets,
+}) {
   const to = customerEmail?.trim();
   if (!to) {
     throw new Error("Customer email is required.");
   }
 
   const resend = getResend();
-  const from = getBrandedFrom("ToolCrate");
+  const from = getFromAddress();
+  const firstName = firstNameFromEmail(to);
+  const companyName = companyNameFromUrl(websiteUrl || "");
+  const bullets = resolveEmailRoastBullets(roastBullets);
+
+  const bulletLinesHtml = bullets
+    .map((b) => `<p style="margin: 0 0 0.5rem;">${b.emoji} ${b.text}</p>`)
+    .join("\n");
+
+  const bulletLinesText = bullets.map((b) => `${b.emoji} ${b.text}`).join("\n");
+
+  const subject = `we looked at ${companyName}'s site while we were at it...`;
 
   const html = `
-<div style="font-family: Inter, sans-serif; max-width: 560px; margin: 0 auto; background: #0f172a; color: white; padding: 2.5rem; border-radius: 1rem;">
-  <p style="font-size: 1.5rem; font-weight: 700; margin: 0 0 0.5rem;">Your preview is ready. 🎉</p>
-  <p style="color: #94a3b8; margin: 0 0 2rem;">Our AI just finished designing a brand-new version of your site. Take a look:</p>
-  <a href="${previewUrl}" style="display: inline-block; background: linear-gradient(135deg, #f97316, #fb923c); color: white; font-weight: 700; padding: 1rem 2rem; border-radius: 9999px; text-decoration: none; font-size: 1rem;">See Your Design Preview →</a>
-  <p style="color: #475569; font-size: 0.875rem; margin: 2rem 0 0;">If you like what you see and want it live, reply to this email. Setup is $497 and takes 48 hours.<br><br>- Alexander<br>ToolCrate</p>
+<div style="font-family: sans-serif; max-width: 600px; line-height: 1.6; color: #1a1a1a;">
+  <p>Hey ${firstName},</p>
+  <p>Your free redesign preview is ready — but before you see it, here's what our AI flagged on your current site:</p>
+  ${bulletLinesHtml}
+  <p style="margin: 1.5rem 0 0.75rem;">Now see what it could look like instead:</p>
+  <p style="margin: 0 0 1.5rem;"><a href="${previewUrl}">→ See Your Free Design Preview</a></p>
+  <p style="margin: 0;">— Alexander<br>ToolCrate</p>
 </div>
   `.trim();
 
-  const text = `Your preview is ready. 🎉
+  const text = `Hey ${firstName},
 
-Our AI just finished designing a brand-new version of your site. Take a look:
+Your free redesign preview is ready — but before you see it, here's what our AI flagged on your current site:
 
-${previewUrl}
+${bulletLinesText}
 
-If you like what you see and want it live, reply to this email. Setup is $497 and takes 48 hours.
+Now see what it could look like instead:
 
-- Alexander
+→ See Your Free Design Preview: ${previewUrl}
+
+— Alexander
 ToolCrate`;
 
   const { data, error } = await resend.emails.send({
     from,
     to: [to],
-    subject: "Your design preview is ready ✨",
+    subject,
     html,
     text,
   });

@@ -52,7 +52,7 @@ RENDERING CORRECTNESS (hard requirements, regardless of style chosen):
 - When layering a pattern or texture over a gradient background, combine them in ONE background-image declaration so the later rule doesn't overwrite the gradient.
 - All hero content must sit inside a padded max-width container - text must never touch the viewport edge.
 - Text over photos: any text placed on a photo background needs a dark overlay beneath it (e.g. linear-gradient(rgba(10,10,20,0.6), rgba(10,10,20,0.75)) layered over the image) - never put text directly on a busy or light image.
-- Logos and mascot images are NOT backgrounds: if a scraped image is clearly a logo/mascot/badge, use it small (nav, footer, trust bar) or skip it - never stretch it behind a section.
+- Logos and mascot images are NOT backgrounds: if a scraped image is clearly a logo/mascot/badge, use it in the nav/header at min-height 48px, max-height 72px, width: auto — or as a small trust-bar/footer mark. If the logo cannot load, fall back to bold company-name text. Never stretch a logo as a background or render it tiny/broken.
 - Every embedded photo must be size-constrained: fixed height (300-450px) with object-fit: cover, or aspect-ratio + overflow hidden - never let an image render at its natural full size.
 - Use the company NAME for headings/logo text, not the site's full meta title string (e.g. "Liberty Roofing", not "Liberty Roofing | Mid-Michigan Roofing | Exterior Upgrades").
 - ONLY embed image URLs that were explicitly provided as verified - never invent image paths, reviewer avatars, placeholder images, or stock photo URLs. A broken image icon ruins the whole preview. Testimonials need no photos - stars and text are enough.
@@ -156,7 +156,7 @@ export function buildUserMessage(scraped, imageUrls) {
       "Verified image URLs from their site are attached below so you can SEE each one. Look at each image and decide how (or whether) to use it:",
       ...imageUrls.map((url, i) => `- Image ${i + 1}: ${url}`),
       "",
-      "Image usage: real photos (job sites, crews, finished work, buildings) make great hero backgrounds and section imagery. Logos, mascots, badges, and certification marks must only appear small (nav, trust bar, footer) - never stretched as a background. Skip any image that would weaken the design."
+      "Image usage: real photos (job sites, crews, finished work, buildings) make great hero backgrounds and section imagery. Logos/mascots: use ONLY in nav/header at 48–72px height (width: auto), or small trust-bar/footer — never as hero backgrounds. If no usable logo, use bold company-name text in the header instead of a broken image."
     );
   }
 
