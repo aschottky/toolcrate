@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",
+    "@stripe/stripe-js": "^9.8.0",
     "@supabase/supabase-js": "^2.106.2",
     "cheerio": "^1.0.0",
     "cors": "^2.8.5",

@@ -1,10 +1,4 @@
-import { getResend } from "./email.js";
-
-const DEFAULT_FROM = "Website Tear Down <onboarding@resend.dev>";
-
-function getFromAddress() {
-  return process.env.RESEND_FROM_EMAIL?.trim() || DEFAULT_FROM;
-}
+import { getResend, getFromAddress } from "./email.js";
 
 function getBookingUrl() {
   return (

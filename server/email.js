@@ -1,8 +1,19 @@
 import { Resend } from "resend";
 
-const DEFAULT_FROM = "Website Tear Down <onboarding@resend.dev>";
+const DEFAULT_FROM = "Alexander <alexander@usetoolcrate.com>";
 
 let resendClient;
+
+export function getFromAddress() {
+  return process.env.RESEND_FROM_EMAIL?.trim() || DEFAULT_FROM;
+}
+
+/** Same verified address with a different display name (e.g. ToolCrate). */
+export function getBrandedFrom(displayName) {
+  const configured = getFromAddress();
+  const address = configured.match(/<([^>]+)>/)?.[1] || configured;
+  return `${displayName} <${address}>`;
+}
 
 export function getResend() {
   if (!process.env.RESEND_API_KEY) {
@@ -41,7 +52,7 @@ export async function sendAuditReportEmail(customerEmail, websiteUrl, pdfBuffer)
   }
 
   const resend = getResend();
-  const from = process.env.RESEND_FROM_EMAIL?.trim() || DEFAULT_FROM;
+  const from = getFromAddress();
   const siteLabel = formatSiteLabel(websiteUrl);
 
   const html = `
@@ -103,10 +114,7 @@ export async function sendDesignReadyEmail(customerEmail, previewUrl) {
   }
 
   const resend = getResend();
-  // Same sending address as the other emails, but branded "ToolCrate".
-  const configuredFrom = process.env.RESEND_FROM_EMAIL?.trim() || DEFAULT_FROM;
-  const fromAddress = configuredFrom.match(/<([^>]+)>/)?.[1] || configuredFrom;
-  const from = `ToolCrate <${fromAddress}>`;
+  const from = getBrandedFrom("ToolCrate");
 
   const html = `
 <div style="font-family: Inter, sans-serif; max-width: 560px; margin: 0 auto; background: #0f172a; color: white; padding: 2.5rem; border-radius: 1rem;">
@@ -143,6 +151,105 @@ ToolCrate`;
   return data;
 }
 
+
+function welcomeEmailShell(bodyHtml) {
+  return `
+<div style="font-family: sans-serif; max-width: 600px; line-height: 1.6; color: #1a1a1a;">
+${bodyHtml}
+</div>
+  `.trim();
+}
+
+/**
+ * Post-purchase welcome email for Full Build or Conversion OS checkout.
+ *
+ * @param {string} email
+ * @param {string|null|undefined} name
+ * @param {'full-build'|'conversion-os'} tier
+ * @returns {Promise<{ id: string }>}
+ */
+export async function sendWelcomeEmail(email, name, tier) {
+  const to = email?.trim();
+  if (!to) {
+    throw new Error("Customer email is required.");
+  }
+
+  if (tier !== "full-build" && tier !== "conversion-os") {
+    throw new Error(`Unsupported welcome email tier: ${tier}`);
+  }
+
+  const resend = getResend();
+  const greeting = name?.trim() || "there";
+
+  let subject;
+  let html;
+  let text;
+
+  if (tier === "full-build") {
+    subject = "You're in - here's what happens next";
+    html = welcomeEmailShell(`
+  <p>Hey ${greeting}, Alexander here from ToolCrate.</p>
+  <p>Your payment went through and I'm already looking forward to building something great for your business.</p>
+  <p>Here's what happens next:</p>
+  <p>[1] You'll receive a short intake form within the hour — takes about 5 minutes.<br>
+  [2] I'll review it and reach out within 24 hours to confirm scope and timeline.<br>
+  [3] Your build starts within 3 business days.</p>
+  <p>Questions? Just reply to this email.</p>
+  <p>— Alexander</p>
+    `);
+    text = `Hey ${greeting}, Alexander here from ToolCrate.
+
+Your payment went through and I'm already looking forward to building something great for your business.
+
+Here's what happens next:
+[1] You'll receive a short intake form within the hour - takes about 5 minutes.
+[2] I'll review it and reach out within 24 hours to confirm scope and timeline.
+[3] Your build starts within 3 business days.
+
+Questions? Just reply to this email.
+
+— Alexander`;
+  } else {
+    subject = "Welcome to Conversion OS - founding member confirmed";
+    html = welcomeEmailShell(`
+  <p>Hey ${greeting}, Alexander here.</p>
+  <p>Your founding membership is confirmed — you're one of a very small group getting in at this price, and I don't take that lightly.</p>
+  <p>Here's what's next:</p>
+  <p>[1] Intake form coming your way within the hour.<br>
+  [2] Onboarding call scheduled within 48 hours to map your first 30 days.<br>
+  [3] Month 1 kicks off immediately after our call.</p>
+  <p>This is going to be good.</p>
+  <p>— Alexander</p>
+    `);
+    text = `Hey ${greeting}, Alexander here.
+
+Your founding membership is confirmed - you're one of a very small group getting in at this price, and I don't take that lightly.
+
+Here's what's next:
+[1] Intake form coming your way within the hour.
+[2] Onboarding call scheduled within 48 hours to map your first 30 days.
+[3] Month 1 kicks off immediately after our call.
+
+This is going to be good.
+
+— Alexander`;
+  }
+
+  const { data, error } = await resend.emails.send({
+    from: getFromAddress(),
+    to: [to],
+    subject,
+    html,
+    text,
+  });
+
+  if (error) {
+    throw new Error(error.message || "Failed to send welcome email via Resend.");
+  }
+
+  return data;
+}
+
 const PREVIEW_NOTIFY_TO =
   process.env.PREVIEW_NOTIFY_EMAIL?.trim() || "alexschottky@gmail.com";
 
@@ -160,9 +267,7 @@ export async function sendPreviewStartedNotification(businessUrl, userEmail) {
   }
 
   const resend = getResend();
-  const configuredFrom = process.env.RESEND_FROM_EMAIL?.trim() || DEFAULT_FROM;
-  const fromAddress = configuredFrom.match(/<([^>]+)>/)?.[1] || configuredFrom;
-  const from = `ToolCrate <${fromAddress}>`;
+  const from = getBrandedFrom("ToolCrate");
 
   const emailLabel = userEmail?.trim() || "None";
   const currentTime = new Date().toLocaleString("en-US", {
@@ -223,7 +328,7 @@ export async function sendFreeAuditEmail(customerEmail, websiteUrl, pdfBuffer) {
   }
 
   const resend = getResend();
-  const from = process.env.RESEND_FROM_EMAIL?.trim() || DEFAULT_FROM;
+  const from = getFromAddress();
   const siteLabel = formatSiteLabel(websiteUrl);
 
   const html = `

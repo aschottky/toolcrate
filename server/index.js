@@ -2,17 +2,26 @@ import "./env.js";
 import cors from "cors";
 import express from "express";
 import rateLimit, { ipKeyGenerator } from "express-rate-limit";
-import Stripe from "stripe";
 import { runSiteAudit } from "./audit.js";
 import { buildAuditPdf } from "./audit-pipeline.js";
-import { sendAuditReportEmail, sendPreviewStartedNotification } from "./email.js";
+import { sendAuditReportEmail, sendPreviewStartedNotification, sendWelcomeEmail } from "./email.js";
 import { generateAuditPDF } from "./pdf.js";
 import { sendAuditError } from "./errors.js";
 import { handleInstantlyWebhook } from "./instantly-webhook.js";
 import { normalizeWebsiteUrl, scrapeWebsiteText } from "./scrape.js";
 import { generateRedesignHtml } from "./redesign.js";
 import { generateRedesignHtmlClaude } from "./redesign-claude.js";
-import { registerAdminRoutes, runRedesignGeneration } from "./admin.js";
+import { registerAdminRoutes, runRedesignGeneration, runRoastGeneration } from "./admin.js";
+import { registerCheckoutRoutes } from "./checkout.js";
+import {
+  assertStripeKeyMatchesSession,
+  getStripeForSessionId,
+  getStripeForStandardCheckout,
+  getStripeLiveSecretKey,
+  getStripeMode,
+  getStripeSecretKeyForSessionId,
+  getStripeTestSecretKey,
+} from "./stripe-keys.js";
 import {
   DEFAULT_REDESIGN_MAX_TOKENS,
   resolveRedesignEngine,
@@ -38,43 +47,6 @@ const PORT = Number(process.env.PORT) || 4000;
 // Render terminates TLS at a single proxy hop — needed so req.ip (and the
 // public-redesign rate limiter) sees the real client IP, not the proxy's.
 app.set("trust proxy", 1);
-
-let stripeClient;
-
-function stripeKeyMode() {
-  const key = process.env.STRIPE_SECRET_KEY || "";
-  if (key.startsWith("sk_test_")) return "test";
-  if (key.startsWith("sk_live_")) return "live";
-  return "unknown";
-}
-
-function assertStripeKeyMatchesSession(sessionId) {
-  const isTestSession = sessionId.startsWith("cs_test_");
-  const isLiveSession = sessionId.startsWith("cs_live_");
-  const mode = stripeKeyMode();
-
-  if (isTestSession && mode === "live") {
-    throw new Error(
-      "Stripe key mismatch: your .env uses sk_live_... but this is a test checkout (cs_test_...). For local dev, set STRIPE_SECRET_KEY to your sk_test_... key from Stripe Dashboard (test mode)."
-    );
-  }
-
-  if (isLiveSession && mode === "test") {
-    throw new Error(
-      "Stripe key mismatch: your .env uses sk_test_... but this is a live checkout (cs_live_...). Use sk_live_... on production only."
-    );
-  }
-}
-
-function getStripe() {
-  if (!process.env.STRIPE_SECRET_KEY) {
-    throw new Error("STRIPE_SECRET_KEY is not configured on the server.");
-  }
-  if (!stripeClient) {
-    stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY);
-  }
-  return stripeClient;
-}
 
 function getWebsiteUrlFromSession(session) {
   return session.custom_fields?.[0]?.text?.value?.trim() || null;
@@ -113,60 +85,106 @@ function runAuditInBackground(websiteUrl, sessionId, customerEmail) {
   });
 }
 
+const processedTierPurchases = new Set();
+
+function runWelcomeEmailFromSession(session) {
+  const tier = session.metadata?.tier;
+  const logPrefix = `[webhook:${session.id}]`;
+
+  if (processedTierPurchases.has(session.id)) {
+    console.log(`${logPrefix} Welcome email already sent — skipping duplicate.`);
+    return;
+  }
+  processedTierPurchases.add(session.id);
+
+  setImmediate(async () => {
+    try {
+      const customerEmail = session.customer_details?.email?.trim();
+      if (!customerEmail) {
+        console.warn(`${logPrefix} No customer email — skipping welcome email.`);
+        return;
+      }
+
+      const customerName = session.customer_details?.name?.trim() || null;
+      console.log(`💳 New ${tier} purchase from ${customerEmail}`);
+      const result = await sendWelcomeEmail(customerEmail, customerName, tier);
+      console.log(`${logPrefix} Welcome email sent (${result?.id ?? "ok"}).`);
+    } catch (err) {
+      console.error(`${logPrefix} Welcome email failed:`, err.message);
+    }
+  });
+}
+
 app.use(cors({ origin: true }));
 
+const stripeWebhookRaw = express.raw({ type: "application/json" });
+
 // Stripe webhook (must be BEFORE express.json)
-app.post("/webhook", express.raw({ type: "application/json" }), (req, res) => {
-  console.log("🔔 Webhook hit!");
+function handleStripeWebhook(req, res) {
+  console.log("🔔 Stripe webhook hit");
   const sig = req.headers["stripe-signature"];
   let event;
 
   try {
-    const stripe = getStripe();
+    const stripe = getStripeForStandardCheckout();
     event = stripe.webhooks.constructEvent(
       req.body,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET
     );
-    console.log("✅ Signature verified!");
+    console.log("✅ Stripe signature verified");
   } catch (err) {
-    console.error("❌ Webhook Error:", err.message);
+    console.error("❌ Stripe webhook signature error:", err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object;
-    console.log(
-      `💰 Payment successful for: ${session.customer_details?.email ?? "(no email)"}`
-    );
-
-    // $9 "New Design Variation" (duplicate-domain paywall on /try).
-    if (session.metadata?.type === "variation") {
-      res.status(200).json({ received: true });
-      runVariationGenerationFromSession(session);
-      return;
-    }
-
-    const websiteUrl = getWebsiteUrlFromSession(session);
-
-    if (websiteUrl) {
-      console.log(`📎 Website URL received: ${websiteUrl}`);
-      res.status(200).json({ received: true });
-      runAuditInBackground(
-        websiteUrl,
-        session.id,
-        session.customer_details?.email
-      );
-      return;
-    }
-
-    console.warn(
-      `⚠️ No website URL on session ${session.id} (custom_fields[0] was empty)`
-    );
+  if (event.type !== "checkout.session.completed") {
+    return res.status(200).json({ received: true });
   }
 
-  res.status(200).json({ received: true });
-});
+  const session = event.data.object;
+  console.log(
+    `💰 checkout.session.completed: ${session.customer_details?.email ?? "(no email)"}`
+  );
+
+  // $9 "New Design Variation" (duplicate-domain paywall on /try).
+  if (session.metadata?.type === "variation") {
+    res.status(200).json({ received: true });
+    runVariationGenerationFromSession(session);
+    return;
+  }
+
+  if (
+    session.metadata?.tier === "full-build" ||
+    session.metadata?.tier === "conversion-os"
+  ) {
+    res.status(200).json({ received: true });
+    runWelcomeEmailFromSession(session);
+    return;
+  }
+
+  const websiteUrl = getWebsiteUrlFromSession(session);
+
+  if (websiteUrl) {
+    console.log(`📎 Website URL received: ${websiteUrl}`);
+    res.status(200).json({ received: true });
+    runAuditInBackground(
+      websiteUrl,
+      session.id,
+      session.customer_details?.email
+    );
+    return;
+  }
+
+  console.warn(
+    `⚠️ No website URL on session ${session.id} (custom_fields[0] was empty)`
+  );
+  return res.status(200).json({ received: true });
+}
+
+app.post("/api/webhook/stripe", stripeWebhookRaw, handleStripeWebhook);
+// Legacy path — keep until Stripe Dashboard endpoint is updated
+app.post("/webhook", stripeWebhookRaw, handleStripeWebhook);
 
 app.use(express.json({ limit: "32kb" }));
 
@@ -177,7 +195,10 @@ app.get("/api/health", (_req, res) => {
     ok: true,
     service: "toolcrate-audit-api",
     openaiConfigured: Boolean(process.env.OPENAI_API_KEY),
-    stripeConfigured: Boolean(process.env.STRIPE_SECRET_KEY),
+    stripeConfigured: Boolean(getStripeLiveSecretKey() || getStripeTestSecretKey()),
+    stripeMode: getStripeMode(),
+    stripeLiveConfigured: Boolean(getStripeLiveSecretKey()),
+    stripeTestConfigured: Boolean(getStripeTestSecretKey()),
     supabaseConfigured: isSupabaseConfigured(),
     cronSecretConfigured: Boolean(process.env.CRON_SECRET?.trim()),
   });
@@ -198,8 +219,9 @@ app.get("/api/audit-status", async (req, res) => {
   }
 
   try {
-    assertStripeKeyMatchesSession(sessionId);
-    const stripe = getStripe();
+    const secretKey = getStripeSecretKeyForSessionId(sessionId);
+    assertStripeKeyMatchesSession(sessionId, secretKey);
+    const stripe = getStripeForSessionId(sessionId);
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
     if (session.payment_status !== "paid") {
@@ -357,6 +379,7 @@ app.post("/api/cron/process-nurture-emails", handleNurtureCron);
 app.post("/api/cron/warm-leads-nurture", handleWarmLeadNurtureCron);
 
 registerAdminRoutes(app, { verifyCronSecret });
+registerCheckoutRoutes(app, { siteOriginFromRequest });
 
 app.post("/api/audit", async (req, res) => {
   const { websiteUrl, generatePdf } = req.body ?? {};
@@ -467,11 +490,18 @@ function previewStatusPayload(redesign) {
     redesign.company_name?.trim() ||
     companyNameFromUrl(redesign.website_url);
 
+  const roastBullets = Array.isArray(redesign.roast_bullets)
+    ? redesign.roast_bullets
+    : null;
+
   return {
     ok: true,
     ready: Boolean(redesign.html),
     failed: redesign.status === "failed",
     companyName,
+    roastReady: redesign.roast_status === "ready" && roastBullets?.length > 0,
+    roastFailed: redesign.roast_status === "failed",
+    roastBullets,
   };
 }
 
@@ -637,6 +667,12 @@ app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
       logPrefix: `${logPrefix}:${pending.id}`,
     });
 
+    runRoastGeneration({
+      redesignId: pending.id,
+      normalizedUrl: websiteUrl,
+      logPrefix: `${logPrefix}:${pending.id}`,
+    });
+
     sendPreviewStartedNotification(websiteUrl, email).catch((error) =>
       console.warn(`${logPrefix} Preview-started notification failed:`, error.message)
     );
@@ -697,7 +733,7 @@ app.post("/api/variation-checkout", async (req, res) => {
   }
 
   try {
-    const stripe = getStripe();
+    const stripe = getStripeForStandardCheckout();
     const origin = siteOriginFromRequest(req);
 
     const session = await stripe.checkout.sessions.create({
@@ -772,6 +808,12 @@ function runVariationGenerationFromSession(session) {
         normalizedUrl: websiteUrl,
         engine,
         maxTokens: DEFAULT_REDESIGN_MAX_TOKENS,
+        logPrefix: `${logPrefix}:${pending.id}`,
+      });
+
+      runRoastGeneration({
+        redesignId: pending.id,
+        normalizedUrl: websiteUrl,
         logPrefix: `${logPrefix}:${pending.id}`,
       });
     } catch (error) {

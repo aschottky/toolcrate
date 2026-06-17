@@ -6,7 +6,12 @@ const POLL_INTERVAL_MS = 4000;
 const FACT_ROTATE_MS = 8000;
 const QUESTION_AT_MS = 60000;
 const READY_BANNER_MS = 1500;
+const CONFIRM_DISMISS_MS = 3000;
 const SUB_STEP_STAGGER_MS = 1800;
+
+const ROAST_LABEL = "Here's what our AI found on YOUR site:";
+const ROAST_FALLBACK =
+  "Our AI had trouble reading that site — double-check the URL and try again.";
 
 const STAGES = [
   {
@@ -46,13 +51,19 @@ const FACTS = [
 
 const timers = [];
 let finished = false;
+let factRotateTimer = null;
+let roastMode = false;
+let roastBullets = [];
+let roastIndex = 0;
 
 function later(fn, ms) {
   timers.push(setTimeout(fn, ms));
 }
 
 function every(fn, ms) {
-  timers.push(setInterval(fn, ms));
+  const id = setInterval(fn, ms);
+  timers.push(id);
+  return id;
 }
 
 function clearAllTimers() {
@@ -61,6 +72,10 @@ function clearAllTimers() {
     clearInterval(id);
   });
   timers.length = 0;
+  if (factRotateTimer) {
+    clearInterval(factRotateTimer);
+    factRotateTimer = null;
+  }
 }
 
 function showError(title, detail) {
@@ -71,48 +86,64 @@ function showError(title, detail) {
   loader.innerHTML = `<h1>${title}</h1><p>${detail}</p>`;
 }
 
-/**
- * Render the generated landing page in a Blob-URL iframe.
- *
- * Previously this used document.open()/document.write(), which intermittently
- * painted before <style> @imports (Google Fonts) resolved — leaving the page
- * unstyled until a refresh. An iframe gets a clean document lifecycle: its
- * load event fires only after stylesheets resolve, and a dark loading gate
- * stays up until one extra paint cycle after that, so a half-rendered state
- * is never visible.
- */
-function renderHtml(html) {
-  document.getElementById("loader").hidden = true;
-  document.getElementById("wait").hidden = true;
+function fadeFactQuote(nextText) {
+  const card = document.getElementById("fact-card");
+  const quote = document.getElementById("fact-quote");
 
-  // Loading gate: dark overlay + spinner until the frame is fully painted.
-  const gate = document.createElement("div");
-  gate.className = "preview-gate";
-  gate.innerHTML = '<div class="spinner" aria-hidden="true"></div>';
-  document.body.appendChild(gate);
+  card.classList.add("is-fading");
+  later(() => {
+    quote.textContent = nextText;
+    card.classList.remove("is-fading");
+  }, 400);
+}
 
-  const blob = new Blob([html], { type: "text/html" });
-  const url = URL.createObjectURL(blob);
+function formatRoastBullet(bullet) {
+  const emoji = bullet.emoji || "⚠️";
+  const text = bullet.text || bullet;
+  return `${emoji} ${text}`;
+}
 
-  const iframe = document.createElement("iframe");
-  iframe.className = "preview-frame";
-  iframe.title = "Your website preview";
-  iframe.src = url;
+function transitionToRoastMode(bullets) {
+  if (roastMode || !bullets?.length) return;
+  roastMode = true;
+  roastBullets = bullets;
+  roastIndex = 0;
 
-  iframe.addEventListener("load", () => {
-    URL.revokeObjectURL(url); // clean up memory
+  if (factRotateTimer) {
+    clearInterval(factRotateTimer);
+    factRotateTimer = null;
+  }
 
-    // Double rAF = one extra paint cycle after load, so styles/fonts are
-    // committed to screen before the gate lifts.
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        gate.classList.add("is-hidden");
-        setTimeout(() => gate.remove(), 350);
-      });
-    });
-  });
+  const label = document.getElementById("fact-label");
+  label.textContent = ROAST_LABEL;
 
-  document.body.appendChild(iframe);
+  fadeFactQuote(formatRoastBullet(roastBullets[0]));
+
+  factRotateTimer = every(() => {
+    roastIndex = (roastIndex + 1) % roastBullets.length;
+    fadeFactQuote(formatRoastBullet(roastBullets[roastIndex]));
+  }, FACT_ROTATE_MS);
+}
+
+function showRoastFallback() {
+  if (roastMode) return;
+  roastMode = true;
+
+  if (factRotateTimer) {
+    clearInterval(factRotateTimer);
+    factRotateTimer = null;
+  }
+
+  document.getElementById("fact-label").textContent = ROAST_LABEL;
+  fadeFactQuote(ROAST_FALLBACK);
+}
+
+function applyRoastStatus(status) {
+  if (status.roastReady && status.roastBullets?.length) {
+    transitionToRoastMode(status.roastBullets);
+  } else if (status.roastFailed && !roastMode) {
+    showRoastFallback();
+  }
 }
 
 async function fetchPreviewHtml() {
@@ -127,7 +158,7 @@ async function fetchPreviewHtml() {
     return { error: message || "This preview link does not exist or has expired." };
   }
 
-  return { html: await response.text() };
+  return { html: await response.text(), ready: true };
 }
 
 /* ---------- Wait screen ---------- */
@@ -145,7 +176,6 @@ function setStage(stage, companyName) {
     stage.steps.forEach((text, i) => {
       const li = document.createElement("li");
       li.textContent = text;
-      // Drives both the step fade-in and its ✓ (which follows 2s later in CSS).
       li.style.setProperty("--step-delay", `${0.4 + (i * SUB_STEP_STAGGER_MS) / 1000}s`);
       steps.appendChild(li);
     });
@@ -154,19 +184,15 @@ function setStage(stage, companyName) {
 }
 
 function startFacts() {
-  const card = document.getElementById("fact-card");
   const quote = document.getElementById("fact-quote");
   let index = 0;
 
   quote.textContent = FACTS[index];
 
-  every(() => {
-    card.classList.add("is-fading");
-    later(() => {
-      index = (index + 1) % FACTS.length;
-      quote.textContent = FACTS[index];
-      card.classList.remove("is-fading");
-    }, 400);
+  factRotateTimer = every(() => {
+    if (roastMode) return;
+    index = (index + 1) % FACTS.length;
+    fadeFactQuote(FACTS[index]);
   }, FACT_ROTATE_MS);
 }
 
@@ -183,12 +209,18 @@ function setupQuestion() {
     if (!pill || answered) return;
 
     answered = true;
-
-    // Replace the question card with the permanent confirmation banner.
     question.hidden = true;
     banner.hidden = false;
+    banner.classList.remove("is-leaving");
 
-    // Fire-and-forget — the wait screen shouldn't break if this fails.
+    later(() => {
+      banner.classList.add("is-leaving");
+      later(() => {
+        banner.hidden = true;
+        banner.classList.remove("is-leaving");
+      }, 500);
+    }, CONFIRM_DISMISS_MS);
+
     fetch(apiUrl("/api/preview-intent"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -202,30 +234,18 @@ async function finish() {
   finished = true;
   clearAllTimers();
 
-  // 1. Snap the progress bar to 100%.
   const fill = document.getElementById("progress-fill");
   fill.classList.add("is-done");
 
-  // 2. Celebrate briefly.
   const stage = document.getElementById("stage");
   stage.classList.remove("is-fading");
   stage.innerHTML = '<h1 class="ready-banner">🎉 Your preview is ready!</h1>';
   await new Promise((resolve) => setTimeout(resolve, READY_BANNER_MS));
 
-  // 3. Fade out the wait screen.
   document.getElementById("wait").classList.add("is-leaving");
   await new Promise((resolve) => setTimeout(resolve, 600));
 
-  // 4. Reveal the preview.
-  const result = await fetchPreviewHtml();
-  if (result.html) {
-    renderHtml(result.html);
-  } else {
-    showError(
-      "Could not load preview",
-      "Your preview is ready but didn't load — please refresh this page."
-    );
-  }
+  window.location.href = `../roast/?t=${encodeURIComponent(token)}`;
 }
 
 function showGenerationFailed() {
@@ -249,6 +269,8 @@ function startPolling() {
       if (!response.ok) return;
 
       const status = await response.json();
+      applyRoastStatus(status);
+
       if (status.ready) {
         finish();
       } else if (status.failed) {
@@ -266,7 +288,8 @@ function startWaitScreen(info) {
   document.getElementById("loader").hidden = true;
   document.getElementById("wait").hidden = false;
 
-  // Kick off the 0% → 90% crawl on the next frame so the animation runs.
+  applyRoastStatus(info);
+
   requestAnimationFrame(() => {
     document.getElementById("progress-fill").classList.add("is-running");
   });
@@ -293,8 +316,8 @@ async function loadPreview() {
   try {
     const result = await fetchPreviewHtml();
 
-    if (result.html) {
-      renderHtml(result.html);
+    if (result.ready) {
+      window.location.href = `../roast/?t=${encodeURIComponent(token)}`;
       return;
     }
 

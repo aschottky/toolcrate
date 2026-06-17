@@ -1,6 +1,7 @@
 import { buildAuditPdf } from "./audit-pipeline.js";
 import { sendDesignReadyEmail, sendFreeAuditEmail } from "./email.js";
 import { generateCallScript } from "./call-script.js";
+import { generateSiteRoast } from "./roast.js";
 import { normalizeWebsiteUrl, scrapeWebsiteText } from "./scrape.js";
 import { normalizeRootDomain } from "./url-utils.js";
 import {
@@ -25,6 +26,8 @@ import {
   markDesignEmailSent,
   markInitialEmailSent,
   markRedesignFailed,
+  markRoastFailed,
+  saveRoastBullets,
   markWarmLeadAuditSent,
   saveAuditRecord,
   saveCallScript,
@@ -444,6 +447,11 @@ export async function orderRedesign(req) {
       maxTokens,
       logPrefix: `${logPrefix}:${pending.id}`,
     });
+    runRoastGeneration({
+      redesignId: pending.id,
+      normalizedUrl,
+      logPrefix: `${logPrefix}:${pending.id}`,
+    });
     return { ok: true, redesign: pending, queued: true };
   }
 
@@ -487,7 +495,34 @@ async function generateRedesignFromUrl({ normalizedUrl, engine, maxTokens, logPr
   return html;
 }
 
-const PREVIEW_BASE_URL = "https://usetoolcrate.com/preview/?t=";
+const PREVIEW_BASE_URL = "https://usetoolcrate.com/roast/?t=";
+
+/**
+ * Phase 1: fast site-specific roast (~3–5s). Runs in parallel with redesign.
+ */
+export function runRoastGeneration({ redesignId, normalizedUrl, logPrefix }) {
+  setImmediate(async () => {
+    try {
+      console.log(`${logPrefix} [roast] Scraping [${normalizedUrl}]...`);
+      const scraped = await scrapeWebsiteText(normalizedUrl);
+
+      console.log(`${logPrefix} [roast] Generating site roast...`);
+      const started = Date.now();
+      const { roast_bullets } = await generateSiteRoast(scraped);
+      await saveRoastBullets(redesignId, roast_bullets);
+      console.log(
+        `${logPrefix} [roast] Saved ${roast_bullets.length} bullets in ${Math.round((Date.now() - started) / 1000)}s`
+      );
+    } catch (error) {
+      console.error(`${logPrefix} [roast] Failed:`, error.message);
+      try {
+        await markRoastFailed(redesignId);
+      } catch (updateError) {
+        console.error(`${logPrefix} [roast] Could not mark failed:`, updateError.message);
+      }
+    }
+  });
+}
 
 /**
  * Notify the prospect that their preview is live. Fires for every completed

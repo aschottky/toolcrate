@@ -40,6 +40,19 @@ alter table public.redesigns add column if not exists status text not null defau
 alter table public.redesigns add column if not exists lead_intent text;
 alter table public.redesigns add column if not exists design_email_sent boolean default false;
 
+-- AI site roast (Phase 1 — fast critique bullets shown in wait screen + roast page)
+alter table public.redesigns add column if not exists roast_bullets jsonb;
+alter table public.redesigns add column if not exists roast_status text not null default 'pending';
+
+alter table public.redesigns drop constraint if exists redesigns_roast_status_check;
+
+alter table public.redesigns
+  add constraint redesigns_roast_status_check
+  check (roast_status in ('pending', 'ready', 'failed'));
+
+comment on column public.redesigns.roast_bullets is 'Site-specific AI roast bullets [{emoji, text}] for wait screen + /roast page';
+comment on column public.redesigns.roast_status is 'pending (generating) | ready | failed';
+
 alter table public.redesigns drop constraint if exists redesigns_source_type_check;
 
 alter table public.redesigns

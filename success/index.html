@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Payment Confirmed — ToolCrate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles/main.css" />
+    <style>
+      body.success-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2.5rem 1.25rem;
+      }
+
+      .success-shell {
+        width: min(100%, 560px);
+      }
+
+      .success-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow);
+        padding: 2.5rem 2rem;
+        text-align: center;
+      }
+
+      .success-logo {
+        display: inline-block;
+        margin-bottom: 1.75rem;
+        font-weight: 700;
+        font-size: 1.125rem;
+        letter-spacing: 0.02em;
+        color: var(--text);
+        text-decoration: none;
+      }
+
+      .success-logo:hover {
+        color: var(--accent);
+      }
+
+      .success-icon {
+        font-size: 2.5rem;
+        line-height: 1;
+        margin-bottom: 1rem;
+      }
+
+      .success-card h1 {
+        margin: 0 0 1rem;
+        font-size: clamp(1.75rem, 5vw, 2.25rem);
+        line-height: 1.15;
+      }
+
+      .success-card p {
+        margin: 0 0 1rem;
+        color: var(--text-muted);
+        line-height: 1.6;
+      }
+
+      .success-cta {
+        display: inline-block;
+        margin-top: 0.5rem;
+        padding: 0.85rem 1.5rem;
+        border-radius: var(--radius);
+        background: var(--accent);
+        color: #fff;
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .success-cta:hover {
+        background: var(--accent-hover);
+      }
+
+      #loading-state {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        text-align: center;
+      }
+
+      #error-state {
+        margin: 0;
+        padding: 1rem 1.25rem;
+        border-radius: var(--radius);
+        background: rgba(232, 93, 42, 0.08);
+        border: 1px solid rgba(232, 93, 42, 0.25);
+        color: var(--text);
+        font-size: 0.95rem;
+        line-height: 1.5;
+        text-align: center;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body class="success-page">
+    <div class="success-shell">
+      <div class="success-card">
+        <a href="../" class="success-logo">ToolCrate</a>
+
+        <p id="loading-state">Just a moment...</p>
+
+        <div id="success-content" hidden>
+          <div class="success-icon" aria-hidden="true">✓</div>
+          <h1 id="success-heading">You're in!</h1>
+          <p id="success-message">
+            We've received your payment and you'll hear from Alexander within 24
+            hours to kick things off.
+          </p>
+          <a class="success-cta" id="email-cta" href="#">Check your email</a>
+        </div>
+
+        <div id="error-state" hidden role="alert">
+          Something went wrong — please contact
+          <a href="mailto:support@usetoolcrate.com">support@usetoolcrate.com</a>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="./success.js"></script>
+  </body>
+</html>

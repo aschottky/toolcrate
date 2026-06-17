@@ -369,7 +369,7 @@ function renderWarmLeads(leads) {
 function previewLinkFor(redesign) {
   // Admin lives at /admin/, the preview page at /preview/ — same origin in dev and prod.
   return new URL(
-    `../preview/?t=${encodeURIComponent(redesign.preview_token)}`,
+    `../roast/?t=${encodeURIComponent(redesign.preview_token)}`,
     window.location.href
   ).toString();
 }

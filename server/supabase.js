@@ -612,6 +612,12 @@ function isMissingPreviewWaitColumns(message = "") {
   return /'?(status|lead_intent)'? column|column .*(status|lead_intent)/i.test(message);
 }
 
+function isMissingRoastColumns(message = "") {
+  return /'?(roast_bullets|roast_status)'? column|column .*(roast_bullets|roast_status)/i.test(
+    message
+  );
+}
+
 /**
  * Insert a redesign row BEFORE generation so the preview token exists
  * immediately. Requires the status column / nullable html from
@@ -662,6 +668,35 @@ export async function completeRedesign(redesignId, html) {
 
   if (error) {
     throw wrapRedesignError(error, "complete redesign");
+  }
+}
+
+export async function saveRoastBullets(redesignId, roastBullets) {
+  const supabase = getSupabaseAdmin();
+
+  const { error } = await supabase
+    .from("redesigns")
+    .update({
+      roast_bullets: roastBullets,
+      roast_status: "ready",
+    })
+    .eq("id", redesignId);
+
+  if (error) {
+    throw wrapRedesignError(error, "save roast bullets");
+  }
+}
+
+export async function markRoastFailed(redesignId) {
+  const supabase = getSupabaseAdmin();
+
+  const { error } = await supabase
+    .from("redesigns")
+    .update({ roast_status: "failed" })
+    .eq("id", redesignId);
+
+  if (error) {
+    throw wrapRedesignError(error, "mark roast failed");
   }
 }
 
@@ -786,11 +821,20 @@ export async function fetchRedesignByToken(previewToken) {
   // business_name / company_name are optional columns (used to personalize the
   // wait screen); older tables also lack status — fall back progressively.
   let { data, error } = await query(
-    "id, website_url, html, status, business_name, company_name"
+    "id, website_url, html, status, business_name, company_name, roast_bullets, roast_status"
   );
 
   if (error && /business_name|company_name/i.test(error.message)) {
-    ({ data, error } = await query("id, website_url, html, status"));
+    ({ data, error } = await query(
+      "id, website_url, html, status, roast_bullets, roast_status"
+    ));
+  }
+
+  if (error && isMissingRoastColumns(error.message)) {
+    ({ data, error } = await query("id, website_url, html, status, business_name, company_name"));
+    if (error && /business_name|company_name/i.test(error.message)) {
+      ({ data, error } = await query("id, website_url, html, status"));
+    }
   }
 
   if (error && isMissingPreviewWaitColumns(error.message)) {
