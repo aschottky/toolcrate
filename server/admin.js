@@ -587,6 +587,7 @@ async function generateRedesignFromUrl({ normalizedUrl, engine, maxTokens, logPr
   const html = await engine.generate(scraped, {
     model: engine.model,
     maxTokens,
+    websiteUrl: normalizedUrl,
   });
   console.log(
     `${logPrefix} Generated ${html.length} chars in ${Math.round((Date.now() - started) / 1000)}s`

@@ -95,7 +95,19 @@ RENDERING CORRECTNESS (hard requirements, regardless of style chosen):
 - Every embedded photo must be size-constrained: fixed height (300-450px) with object-fit: cover, or aspect-ratio + overflow hidden - never let an image render at its natural full size.
 - Use the company NAME for headings/logo text, not the site's full meta title string (e.g. "Liberty Roofing", not "Liberty Roofing | Mid-Michigan Roofing | Exterior Upgrades").
 - ONLY embed image URLs that were explicitly provided as verified - never invent image paths, reviewer avatars, placeholder images, or stock photo URLs. A broken image icon ruins the whole preview. Testimonials need no photos - stars and text are enough.
-- Every required section must be fully designed in the chosen style - services as styled cards with numbered accents, SVG icons, or colored borders - never emoji icons, never bare centered text lists.`;
+- Every required section must be fully designed in the chosen style - services as styled cards with numbered accents, SVG icons, or colored borders - never emoji icons, never bare centered text lists.
+
+CTA / ESTIMATE SECTION - REQUIRED:
+The CTA or estimate section MUST include a visible inline HTML form with name, phone, email, and an optional message field. Do NOT render a button that links to an external form page - that is the exact conversion problem this redesign is solving. The form does not need a real backend - use action="#". Style it to look polished and intentional (styled inputs, spacing, on-brand colors) - not default browser form styling. Required fields at minimum:
+- <input type="text" placeholder="Your Name">
+- <input type="tel" placeholder="Phone Number">
+- <input type="email" placeholder="Email Address">
+- <textarea placeholder="Tell us about your project (optional)"></textarea>
+- <button type="submit">Get My Free Estimate</button> (or equivalent)
+Hero CTAs may scroll to this form or use tel: links. Never include links or hrefs pointing to the original scraped website's domain anywhere in the page.
+
+FOOTER COPYRIGHT:
+In the footer copyright line, use the placeholder CURRENT_YEAR - do not hardcode a year. Example: © CURRENT_YEAR [Company Name]. All rights reserved.`;
 
 /**
  * Strip markdown fences / preamble the model sometimes adds despite instructions.
@@ -114,6 +126,65 @@ export function sanitizeHtmlOutput(raw) {
   }
 
   return html;
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Hostnames to strip from href/action (apex + www). */
+function oldSiteHostnames(websiteUrl) {
+  try {
+    const hostname = new URL(websiteUrl).hostname.toLowerCase();
+    const apex = hostname.replace(/^www\./, "");
+    return [...new Set([apex, `www.${apex}`])];
+  } catch {
+    return [];
+  }
+}
+
+export function extractWebsiteUrlFromScraped(scraped) {
+  const match = scraped?.textForAudit?.match(/^URL:\s*(\S+)/m);
+  return match?.[1] || null;
+}
+
+/** Replace links/actions pointing at the scraped site's domain with #. */
+export function stripOldSiteLinks(html, websiteUrl) {
+  if (!html || !websiteUrl) return html;
+
+  const hosts = oldSiteHostnames(websiteUrl);
+  if (!hosts.length) return html;
+
+  let result = String(html);
+  for (const host of hosts) {
+    const hostRe = escapeRegExp(host);
+    for (const attr of ["href", "action"]) {
+      result = result.replace(
+        new RegExp(`${attr}=(["'])https?:\\/\\/${hostRe}[^"']*\\1`, "gi"),
+        `${attr}="#"`
+      );
+      result = result.replace(
+        new RegExp(`${attr}=(["'])\\/\\/${hostRe}[^"']*\\1`, "gi"),
+        `${attr}="#"`
+      );
+    }
+  }
+
+  return result;
+}
+
+/** Resolve CURRENT_YEAR placeholder and stale hardcoded copyright years. */
+export function normalizeCopyrightYear(html) {
+  if (!html) return html;
+
+  const currentYear = new Date().getFullYear();
+  let result = String(html);
+
+  result = result.replace(/CURRENT_YEAR/g, String(currentYear));
+  result = result.replace(/(&copy;|©)\s*\d{4}/g, `© ${currentYear}`);
+  result = result.replace(/Copyright\s+\d{4}/gi, `Copyright ${currentYear}`);
+
+  return result;
 }
 
 /** Remove pictographic emoji from visible HTML — keeps ★ • → in copy. */
@@ -178,8 +249,12 @@ export function repairRedesignHtml(html) {
   return stripEmojiFromHtmlBody(fixed);
 }
 
-export function prepareRedesignHtml(raw) {
-  return repairRedesignHtml(sanitizeHtmlOutput(raw));
+export function prepareRedesignHtml(raw, websiteUrl) {
+  let html = repairRedesignHtml(sanitizeHtmlOutput(raw));
+  if (websiteUrl) {
+    html = stripOldSiteLinks(html, websiteUrl);
+  }
+  return normalizeCopyrightYear(html);
 }
 
 /** Pictographic emoji in page body (allows ★ → • etc. used in professional copy). */
@@ -377,7 +452,9 @@ export async function generateRedesignHtml(scraped, options = {}) {
     }
 
     try {
-      const html = prepareRedesignHtml(raw);
+      const websiteUrl =
+        options.websiteUrl || extractWebsiteUrlFromScraped(scraped);
+      const html = prepareRedesignHtml(raw, websiteUrl);
       validateRedesignHtml(html);
       return html;
     } catch (error) {

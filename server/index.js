@@ -425,7 +425,7 @@ async function handleRedesign(req, res, { websiteUrl, asHtml, generate, logPrefi
     const scraped = await scrapeWebsiteText(normalizedUrl);
 
     console.log(`${logPrefix} Generating redesign HTML...`);
-    const html = await generate(scraped);
+    const html = await generate(scraped, { websiteUrl: normalizedUrl });
     console.log(`${logPrefix} Redesign ready (${html.length} chars)`);
 
     if (asHtml) {

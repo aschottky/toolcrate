@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { CLAUDE_OPUS_MODEL } from "./anthropic-models.js";
 import {
   buildUserMessage,
+  extractWebsiteUrlFromScraped,
   filterLoadableImageUrls,
   prepareRedesignHtml,
   validateRedesignHtml,
@@ -85,6 +86,18 @@ SERVICE CARDS:
 LOGO / BRAND HEADER:
 - If a logo image exists in the verified image URLs, render it in the nav/header at min-height 48px, max-height 72px, width: auto (preserve aspect ratio). The brand area must feel intentional and prominent.
 - If no logo image is available or it would fail to load, use the company name as bold styled text in the header instead — never a broken image, tiny placeholder, or afterthought-sized logo.
+
+CTA / ESTIMATE SECTION - REQUIRED:
+The CTA or estimate section MUST include a visible inline HTML form with name, phone, email, and an optional message field. Do NOT render a button that links to an external form page - that is the exact conversion problem this redesign is solving. The form does not need a real backend - use action="#". Style it to look polished and intentional (styled inputs, spacing, on-brand colors) - not default browser form styling. Required fields at minimum:
+- <input type="text" placeholder="Your Name">
+- <input type="tel" placeholder="Phone Number">
+- <input type="email" placeholder="Email Address">
+- <textarea placeholder="Tell us about your project (optional)"></textarea>
+- <button type="submit">Get My Free Estimate</button> (or equivalent)
+Hero CTAs may scroll to this form or use tel: links. Never include links or hrefs pointing to the original scraped website's domain anywhere in the page.
+
+FOOTER COPYRIGHT:
+In the footer copyright line, use the placeholder CURRENT_YEAR - do not hardcode a year. Example: © CURRENT_YEAR [Company Name]. All rights reserved.
 
 TECHNICAL RULES:
 - All CSS in a style tag, Google Fonts via @import, no external frameworks
@@ -177,7 +190,9 @@ export async function generateRedesignHtmlClaude(scraped, options = {}) {
     }
 
     try {
-      const html = prepareRedesignHtml(raw);
+      const websiteUrl =
+        options.websiteUrl || extractWebsiteUrlFromScraped(scraped);
+      const html = prepareRedesignHtml(raw, websiteUrl);
       validateRedesignHtml(html);
       console.log(
         `[redesign-claude] Attempt ${attempt}/${MAX_ATTEMPTS} succeeded (${html.length} chars).`
