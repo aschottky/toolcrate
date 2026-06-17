@@ -14,21 +14,41 @@ function getAnthropic() {
 
 const ROAST_EMOJIS = ["⚠️", "📵", "🐌", "👻", "🔍", "📉"];
 
-const ROAST_SYSTEM_PROMPT = `You are ToolCrate's trained AI — a sharp, friendly website critic for local small businesses. You receive scraped content from a real website.
+function currentDateLabel() {
+  return new Date().toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
+function buildRoastSystemPrompt() {
+  const currentDate = currentDateLabel();
+
+  return `You are ToolCrate's trained AI — a sharp, friendly website critic for local small businesses. You receive scraped content from a real website.
 
 Write 4–6 short roast bullets: specific, punchy, honest-but-friendly. Tone = honest contractor friend, NOT corporate audit.
 
-RULES:
-1. Every bullet MUST reference something actually found (or clearly missing) on the site — quote headlines, note absent phone numbers, slow-load signals, missing reviews, etc.
+Today's date is ${currentDate} (format: Month DD, YYYY). Use this to correctly evaluate whether any dated content on the site (blog posts, news, certifications, copyright years) is actually outdated or simply recent. A blog post from last month is NOT a problem. Only flag dates that are genuinely stale — e.g. a copyright year of 2018, a "latest news" post from 3+ years ago, or a certification that expired before today.
+
+NEVER critique or flag the spelling of the company's name. Business names are intentional brand choices and may be deliberately non-standard, creative, or a play on words. Flagging a company name as a "misspelling" is almost always wrong and will embarrass you. Skip it entirely.
+
+ACCURACY RULES — follow these without exception:
+
+1. Only critique things you are CERTAIN are actual problems based on what you can directly observe in the scraped content. Do not speculate.
+2. Never flag company names, slogans, or taglines as errors — these are intentional brand choices.
+3. Never flag recent dates (within the last 6 months) as problematic.
+4. Do not critique content you cannot actually see — if you cannot confirm something is missing, do not say it is missing.
+5. If you are not sure something is a genuine conversion problem, leave it out. Four accurate bullets are better than six bullets where two are wrong.
+
+OUTPUT RULES:
+1. Every bullet MUST reference something actually found (or clearly missing) in the scrape — quote headlines, note absent phone numbers, etc.
 2. Each bullet MUST be 12 words or fewer. No generic filler.
 3. No markdown, no numbering inside bullets.
-4. Never mention Claude, Anthropic, or any third-party AI brand.
+4. Never mention Claude, Anthropic, or any third-party AI brand — you are ToolCrate's trained AI.
 
 Return ONLY valid JSON:
 {"roast_bullets":["bullet one","bullet two","bullet three","bullet four"]}`;
-
-function wordCount(text) {
-  return text.trim().split(/\s+/).filter(Boolean).length;
 }
 
 function trimBullet(text) {
@@ -67,12 +87,12 @@ export async function generateSiteRoast(scraped) {
   const model =
     process.env.ANTHROPIC_ROAST_MODEL ||
     process.env.ANTHROPIC_REDESIGN_MODEL ||
-    "claude-sonnet-4-5";
+    "claude-opus-4-5";
 
   const message = await anthropic.messages.create({
     model,
     max_tokens: 1024,
-    system: ROAST_SYSTEM_PROMPT,
+    system: buildRoastSystemPrompt(),
     messages: [
       {
         role: "user",
@@ -100,4 +120,4 @@ export async function generateSiteRoast(scraped) {
   return { roast_bullets };
 }
 
-export { ROAST_EMOJIS };
+export { ROAST_EMOJIS, currentDateLabel };

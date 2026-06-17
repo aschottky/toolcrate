@@ -34,6 +34,52 @@ CONTENT RULES:
 - Generate realistic-sounding Google reviews using their actual city name
 - Trust signals should feel earned (pull from their data: years in business, service area, licensing info if present)
 
+ICONS - CRITICAL RULE:
+Never use emoji characters as icons anywhere in the design. Not in feature grids, not in service cards, not in bullet points, not anywhere.
+
+Instead, use ONE of these approaches:
+- Inline SVG icons (simple, clean line icons - use heroicons or similar vocabulary)
+- A single stylized letter or number in a styled box (e.g. a bold "01", "02" in a colored circle)
+- A minimal geometric shape (a small colored line, dot, or bracket as a visual accent)
+- Pure typography with strong hierarchy - no icon at all
+
+The design must look like it was built by a professional agency, not assembled from emoji shortcuts.
+
+SECTION CONTRAST - REQUIRED:
+The page must alternate between light and dark sections to create visual rhythm. Do not use the same background color for more than two consecutive sections.
+
+Suggested pattern:
+- Hero: Dark (brand color or deep neutral) - dramatic, high impact
+- Stats / Trust bar: Light or white - clean, credible
+- Services: Dark or medium tone - structured
+- About / Why Us: Light with a strong image - warm, human
+- Testimonials: Light or subtle texture - trustworthy
+- CTA: Dark or strong brand color - urgent, action-oriented
+- Footer: Dark - grounding
+
+Use the brand's accent color (extracted from their site) as a punchy highlight, not as the entire palette. White space is not the enemy - it makes the dark sections hit harder.
+
+HERO SECTION - WOW FACTOR:
+The hero must feel like the most expensive part of the page. Rules:
+
+1. Headline typography: Use a large, bold display font (minimum equivalent of 56-72px). The headline should be the biggest, most confident thing on the page. If the company has a clever name or tagline, make the headline play on it.
+
+2. Subheading: Smaller (18-20px), lighter weight, gives context. Not more than 2 lines.
+
+3. CTAs: Two buttons - primary (filled, brand accent color) and secondary (ghost/outline). Both must be clearly visible against the hero background.
+
+4. Visual treatment: If using a background image, apply a gradient overlay that is DARKER at the bottom (where text lives) and lighter or transparent at the top - not a flat dark overlay across the entire image. This creates depth.
+
+5. Trust signal: A small badge or inline text row above or below the headline (e.g. "★★★★★ A+ BBB Rated · Family-Owned · Serving Kansas City Since 1987") adds instant credibility without taking up space.
+
+The hero should feel like the prospect is looking at a $5,000 agency site, not a $500 Squarespace template.
+
+SERVICE CARDS:
+- Use a simple numbered accent (01, 02, 03...) OR a small colored top border on each card as the visual identifier - no emojis
+- Each card should have: a clear service name (bold, 18-20px), a 1-2 sentence description, and a subtle CTA link ("Get a Quote →")
+- Cards should have a slight border or shadow to separate them from the background - they should feel like cards, not floating text blocks
+- On a dark background, use a slightly lighter card surface (e.g. navy #1a2a4a on a #0f1e36 background) for depth
+
 TECHNICAL RULES:
 
 - Single HTML file, all CSS in a <style> tag
@@ -51,12 +97,12 @@ RENDERING CORRECTNESS (hard requirements, regardless of style chosen):
 - If you use gradient text (background-clip: text; color: transparent), apply it ONLY to a small accent span - never to a whole headline.
 - When layering a pattern or texture over a gradient background, combine them in ONE background-image declaration so the later rule doesn't overwrite the gradient.
 - All hero content must sit inside a padded max-width container - text must never touch the viewport edge.
-- Text over photos: any text placed on a photo background needs a dark overlay beneath it (e.g. linear-gradient(rgba(10,10,20,0.6), rgba(10,10,20,0.75)) layered over the image) - never put text directly on a busy or light image.
+- Text over photos: any text placed on a photo background needs a gradient overlay darker at the bottom where text sits and lighter/transparent at the top - never a flat uniform overlay, and never put text directly on a busy or light image without overlay.
 - Logos and mascot images are NOT backgrounds: if a scraped image is clearly a logo/mascot/badge, use it in the nav/header at min-height 48px, max-height 72px, width: auto — or as a small trust-bar/footer mark. If the logo cannot load, fall back to bold company-name text. Never stretch a logo as a background or render it tiny/broken.
 - Every embedded photo must be size-constrained: fixed height (300-450px) with object-fit: cover, or aspect-ratio + overflow hidden - never let an image render at its natural full size.
 - Use the company NAME for headings/logo text, not the site's full meta title string (e.g. "Liberty Roofing", not "Liberty Roofing | Mid-Michigan Roofing | Exterior Upgrades").
 - ONLY embed image URLs that were explicitly provided as verified - never invent image paths, reviewer avatars, placeholder images, or stock photo URLs. A broken image icon ruins the whole preview. Testimonials need no photos - stars and text are enough.
-- Every required section must be fully designed in the chosen style - services as styled cards/columns/rows with icons or imagery, never bare centered text lists.`;
+- Every required section must be fully designed in the chosen style - services as styled cards with numbered accents, SVG icons, or colored borders - never emoji icons, never bare centered text lists.`;
 
 /**
  * Strip markdown fences / preamble the model sometimes adds despite instructions.
@@ -77,6 +123,14 @@ export function sanitizeHtmlOutput(raw) {
   return html;
 }
 
+/** Pictographic emoji in page body (allows ★ → • etc. used in professional copy). */
+export function htmlContainsEmojiIcons(html) {
+  const stripped = String(html || "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/<script[\s\S]*?<\/script>/gi, "");
+  return /\p{Extended_Pictographic}/u.test(stripped);
+}
+
 export function validateRedesignHtml(html) {
   if (!html || html.length < 1000) {
     throw new Error("AI returned an incomplete redesign page.");
@@ -92,6 +146,9 @@ export function validateRedesignHtml(html) {
   }
   if (!/@media/i.test(html)) {
     throw new Error("AI redesign output has no media queries (not mobile responsive).");
+  }
+  if (htmlContainsEmojiIcons(html)) {
+    throw new Error("AI redesign output uses emoji characters as icons.");
   }
 }
 
@@ -166,7 +223,9 @@ export function buildUserMessage(scraped, imageUrls) {
     STYLE_DIRECTIONS[Math.floor(Math.random() * STYLE_DIRECTIONS.length)];
   parts.push(
     "",
-    `Style suggestion for this one (use it only if it fits the brand, otherwise pick your own): ${suggestion}`
+    `Style suggestion for this one (use it only if it fits the brand, otherwise pick your own): ${suggestion}`,
+    "",
+    "Remember: alternate light and dark sections for visual rhythm; no emoji icons anywhere; hero headline at 56-72px display scale with dual CTAs."
   );
 
   return parts.join("\n");

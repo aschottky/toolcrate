@@ -117,10 +117,16 @@ function trimBulletWords(text, maxWords = 12) {
   return `${words.slice(0, maxWords).join(" ")}…`;
 }
 
-function firstNameFromEmail(email) {
-  const local = email.split("@")[0]?.split(/[._+-]/)[0]?.trim() || "";
-  if (!local || /^\d+$/.test(local)) return "there";
-  return local.charAt(0).toUpperCase() + local.slice(1).toLowerCase();
+/** Real first name only — rejects email-like values and blanks. */
+export function normalizeProspectFirstName(firstName) {
+  const name = String(firstName ?? "").trim();
+  if (!name || /[@.]/.test(name)) return null;
+  return name.slice(0, 80);
+}
+
+export function buildEmailGreeting(firstName) {
+  const name = normalizeProspectFirstName(firstName);
+  return name ? `Hey ${name},` : "Hey there,";
 }
 
 function companyNameFromUrl(websiteUrl) {
@@ -161,6 +167,7 @@ function resolveEmailRoastBullets(stored) {
  * @param {string} options.previewUrl — full link to /preview-view/?t=
  * @param {string} [options.websiteUrl]
  * @param {Array<{emoji?: string, text: string}|string>|null|undefined} [options.roastBullets]
+ * @param {string} [options.firstName]
  * @returns {Promise<{ id: string }>}
  */
 export async function sendDesignReadyEmail({
@@ -168,6 +175,7 @@ export async function sendDesignReadyEmail({
   previewUrl,
   websiteUrl,
   roastBullets,
+  firstName,
 }) {
   const to = customerEmail?.trim();
   if (!to) {
@@ -176,7 +184,7 @@ export async function sendDesignReadyEmail({
 
   const resend = getResend();
   const from = getFromAddress();
-  const firstName = firstNameFromEmail(to);
+  const greeting = buildEmailGreeting(firstName);
   const companyName = companyNameFromUrl(websiteUrl || "");
   const bullets = resolveEmailRoastBullets(roastBullets);
 
@@ -190,7 +198,7 @@ export async function sendDesignReadyEmail({
 
   const html = `
 <div style="font-family: sans-serif; max-width: 600px; line-height: 1.6; color: #1a1a1a;">
-  <p>Hey ${firstName},</p>
+  <p>${greeting}</p>
   <p>Your free redesign preview is ready — but before you see it, here's what our AI flagged on your current site:</p>
   ${bulletLinesHtml}
   <p style="margin: 1.5rem 0 0.75rem;">Now see what it could look like instead:</p>
@@ -199,7 +207,7 @@ export async function sendDesignReadyEmail({
 </div>
   `.trim();
 
-  const text = `Hey ${firstName},
+  const text = `${greeting}
 
 Your free redesign preview is ready — but before you see it, here's what our AI flagged on your current site:
 

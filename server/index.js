@@ -4,7 +4,7 @@ import express from "express";
 import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import { runSiteAudit } from "./audit.js";
 import { buildAuditPdf } from "./audit-pipeline.js";
-import { sendAuditReportEmail, sendPreviewStartedNotification, sendWelcomeEmail } from "./email.js";
+import { sendAuditReportEmail, sendPreviewStartedNotification, sendWelcomeEmail, normalizeProspectFirstName } from "./email.js";
 import { generateAuditPDF } from "./pdf.js";
 import { sendAuditError } from "./errors.js";
 import { handleInstantlyWebhook } from "./instantly-webhook.js";
@@ -35,6 +35,7 @@ import {
   findLatestRedesignForDomain,
   insertPendingRedesign,
   setRedesignEmail,
+  setRedesignFirstName,
   isSupabaseConfigured,
   markInitialEmailSent,
   saveAuditRecord,
@@ -484,24 +485,38 @@ function companyNameFromUrl(websiteUrl) {
   }
 }
 
+function parseRoastBulletsFromDb(raw) {
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : null;
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 function previewStatusPayload(redesign) {
   const companyName =
     redesign.business_name?.trim() ||
     redesign.company_name?.trim() ||
     companyNameFromUrl(redesign.website_url);
 
-  const roastBullets = Array.isArray(redesign.roast_bullets)
-    ? redesign.roast_bullets
-    : null;
+  const roastBullets = parseRoastBulletsFromDb(redesign.roast_bullets);
+  const hasRoastBullets = roastBullets?.length > 0;
 
   return {
     ok: true,
     ready: Boolean(redesign.html),
     failed: redesign.status === "failed",
     companyName,
-    roastReady: redesign.roast_status === "ready" && roastBullets?.length > 0,
+    roastReady:
+      hasRoastBullets &&
+      (redesign.roast_status === "ready" || redesign.roast_status == null),
     roastFailed: redesign.roast_status === "failed",
-    roastBullets,
+    roastBullets: hasRoastBullets ? roastBullets : null,
   };
 }
 
@@ -592,6 +607,7 @@ app.post("/api/admin/reset-rate-limit", (req, res) => {
 app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
   const rootDomain = normalizeRootDomain(req.body?.url);
   const emailRaw = String(req.body?.email ?? "").trim().toLowerCase();
+  const firstName = normalizeProspectFirstName(req.body?.first_name);
   let email = null;
   if (emailRaw) {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailRaw)) {
@@ -636,6 +652,11 @@ app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
           console.warn(`${logPrefix} Could not backfill email:`, error.message)
         );
       }
+      if (firstName) {
+        await setRedesignFirstName(existing.id, firstName).catch((error) =>
+          console.warn(`${logPrefix} Could not backfill first name:`, error.message)
+        );
+      }
       console.log(`${logPrefix} Duplicate domain — returning existing preview.`);
       return res.json({
         ok: true,
@@ -646,12 +667,13 @@ app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
     }
 
     const engine = resolveRedesignEngine(
-      process.env.PUBLIC_REDESIGN_ENGINE || "claude-sonnet"
+      process.env.PUBLIC_REDESIGN_ENGINE || "claude-opus"
     );
 
     const pending = await insertPendingRedesign({
       websiteUrl,
       email,
+      firstName,
       sourceType: "manual",
       sourceId: null,
       engine: engine.id,
@@ -788,7 +810,7 @@ function runVariationGenerationFromSession(session) {
 
       const websiteUrl = normalizeWebsiteUrl(rootDomain);
       const engine = resolveRedesignEngine(
-        process.env.PUBLIC_REDESIGN_ENGINE || "claude-sonnet"
+        process.env.PUBLIC_REDESIGN_ENGINE || "claude-opus"
       );
 
       const pending = await insertPendingRedesign({

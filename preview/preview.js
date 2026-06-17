@@ -115,7 +115,9 @@ function transitionToRoastMode(bullets) {
   }
 
   const label = document.getElementById("fact-label");
-  label.textContent = ROAST_LABEL;
+  if (label) {
+    label.textContent = ROAST_LABEL;
+  }
 
   fadeFactQuote(formatRoastBullet(roastBullets[0]));
 
@@ -134,14 +136,20 @@ function showRoastFallback() {
     factRotateTimer = null;
   }
 
-  document.getElementById("fact-label").textContent = ROAST_LABEL;
+  const fallbackLabel = document.getElementById("fact-label");
+  if (fallbackLabel) {
+    fallbackLabel.textContent = ROAST_LABEL;
+  }
   fadeFactQuote(ROAST_FALLBACK);
 }
 
 function applyRoastStatus(status) {
-  if (status.roastReady && status.roastBullets?.length) {
-    transitionToRoastMode(status.roastBullets);
-  } else if (status.roastFailed && !roastMode) {
+  const bullets = status?.roastBullets;
+  const hasBullets = Array.isArray(bullets) && bullets.length > 0;
+
+  if (status?.roastReady || hasBullets) {
+    transitionToRoastMode(bullets);
+  } else if (status?.roastFailed && !roastMode) {
     showRoastFallback();
   }
 }
@@ -184,6 +192,8 @@ function setStage(stage, companyName) {
 }
 
 function startFacts() {
+  if (roastMode) return;
+
   const quote = document.getElementById("fact-quote");
   let index = 0;
 
@@ -260,26 +270,29 @@ function showGenerationFailed() {
   document.getElementById("stage-steps").appendChild(note);
 }
 
-function startPolling() {
-  every(async () => {
-    try {
-      const response = await fetch(
-        apiUrl(`/api/preview-status?t=${encodeURIComponent(token)}`)
-      );
-      if (!response.ok) return;
+async function pollPreviewStatus() {
+  try {
+    const response = await fetch(
+      apiUrl(`/api/preview-status?t=${encodeURIComponent(token)}`)
+    );
+    if (!response.ok) return;
 
-      const status = await response.json();
-      applyRoastStatus(status);
+    const status = await response.json();
+    applyRoastStatus(status);
 
-      if (status.ready) {
-        finish();
-      } else if (status.failed) {
-        showGenerationFailed();
-      }
-    } catch {
-      // Transient network hiccup — keep polling.
+    if (status.ready) {
+      finish();
+    } else if (status.failed) {
+      showGenerationFailed();
     }
-  }, POLL_INTERVAL_MS);
+  } catch {
+    // Transient network hiccup — keep polling.
+  }
+}
+
+function startPolling() {
+  pollPreviewStatus();
+  every(pollPreviewStatus, POLL_INTERVAL_MS);
 }
 
 function startWaitScreen(info) {
@@ -299,7 +312,10 @@ function startWaitScreen(info) {
     later(() => setStage(stage, companyName), stage.at);
   });
 
-  startFacts();
+  if (!roastMode) {
+    startFacts();
+  }
+
   setupQuestion();
   startPolling();
 }

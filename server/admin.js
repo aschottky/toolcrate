@@ -607,6 +607,7 @@ async function sendDesignReadyNotification(redesignId, logPrefix) {
       previewUrl,
       websiteUrl: info.website_url,
       roastBullets,
+      firstName: info.first_name,
     });
     await markDesignEmailSent(redesignId);
     console.log(`${logPrefix} Design-ready email sent to ${info.email}.`);

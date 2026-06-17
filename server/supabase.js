@@ -635,6 +635,10 @@ function isMissingRoastColumns(message = "") {
   );
 }
 
+function isMissingFirstNameColumn(message = "") {
+  return /'?(first_name)'? column|column .*first_name/i.test(message);
+}
+
 /**
  * Insert a redesign row BEFORE generation so the preview token exists
  * immediately. Requires the status column / nullable html from
@@ -644,6 +648,7 @@ function isMissingRoastColumns(message = "") {
 export async function insertPendingRedesign({
   websiteUrl,
   email,
+  firstName,
   sourceType,
   sourceId,
   engine,
@@ -652,21 +657,36 @@ export async function insertPendingRedesign({
 }) {
   const supabase = getSupabaseAdmin();
 
-  const { data, error } = await supabase
+  const row = {
+    website_url: websiteUrl,
+    email: email?.trim().toLowerCase() || null,
+    source_type: sourceType,
+    source_id: sourceId || null,
+    engine,
+    model,
+    max_tokens: maxTokens,
+    html: null,
+    status: "pending",
+  };
+
+  if (firstName) {
+    row.first_name = firstName;
+  }
+
+  let { data, error } = await supabase
     .from("redesigns")
-    .insert({
-      website_url: websiteUrl,
-      email: email?.trim().toLowerCase() || null,
-      source_type: sourceType,
-      source_id: sourceId || null,
-      engine,
-      model,
-      max_tokens: maxTokens,
-      html: null,
-      status: "pending",
-    })
+    .insert(row)
     .select(REDESIGN_LIST_SELECT)
     .single();
+
+  if (error && isMissingFirstNameColumn(error.message)) {
+    delete row.first_name;
+    ({ data, error } = await supabase
+      .from("redesigns")
+      .insert(row)
+      .select(REDESIGN_LIST_SELECT)
+      .single());
+  }
 
   if (error) {
     throw wrapRedesignError(error, "insert pending redesign");
@@ -775,9 +795,19 @@ export async function fetchRedesignNotificationInfo(redesignId) {
 
   let { data, error } = await supabase
     .from("redesigns")
-    .select("id, email, preview_token, design_email_sent, website_url, roast_bullets, roast_status")
+    .select(
+      "id, email, first_name, preview_token, design_email_sent, website_url, roast_bullets, roast_status"
+    )
     .eq("id", redesignId)
     .maybeSingle();
+
+  if (error && /first_name/i.test(error.message)) {
+    ({ data, error } = await supabase
+      .from("redesigns")
+      .select("id, email, preview_token, design_email_sent, website_url, roast_bullets, roast_status")
+      .eq("id", redesignId)
+      .maybeSingle());
+  }
 
   if (error && /roast_bullets|roast_status|website_url/i.test(error.message)) {
     ({ data, error } = await supabase
@@ -830,6 +860,23 @@ export async function setRedesignEmail(redesignId, email) {
 
   if (error) {
     throw wrapRedesignError(error, "set redesign email");
+  }
+}
+
+export async function setRedesignFirstName(redesignId, firstName) {
+  const supabase = getSupabaseAdmin();
+
+  const { error } = await supabase
+    .from("redesigns")
+    .update({ first_name: firstName })
+    .eq("id", redesignId);
+
+  if (error && isMissingFirstNameColumn(error.message)) {
+    return;
+  }
+
+  if (error) {
+    throw wrapRedesignError(error, "set redesign first name");
   }
 }
 

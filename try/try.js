@@ -1,6 +1,7 @@
 import { apiUrl, normalizeClientError } from "../scripts/api-config.js";
 
 const form = document.getElementById("try-form");
+const firstNameInput = document.getElementById("first-name-input");
 const emailInput = document.getElementById("email-input");
 const input = document.getElementById("website-input");
 const submitBtn = document.getElementById("submit-btn");
@@ -10,6 +11,9 @@ const splashError = document.getElementById("splash-error");
 const existingPreviewLink = document.getElementById("existing-preview-link");
 const newDesignLink = document.getElementById("new-design-link");
 const variationSuccess = document.getElementById("variation-success");
+
+// Instantly cold-email CTA (URL-encode merge fields; omit &url= when website is empty):
+// https://usetoolcrate.com/try/?first={{first_name}}&email={{email}}&url={{website}}
 
 // Remembered from the duplicate submission so the $9 checkout knows
 // which domain/email to attach as session metadata.
@@ -30,6 +34,42 @@ function normalizeRootDomain(value) {
     return domain || null;
   } catch {
     return null;
+  }
+}
+
+function isValidWebsiteParam(value) {
+  const trimmed = String(value || "").trim();
+  if (!trimmed) return false;
+
+  if (/^https?:\/\//i.test(trimmed)) {
+    try {
+      const { hostname } = new URL(trimmed);
+      return Boolean(hostname && hostname.includes("."));
+    } catch {
+      return false;
+    }
+  }
+
+  const domain = trimmed.replace(/^www\./i, "").split(/[/?#]/)[0];
+  return /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/i.test(domain);
+}
+
+function prefillFromQueryParams() {
+  const params = new URLSearchParams(window.location.search);
+
+  const first = params.get("first")?.trim();
+  if (first) {
+    firstNameInput.value = first;
+  }
+
+  const email = params.get("email")?.trim();
+  if (email && email.includes("@")) {
+    emailInput.value = email;
+  }
+
+  const urlParam = params.get("url")?.trim();
+  if (urlParam && isValidWebsiteParam(urlParam)) {
+    input.value = normalizeRootDomain(urlParam) || urlParam.replace(/^https?:\/\//i, "").split(/[/?#]/)[0];
   }
 }
 
@@ -97,6 +137,7 @@ form.addEventListener("submit", async (event) => {
   event.preventDefault();
   setError("");
 
+  const firstNameRaw = firstNameInput.value.trim();
   const emailRaw = emailInput.value.trim();
   const domain = normalizeRootDomain(input.value);
 
@@ -124,7 +165,11 @@ form.addEventListener("submit", async (event) => {
     const response = await fetch(apiUrl("/api/public-redesign"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url: domain, email: email || "" }),
+      body: JSON.stringify({
+        url: domain,
+        email: email || "",
+        first_name: firstNameRaw || "",
+      }),
     });
 
     const data = await response.json().catch(() => ({}));
@@ -152,6 +197,8 @@ form.addEventListener("submit", async (event) => {
     setSubmitting(false);
   }
 });
+
+prefillFromQueryParams();
 
 // Back from a successful $9 variation checkout
 // (success_url: /try/?variation=success&session_id=...).

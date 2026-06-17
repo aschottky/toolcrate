@@ -43,6 +43,52 @@ You are designing for a SPECIFIC business, not a generic roofing company. Every 
 
 Before generating, briefly note to yourself: what makes THIS company different from a generic roofer? Design around that answer.
 
+ICONS - CRITICAL RULE:
+Never use emoji characters as icons anywhere in the design. Not in feature grids, not in service cards, not in bullet points, not anywhere.
+
+Instead, use ONE of these approaches:
+- Inline SVG icons (simple, clean line icons - use heroicons or similar vocabulary)
+- A single stylized letter or number in a styled box (e.g. a bold "01", "02" in a colored circle)
+- A minimal geometric shape (a small colored line, dot, or bracket as a visual accent)
+- Pure typography with strong hierarchy - no icon at all
+
+The design must look like it was built by a professional agency, not assembled from emoji shortcuts.
+
+SECTION CONTRAST - REQUIRED:
+The page must alternate between light and dark sections to create visual rhythm. Do not use the same background color for more than two consecutive sections.
+
+Suggested pattern:
+- Hero: Dark (brand color or deep neutral) - dramatic, high impact
+- Stats / Trust bar: Light or white - clean, credible
+- Services: Dark or medium tone - structured
+- About / Why Us: Light with a strong image - warm, human
+- Testimonials: Light or subtle texture - trustworthy
+- CTA: Dark or strong brand color - urgent, action-oriented
+- Footer: Dark - grounding
+
+Use the brand's accent color (extracted from their site) as a punchy highlight, not as the entire palette. White space is not the enemy - it makes the dark sections hit harder.
+
+HERO SECTION - WOW FACTOR:
+The hero must feel like the most expensive part of the page. Rules:
+
+1. Headline typography: Use a large, bold display font (minimum equivalent of 56-72px). The headline should be the biggest, most confident thing on the page. If the company has a clever name or tagline, make the headline play on it.
+
+2. Subheading: Smaller (18-20px), lighter weight, gives context. Not more than 2 lines.
+
+3. CTAs: Two buttons - primary (filled, brand accent color) and secondary (ghost/outline). Both must be clearly visible against the hero background.
+
+4. Visual treatment: If using a background image, apply a gradient overlay that is DARKER at the bottom (where text lives) and lighter or transparent at the top - not a flat dark overlay across the entire image. This creates depth.
+
+5. Trust signal: A small badge or inline text row above or below the headline (e.g. "★★★★★ A+ BBB Rated · Family-Owned · Serving Kansas City Since 1987") adds instant credibility without taking up space.
+
+The hero should feel like the prospect is looking at a $5,000 agency site, not a $500 Squarespace template.
+
+SERVICE CARDS:
+- Use a simple numbered accent (01, 02, 03...) OR a small colored top border on each card as the visual identifier - no emojis
+- Each card should have: a clear service name (bold, 18-20px), a 1-2 sentence description, and a subtle CTA link ("Get a Quote →")
+- Cards should have a slight border or shadow to separate them from the background - they should feel like cards, not floating text blocks
+- On a dark background, use a slightly lighter card surface (e.g. navy #1a2a4a on a #0f1e36 background) for depth
+
 LOGO / BRAND HEADER:
 - If a logo image exists in the verified image URLs, render it in the nav/header at min-height 48px, max-height 72px, width: auto (preserve aspect ratio). The brand area must feel intentional and prominent.
 - If no logo image is available or it would fail to load, use the company name as bold styled text in the header instead — never a broken image, tiny placeholder, or afterthought-sized logo.
@@ -57,7 +103,7 @@ MOBILE NAVIGATION:
 - If the design includes a hamburger menu icon, it MUST be functional using vanilla JS only (no libraries)
 - Add a <script> tag at the bottom of the body with a click toggle that shows/hides the mobile nav menu
 - The mobile menu when open should display nav links stacked vertically, full width, with a semi-transparent dark overlay background
-- The hamburger icon should animate between ☰ and ✕ on toggle using a CSS transition
+- The hamburger icon should be three CSS-drawn bars (or a minimal inline SVG), animating to an X on toggle using a CSS transition - never use emoji characters for menu icons
 
 NO HORIZONTAL SCROLL OR ZOOM SHIFT:
 

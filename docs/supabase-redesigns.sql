@@ -40,6 +40,11 @@ alter table public.redesigns add column if not exists status text not null defau
 alter table public.redesigns add column if not exists lead_intent text;
 alter table public.redesigns add column if not exists design_email_sent boolean default false;
 
+-- Prospect first name (optional — used in design-ready email greeting)
+alter table public.redesigns add column if not exists first_name text;
+
+comment on column public.redesigns.first_name is 'Prospect first name for personalized delivery email greeting';
+
 -- AI site roast (Phase 1 — fast critique bullets shown in wait screen + roast page)
 alter table public.redesigns add column if not exists roast_bullets jsonb;
 alter table public.redesigns add column if not exists roast_status text not null default 'pending';

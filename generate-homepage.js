@@ -53,7 +53,7 @@ ${SCRAPED_SITE_DATA}
 
 async function main() {
   const engine = resolveRedesignEngine(
-    process.env.PUBLIC_REDESIGN_ENGINE || "claude-sonnet"
+    process.env.PUBLIC_REDESIGN_ENGINE || "claude-opus"
   );
 
   const html = await generateRedesignHtmlClaude(
