@@ -1,15 +1,24 @@
 import { apiUrl } from "../scripts/api-config.js";
+import {
+  endsWithDanglingWord,
+  sanitizeRoastBulletList,
+} from "../scripts/roast-bullet-sanitize.js";
 
 const token = new URLSearchParams(window.location.search).get("t")?.trim();
 
 const POLL_INTERVAL_MS = 4000;
 const STAT_ROTATE_MS = 5000;
 const STAT_START_DELAY_MS = 3500;
-const FINDING_REVEAL_MS = 800;
+const MIN_REVEAL_HOLD_MS = 20000;
+const STAT_FADE_OUT_MS = 600;
+const HEADER_FADE_IN_MS = 400;
+const BULLET_FADE_MS = 400;
+const BULLET_GAP_MS = 2000;
+const FOOTER_HOLD_MS = 1500;
 const QUESTION_AT_MS = 60000;
 const READY_BANNER_MS = 1500;
 const CONFIRM_DISMISS_MS = 3000;
-const DELAY_NOTICE_MS = 240000;
+const DELAY_NOTICE_MS = 240000; // 4 minutes — never reset after mount
 
 const STAGES = [
   {
@@ -40,10 +49,15 @@ const STATS = [
 ];
 
 const timers = [];
+let mountTime = 0;
 let finished = false;
 let statRotateTimer = null;
 let delayNoticeShown = false;
-let findingsRevealed = false;
+let revealStarted = false;
+let statsActive = false;
+let pendingBullets = null;
+let revealTimer = null;
+let delayNoticeTimer = null;
 
 function later(fn, ms) {
   timers.push(setTimeout(fn, ms));
@@ -61,6 +75,14 @@ function clearProgressTimers() {
     clearInterval(id);
   });
   timers.length = 0;
+  if (revealTimer) {
+    clearTimeout(revealTimer);
+    revealTimer = null;
+  }
+  if (delayNoticeTimer) {
+    clearTimeout(delayNoticeTimer);
+    delayNoticeTimer = null;
+  }
 }
 
 function stopStats() {
@@ -68,6 +90,7 @@ function stopStats() {
     clearInterval(statRotateTimer);
     statRotateTimer = null;
   }
+  statsActive = false;
 }
 
 function showError(title, detail) {
@@ -105,6 +128,8 @@ async function fetchPreviewHtml() {
 }
 
 function setStage(stage) {
+  if (delayNoticeShown || finished) return;
+
   const container = document.getElementById("stage-main");
   const title = document.getElementById("stage-title");
   const subtitle = document.getElementById("stage-subtitle");
@@ -119,8 +144,9 @@ function setStage(stage) {
 }
 
 function startStats() {
-  if (findingsRevealed) return;
+  if (revealStarted || statsActive) return;
 
+  statsActive = true;
   document.getElementById("stats-panel").hidden = false;
   document.getElementById("findings-panel").hidden = true;
 
@@ -130,64 +156,108 @@ function startStats() {
   quote.textContent = STATS[index];
 
   statRotateTimer = setInterval(() => {
-    if (findingsRevealed) return;
+    if (revealStarted) return;
     index = (index + 1) % STATS.length;
     fadeStatQuote(STATS[index]);
   }, STAT_ROTATE_MS);
 }
 
-function normalizeFindingTexts(bullets) {
-  if (!Array.isArray(bullets)) return [];
-  return bullets
-    .slice(0, 6)
-    .map((bullet) => (typeof bullet === "string" ? bullet : bullet?.text || ""))
-    .map((text) => text.trim())
-    .filter(Boolean);
+function appendFindingRow(number, text) {
+  if (!text || endsWithDanglingWord(text)) return;
+
+  const list = document.getElementById("findings-list");
+  const row = document.createElement("li");
+  row.className = "finding-row";
+
+  const num = document.createElement("span");
+  num.className = "finding-num";
+  num.textContent = String(number).padStart(2, "0");
+
+  const copy = document.createElement("span");
+  copy.className = "finding-text";
+  copy.textContent = text;
+
+  row.append(num, copy);
+  list.appendChild(row);
+
+  requestAnimationFrame(() => {
+    row.classList.add("is-visible");
+  });
 }
 
-function revealFindings(bullets) {
-  if (findingsRevealed || finished) return;
+function showFindingsFooter() {
+  const footer = document.getElementById("findings-footer");
+  footer.hidden = false;
+  requestAnimationFrame(() => footer.classList.add("is-visible"));
+}
 
-  const texts = normalizeFindingTexts(bullets);
+function beginFindingsReveal() {
+  if (revealStarted || finished) return;
+
+  const texts = sanitizeRoastBulletList(pendingBullets, 6);
   if (!texts.length) return;
 
-  findingsRevealed = true;
+  revealStarted = true;
   stopStats();
 
-  document.getElementById("stats-panel").hidden = true;
-  const findingsPanel = document.getElementById("findings-panel");
-  const findingsList = document.getElementById("findings-list");
-  const findingsFooter = document.getElementById("findings-footer");
+  const statsPanel = document.getElementById("stats-panel");
+  statsPanel.classList.add("is-leaving");
 
-  findingsPanel.hidden = false;
-  findingsList.innerHTML = "";
-  findingsFooter.hidden = true;
+  later(() => {
+    statsPanel.hidden = true;
+    statsPanel.classList.remove("is-leaving");
 
-  texts.forEach((text, index) => {
+    const findingsPanel = document.getElementById("findings-panel");
+    const header = document.getElementById("findings-header");
+    const list = document.getElementById("findings-list");
+    const footer = document.getElementById("findings-footer");
+
+    findingsPanel.hidden = false;
+    list.innerHTML = "";
+    footer.hidden = true;
+    footer.classList.remove("is-visible");
+    header.classList.remove("is-visible");
+
     later(() => {
-      const li = document.createElement("li");
-      li.className = "finding-line";
-      li.textContent = text;
-      findingsList.appendChild(li);
-      requestAnimationFrame(() => li.classList.add("is-visible"));
+      header.classList.add("is-visible");
 
-      if (index === texts.length - 1) {
-        later(() => {
-          findingsFooter.hidden = false;
-          findingsFooter.classList.add("is-visible");
-        }, FINDING_REVEAL_MS);
-      }
-    }, index * FINDING_REVEAL_MS);
-  });
+      later(() => {
+        texts.forEach((text, index) => {
+          later(() => {
+            appendFindingRow(index + 1, text);
+
+            if (index === texts.length - 1) {
+              later(showFindingsFooter, FOOTER_HOLD_MS);
+            }
+          }, index * BULLET_GAP_MS);
+        });
+      }, HEADER_FADE_IN_MS);
+    }, 0);
+  }, STAT_FADE_OUT_MS);
+}
+
+function queueRoastReveal(bullets) {
+  if (revealStarted || finished || !bullets?.length) return;
+
+  pendingBullets = bullets;
+  if (revealTimer) return;
+
+  const delay = Math.max(0, MIN_REVEAL_HOLD_MS - (Date.now() - mountTime));
+  revealTimer = setTimeout(() => {
+    revealTimer = null;
+    beginFindingsReveal();
+  }, delay);
 }
 
 function applyPreviewStatus(status) {
   if (!status || finished) return;
 
-  if (status.status === "roast_ready" || status.status === "ready") {
-    if (status.roast_bullets?.length) {
-      revealFindings(status.roast_bullets);
-    }
+  if (
+    !revealStarted &&
+    (status.status === "roast_ready" || status.status === "ready") &&
+    status.roast_bullets?.length
+  ) {
+    queueRoastReveal(status.roast_bullets);
   }
 }
 
@@ -224,10 +294,33 @@ function setupQuestion() {
   });
 }
 
+function scheduleDelayNotice() {
+  if (delayNoticeTimer || delayNoticeShown || finished || !mountTime) return;
+
+  const remaining = Math.max(0, DELAY_NOTICE_MS - (Date.now() - mountTime));
+  delayNoticeTimer = setTimeout(() => {
+    delayNoticeTimer = null;
+    showDelayNotice();
+  }, remaining);
+}
+
 function showDelayNotice() {
   if (delayNoticeShown || finished) return;
+  if (Date.now() - mountTime < DELAY_NOTICE_MS - 500) return;
+
   delayNoticeShown = true;
-  document.getElementById("delay-notice").hidden = false;
+
+  const container = document.getElementById("stage-main");
+  container.classList.add("is-fading");
+
+  later(() => {
+    container.innerHTML = `
+      <h1 class="stage-title">This is taking longer than expected</h1>
+      <p class="stage-subtitle">Your preview is still being generated. You do not need to keep this tab open.</p>
+      <p class="stage-subtitle">We will send it to your email as soon as it is ready.</p>
+    `;
+    container.classList.remove("is-fading");
+  }, 450);
 }
 
 async function finish() {
@@ -242,8 +335,6 @@ async function finish() {
   const stageMain = document.getElementById("stage-main");
   stageMain.classList.remove("is-fading");
   stageMain.innerHTML = '<h1 class="ready-banner">Your preview is ready</h1>';
-  document.getElementById("delay-notice").hidden = true;
-
   await new Promise((resolve) => setTimeout(resolve, READY_BANNER_MS));
 
   document.getElementById("wait").classList.add("is-leaving");
@@ -262,7 +353,6 @@ function showGenerationFailed() {
   document.getElementById("stage-subtitle").textContent =
     "Please try this link again in a few minutes.";
   document.getElementById("stage-main").classList.remove("is-fading");
-  document.getElementById("delay-notice").hidden = true;
 }
 
 async function pollPreviewStatus() {
@@ -291,6 +381,8 @@ function startPolling() {
 }
 
 function startWaitScreen(initialStatus) {
+  mountTime = Date.now();
+
   document.getElementById("loader").hidden = true;
   document.getElementById("wait").hidden = false;
 
@@ -303,14 +395,9 @@ function startWaitScreen(initialStatus) {
     later(() => setStage(stage), stage.at);
   });
 
-  if (initialStatus?.status === "roast_ready" && initialStatus.roast_bullets?.length) {
-    revealFindings(initialStatus.roast_bullets);
-  } else {
-    later(() => startStats(), STAT_START_DELAY_MS);
-  }
-
+  later(() => startStats(), STAT_START_DELAY_MS);
   applyPreviewStatus(initialStatus);
-  later(() => showDelayNotice(), DELAY_NOTICE_MS);
+  scheduleDelayNotice();
 
   setupQuestion();
   startPolling();

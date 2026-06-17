@@ -611,16 +611,17 @@ export function runPreviewGeneration({
   logPrefix,
 }) {
   setImmediate(async () => {
-    console.log(`${logPrefix} Phase 1: roast generation...`);
-    await executeRoastGeneration({ redesignId, normalizedUrl, logPrefix });
-    console.log(`${logPrefix} Phase 2: redesign generation...`);
-    await executeRedesignGeneration({
-      redesignId,
-      normalizedUrl,
-      engine,
-      maxTokens,
-      logPrefix,
-    });
+    console.log(`${logPrefix} Phase 1+2: roast and redesign (parallel)...`);
+    await Promise.all([
+      executeRoastGeneration({ redesignId, normalizedUrl, logPrefix }),
+      executeRedesignGeneration({
+        redesignId,
+        normalizedUrl,
+        engine,
+        maxTokens,
+        logPrefix,
+      }),
+    ]);
   });
 }
 

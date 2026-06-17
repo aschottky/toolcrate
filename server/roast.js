@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { CLAUDE_OPUS_MODEL } from "./anthropic-models.js";
+import { sanitizeRoastBulletList } from "../scripts/roast-bullet-sanitize.js";
 
 let anthropicClient;
 
@@ -74,7 +75,7 @@ These are what cost a contractor money. That is what makes the roast credible �
 
 OUTPUT RULES:
 1. Every bullet MUST reference something actually found (or clearly missing) in the scrape — quote headlines, note absent phone numbers, etc.
-2. Each bullet MUST be 12 words or fewer. No generic filler.
+2. Each bullet point must be a complete sentence. Never cut off a thought mid-sentence. Maximum 120 characters per bullet, always ending at a natural sentence boundary.
 3. No markdown, no numbering inside bullets.
 4. Never mention Claude, Anthropic, or any third-party AI brand — you are ToolCrate's trained AI.
 
@@ -82,26 +83,18 @@ Return ONLY valid JSON:
 {"roast_bullets":["bullet one","bullet two","bullet three","bullet four"]}`;
 }
 
-function trimBullet(text) {
-  const words = text.trim().split(/\s+/).filter(Boolean);
-  if (words.length <= 12) return words.join(" ");
-  return words.slice(0, 12).join(" ");
-}
-
 function normalizeRoastBullets(raw) {
   if (!Array.isArray(raw)) {
     throw new Error("roast_bullets must be an array.");
   }
 
-  const bullets = raw
-    .map((item) => trimBullet(String(item ?? "")))
-    .filter(Boolean);
+  const bullets = sanitizeRoastBulletList(raw, 6);
 
   if (bullets.length < 4) {
     throw new Error("Expected at least 4 roast bullets.");
   }
 
-  return bullets.slice(0, 6).map((text, index) => ({
+  return bullets.map((text, index) => ({
     emoji: ROAST_EMOJIS[index % ROAST_EMOJIS.length],
     text,
   }));

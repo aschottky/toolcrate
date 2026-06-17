@@ -1,4 +1,5 @@
 import { apiUrl } from "../scripts/api-config.js";
+import { sanitizeRoastBulletList } from "../scripts/roast-bullet-sanitize.js";
 
 const token = new URLSearchParams(window.location.search).get("t")?.trim();
 const ROAST_FALLBACK =
@@ -22,9 +23,9 @@ function renderBullets(bullets) {
   const list = document.getElementById("roast-list");
   list.innerHTML = "";
 
-  bullets.forEach((bullet) => {
+  const texts = sanitizeRoastBulletList(bullets, 6);
+  texts.forEach((text) => {
     const li = document.createElement("li");
-    const text = typeof bullet === "string" ? bullet : bullet?.text || bullet;
     li.textContent = text;
     list.appendChild(li);
   });

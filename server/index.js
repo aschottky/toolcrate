@@ -27,6 +27,7 @@ import {
   resolveRedesignEngine,
 } from "./redesign-engines.js";
 import { DEFAULT_PUBLIC_REDESIGN_ENGINE } from "./anthropic-models.js";
+import { sanitizeRoastBulletList } from "../scripts/roast-bullet-sanitize.js";
 import { normalizeRootDomain } from "./url-utils.js";
 import { processNurtureEmails } from "./nurture.js";
 import { processWarmLeadNurture } from "./warm-lead-nurture.js";
@@ -502,11 +503,8 @@ function parseRoastBulletsFromDb(raw) {
 function roastBulletTexts(raw) {
   const parsed = parseRoastBulletsFromDb(raw);
   if (!parsed?.length) return null;
-  return parsed
-    .slice(0, 6)
-    .map((bullet) => (typeof bullet === "string" ? bullet : bullet?.text || ""))
-    .map((text) => text.trim())
-    .filter(Boolean);
+  const sanitized = sanitizeRoastBulletList(parsed, 6);
+  return sanitized.length ? sanitized : null;
 }
 
 function previewSessionStatus(redesign) {
