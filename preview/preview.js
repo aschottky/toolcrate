@@ -59,6 +59,109 @@ let pendingBullets = null;
 let revealTimer = null;
 let delayNoticeTimer = null;
 
+const LOG_PREFIX = "[ToolCrate Preview]";
+let lastTracked = {
+  session: null,
+  roast: null,
+  redesign: null,
+};
+
+function elapsedLabel() {
+  if (!mountTime) return "+0s";
+  const sec = Math.round((Date.now() - mountTime) / 1000);
+  return `+${sec}s`;
+}
+
+function tokenLabel() {
+  return token ? `${token.slice(0, 8)}…` : "(none)";
+}
+
+function previewLog(message, detail) {
+  if (detail !== undefined) {
+    console.log(`${LOG_PREFIX} ${message}`, detail);
+  } else {
+    console.log(`${LOG_PREFIX} ${message}`);
+  }
+}
+
+function previewWarn(message, detail) {
+  if (detail !== undefined) {
+    console.warn(`${LOG_PREFIX} ${message}`, detail);
+  } else {
+    console.warn(`${LOG_PREFIX} ${message}`);
+  }
+}
+
+function previewError(message, detail) {
+  if (detail !== undefined) {
+    console.error(`${LOG_PREFIX} ${message}`, detail);
+  } else {
+    console.error(`${LOG_PREFIX} ${message}`);
+  }
+}
+
+function describePhase(status) {
+  if (!status) return "unknown";
+  return {
+    session: status.status,
+    roast: status.roast_status ?? "unknown",
+    redesign: status.redesign_status ?? status.status,
+    bullets: status.roast_bullets?.length ?? 0,
+  };
+}
+
+function handleStatusUpdate(status, source) {
+  if (!status) return;
+
+  const session = status.status;
+  const roast = status.roast_status ?? "unknown";
+  const redesign = status.redesign_status ?? session;
+
+  if (lastTracked.session === null) {
+    previewLog(`mounted token=${tokenLabel()} (${source})`);
+    previewLog(`initial state (${elapsedLabel()})`, describePhase(status));
+
+    if (roast === "pending" && redesign === "pending" && session === "pending") {
+      previewLog("server generating — roast and redesign run in parallel");
+    } else if (roast === "roast_ready" || roast === "ready") {
+      previewLog("roast already complete when waiting room opened (cached from prior run?)");
+    }
+    if (session === "ready") {
+      previewLog("redesign already complete when waiting room opened");
+    }
+  }
+
+  if (roast !== lastTracked.roast) {
+    if (roast === "pending" && lastTracked.roast === null) {
+      previewLog(`roast: generating (${elapsedLabel()})`);
+    } else if (roast === "roast_ready" || roast === "ready") {
+      previewLog(`roast ready — ${status.roast_bullets?.length ?? 0} bullet(s) (${elapsedLabel()})`);
+    } else if (roast === "failed") {
+      previewError(`roast failed (${elapsedLabel()})`);
+    } else {
+      previewLog(`roast status → ${roast} (${elapsedLabel()})`);
+    }
+  }
+
+  if (redesign !== lastTracked.redesign) {
+    if (redesign === "pending" && lastTracked.redesign === null) {
+      previewLog(`redesign: generating (${elapsedLabel()})`);
+    } else if (redesign === "ready") {
+      previewLog(`redesign ready (${elapsedLabel()})`);
+    } else if (redesign === "failed") {
+      previewError(`redesign failed (${elapsedLabel()})`);
+    } else {
+      previewLog(`redesign status → ${redesign} (${elapsedLabel()})`);
+    }
+  }
+
+  if (session !== lastTracked.session && lastTracked.session !== null) {
+    previewLog(`session status → ${session} (${elapsedLabel()})`, describePhase(status));
+  }
+
+  lastTracked = { session, roast, redesign };
+}
+
 function later(fn, ms) {
   timers.push(setTimeout(fn, ms));
 }
@@ -147,6 +250,7 @@ function startStats() {
   if (revealStarted || statsActive) return;
 
   statsActive = true;
+  previewLog(`stat cards started (${elapsedLabel()})`);
   document.getElementById("stats-panel").hidden = false;
   document.getElementById("findings-panel").hidden = true;
 
@@ -195,8 +299,12 @@ function beginFindingsReveal() {
   if (revealStarted || finished) return;
 
   const texts = sanitizeRoastBulletList(pendingBullets, 6);
-  if (!texts.length) return;
+  if (!texts.length) {
+    previewWarn(`findings reveal skipped — no valid bullets after sanitize (${elapsedLabel()})`);
+    return;
+  }
 
+  previewLog(`findings reveal starting — ${texts.length} bullet(s) (${elapsedLabel()})`);
   revealStarted = true;
   stopStats();
 
@@ -243,14 +351,17 @@ function queueRoastReveal(bullets) {
   if (revealTimer) return;
 
   const delay = Math.max(0, MIN_REVEAL_HOLD_MS - (Date.now() - mountTime));
+  previewLog(`findings reveal queued — showing in ${Math.round(delay / 1000)}s (${elapsedLabel()})`);
   revealTimer = setTimeout(() => {
     revealTimer = null;
     beginFindingsReveal();
   }, delay);
 }
 
-function applyPreviewStatus(status) {
+function applyPreviewStatus(status, source = "poll") {
   if (!status || finished) return;
+
+  handleStatusUpdate(status, source);
 
   if (
     !revealStarted &&
@@ -309,6 +420,7 @@ function showDelayNotice() {
   if (Date.now() - mountTime < DELAY_NOTICE_MS - 500) return;
 
   delayNoticeShown = true;
+  previewWarn(`timeout notice — still generating after 4 minutes (${elapsedLabel()})`);
 
   const container = document.getElementById("stage-main");
   container.classList.add("is-fading");
@@ -325,6 +437,7 @@ function showDelayNotice() {
 
 async function finish() {
   if (finished) return;
+  previewLog(`preview complete — redirecting to roast page (${elapsedLabel()})`);
   finished = true;
   clearProgressTimers();
   stopStats();
@@ -345,6 +458,7 @@ async function finish() {
 
 function showGenerationFailed() {
   if (finished) return;
+  previewError(`generation failed — preview unavailable (${elapsedLabel()})`);
   finished = true;
   clearProgressTimers();
   stopStats();
@@ -360,7 +474,10 @@ async function pollPreviewStatus() {
     const response = await fetch(
       apiUrl(`/api/preview-status?t=${encodeURIComponent(token)}`)
     );
-    if (!response.ok) return;
+    if (!response.ok) {
+      previewWarn(`poll HTTP ${response.status} (${elapsedLabel()})`);
+      return;
+    }
 
     const status = await response.json();
     applyPreviewStatus(status);
@@ -370,17 +487,18 @@ async function pollPreviewStatus() {
     } else if (status.status === "failed") {
       showGenerationFailed();
     }
-  } catch {
-    // Transient network hiccup — keep polling.
+  } catch (error) {
+    previewWarn(`poll network error (${elapsedLabel()})`, error?.message || error);
   }
 }
 
 function startPolling() {
+  previewLog(`polling every ${POLL_INTERVAL_MS / 1000}s (${elapsedLabel()})`);
   pollPreviewStatus();
   every(pollPreviewStatus, POLL_INTERVAL_MS);
 }
 
-function startWaitScreen(initialStatus) {
+function startWaitScreen(initialStatus, source = "poll") {
   mountTime = Date.now();
 
   document.getElementById("loader").hidden = true;
@@ -396,7 +514,7 @@ function startWaitScreen(initialStatus) {
   });
 
   later(() => startStats(), STAT_START_DELAY_MS);
-  applyPreviewStatus(initialStatus);
+  applyPreviewStatus(initialStatus, source);
   scheduleDelayNotice();
 
   setupQuestion();
@@ -405,6 +523,7 @@ function startWaitScreen(initialStatus) {
 
 async function loadPreview() {
   if (!token) {
+    previewError("missing preview token in URL");
     showError(
       "Missing preview link",
       "This link looks incomplete. Please use the exact link you were sent."
@@ -416,24 +535,28 @@ async function loadPreview() {
     const result = await fetchPreviewHtml();
 
     if (result.ready) {
+      previewLog("preview HTML already ready — skipping wait screen");
       window.location.href = `../roast/?t=${encodeURIComponent(token)}`;
       return;
     }
 
     if (result.pending) {
       if (result.info?.status === "failed") {
+        previewError("initial fetch: generation failed", result.info);
         showError(
           "Preview not ready",
           "We hit a snag preparing your preview. Please try this link again in a few minutes."
         );
         return;
       }
-      startWaitScreen(result.info);
+      startWaitScreen(result.info, "initial fetch");
       return;
     }
 
+    previewError("preview not found", result.error);
     showError("Preview not found", result.error);
-  } catch {
+  } catch (error) {
+    previewError("could not load preview", error?.message || error);
     showError(
       "Could not load preview",
       "The preview server may be waking up. Please refresh in 30 seconds."

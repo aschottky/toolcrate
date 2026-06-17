@@ -523,7 +523,14 @@ function previewSessionStatus(redesign) {
 
 function previewStatusPayload(redesign) {
   const status = previewSessionStatus(redesign);
-  const payload = { status };
+  const roast_status = redesign.roast_status ?? "pending";
+  const redesign_status = redesign.status ?? (redesign.html ? "ready" : "pending");
+
+  const payload = {
+    status,
+    roast_status,
+    redesign_status,
+  };
 
   if (status === "roast_ready" || status === "ready") {
     const roast_bullets = roastBulletTexts(redesign.roast_bullets);
