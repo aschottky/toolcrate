@@ -53,10 +53,10 @@ alter table public.redesigns drop constraint if exists redesigns_roast_status_ch
 
 alter table public.redesigns
   add constraint redesigns_roast_status_check
-  check (roast_status in ('pending', 'ready', 'failed'));
+  check (roast_status in ('pending', 'roast_ready', 'ready', 'failed'));
 
 comment on column public.redesigns.roast_bullets is 'Site-specific AI roast bullets [{emoji, text}] for wait screen + /roast page';
-comment on column public.redesigns.roast_status is 'pending (generating) | ready | failed';
+comment on column public.redesigns.roast_status is 'pending (generating) | roast_ready | ready (legacy) | failed';
 
 alter table public.redesigns drop constraint if exists redesigns_source_type_check;
 

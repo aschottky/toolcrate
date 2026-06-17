@@ -165,20 +165,14 @@
         font-size: clamp(1.5rem, 4.5vw, 2rem);
         font-weight: 800;
         letter-spacing: -0.02em;
-        margin: 0 0 1.25rem;
+        margin: 0 0 0.75rem;
       }
-      .stage-steps {
-        list-style: none;
+      .stage-subtitle {
         margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-      .stage-steps li {
         color: #94a3b8;
         font-size: 0.95rem;
         line-height: 1.55;
+        font-weight: 400;
       }
       @keyframes fade-up {
         from {
@@ -218,6 +212,45 @@
         font-size: 1.02rem;
         line-height: 1.55;
         color: var(--text);
+      }
+
+      .findings-header {
+        margin: 0 0 1rem;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text);
+        text-align: left;
+      }
+      .findings-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        text-align: left;
+      }
+      .finding-line {
+        color: #cbd5e1;
+        font-size: 0.98rem;
+        line-height: 1.55;
+        margin: 0 0 0.65rem;
+        opacity: 0;
+        transform: translateY(6px);
+        transition: opacity 0.45s ease, transform 0.45s ease;
+      }
+      .finding-line.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .findings-footer {
+        margin: 1rem 0 0;
+        color: #94a3b8;
+        font-size: 0.95rem;
+        line-height: 1.55;
+        text-align: left;
+        opacity: 0;
+        transition: opacity 0.45s ease;
+      }
+      .findings-footer.is-visible {
+        opacity: 1;
       }
 
       /* Delay notice — overlaid on stage after 4 minutes */
@@ -378,7 +411,7 @@
         <div class="stage" id="stage" aria-live="polite">
           <div class="stage-main" id="stage-main">
             <h1 class="stage-title" id="stage-title"></h1>
-            <ul class="stage-steps" id="stage-steps"></ul>
+            <p class="stage-subtitle" id="stage-subtitle"></p>
           </div>
           <div class="delay-notice" id="delay-notice" hidden>
             <h2 class="delay-title">This is taking longer than expected</h2>
@@ -392,7 +425,16 @@
         </div>
 
         <div class="fact-card" id="fact-card">
-          <p class="fact-quote" id="fact-quote"></p>
+          <div id="stats-panel">
+            <p class="fact-quote" id="fact-quote"></p>
+          </div>
+          <div id="findings-panel" hidden>
+            <h2 class="findings-header">Here is what we found on your site</h2>
+            <ul class="findings-list" id="findings-list"></ul>
+            <p class="findings-footer" id="findings-footer" hidden>
+              Now building your redesign based on these findings.
+            </p>
+          </div>
         </div>
 
         <div class="question" id="question">

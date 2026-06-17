@@ -2,7 +2,7 @@ import { apiUrl } from "../scripts/api-config.js";
 
 const token = new URLSearchParams(window.location.search).get("t")?.trim();
 const ROAST_FALLBACK =
-  "Our AI had trouble reading that site — double-check the URL and try again.";
+  "Our AI had trouble reading that site. Double-check the URL and try again.";
 
 function showError(title, detail) {
   document.body.innerHTML = `
@@ -24,9 +24,8 @@ function renderBullets(bullets) {
 
   bullets.forEach((bullet) => {
     const li = document.createElement("li");
-    const emoji = bullet.emoji || "⚠️";
-    const text = bullet.text || bullet;
-    li.textContent = `${emoji} ${text}`;
+    const text = typeof bullet === "string" ? bullet : bullet?.text || bullet;
+    li.textContent = text;
     list.appendChild(li);
   });
 }
@@ -66,16 +65,16 @@ async function loadRoast() {
 
     const status = await response.json();
 
-    if (!status.ready) {
+    if (status.status !== "ready") {
       window.location.replace(`../preview/?t=${encodeURIComponent(token)}`);
       return;
     }
 
-    showResults(status.roastBullets);
+    showResults(status.roast_bullets);
   } catch {
     showError(
       "Could not load results",
-      "The server may be waking up — please refresh in 30 seconds."
+      "The server may be waking up. Please refresh in 30 seconds."
     );
   }
 }

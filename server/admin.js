@@ -462,16 +462,11 @@ export async function orderRedesign(req) {
   }
 
   if (pending) {
-    runRedesignGeneration({
+    runPreviewGeneration({
       redesignId: pending.id,
       normalizedUrl,
       engine,
       maxTokens,
-      logPrefix: `${logPrefix}:${pending.id}`,
-    });
-    runRoastGeneration({
-      redesignId: pending.id,
-      normalizedUrl,
       logPrefix: `${logPrefix}:${pending.id}`,
     });
     return { ok: true, redesign: pending, queued: true };
@@ -520,56 +515,119 @@ async function generateRedesignFromUrl({ normalizedUrl, engine, maxTokens, logPr
 const PREVIEW_BASE_URL = "https://usetoolcrate.com/preview-view?t=";
 
 /**
- * Phase 1: fast site-specific roast (~3–5s). Runs in parallel with redesign.
+ * Phase 1: site-specific roast. Returns true when bullets were saved.
  */
-export function runRoastGeneration({ redesignId, normalizedUrl, logPrefix }) {
-  setImmediate(async () => {
-    let lastError = null;
+export async function executeRoastGeneration({ redesignId, normalizedUrl, logPrefix }) {
+  let lastError = null;
 
-    for (let attempt = 1; attempt <= 2; attempt++) {
-      try {
-        console.log(`${logPrefix} [roast] Attempt ${attempt}/2 — scraping ${normalizedUrl}...`);
-        const scraped = await scrapeWebsiteText(normalizedUrl);
-        console.log(
-          `${logPrefix} [roast] Scrape OK (${scraped.scrapeSource}, ${scraped.charCount} chars)`
-        );
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      console.log(`${logPrefix} [roast] Attempt ${attempt}/2 — scraping ${normalizedUrl}...`);
+      const scraped = await scrapeWebsiteText(normalizedUrl);
+      console.log(
+        `${logPrefix} [roast] Scrape OK (${scraped.scrapeSource}, ${scraped.charCount} chars)`
+      );
 
-        console.log(`${logPrefix} [roast] Generating site roast...`);
-        const started = Date.now();
-        const { roast_bullets } = await generateSiteRoast(scraped);
-        await saveRoastBullets(redesignId, roast_bullets);
-        console.log(
-          `${logPrefix} [roast] Saved ${roast_bullets.length} bullets in ${Math.round((Date.now() - started) / 1000)}s`
-        );
-        return;
-      } catch (error) {
-        lastError = error;
-        const phase = /scrape|access this website|blocking/i.test(error.message)
-          ? "scrape"
-          : "roast-ai";
-        console.error(
-          `${logPrefix} [roast] Attempt ${attempt}/2 failed (${phase}):`,
-          error.message
-        );
-        if (error.stack) {
-          console.error(error.stack.split("\n").slice(0, 4).join("\n"));
-        }
-        if (attempt < 2) {
-          await new Promise((resolve) => setTimeout(resolve, 1200));
-        }
+      console.log(`${logPrefix} [roast] Generating site roast...`);
+      const started = Date.now();
+      const { roast_bullets } = await generateSiteRoast(scraped);
+      await saveRoastBullets(redesignId, roast_bullets);
+      console.log(
+        `${logPrefix} [roast] Saved ${roast_bullets.length} bullets in ${Math.round((Date.now() - started) / 1000)}s`
+      );
+      return true;
+    } catch (error) {
+      lastError = error;
+      const phase = /scrape|access this website|blocking/i.test(error.message)
+        ? "scrape"
+        : "roast-ai";
+      console.error(
+        `${logPrefix} [roast] Attempt ${attempt}/2 failed (${phase}):`,
+        error.message
+      );
+      if (error.stack) {
+        console.error(error.stack.split("\n").slice(0, 4).join("\n"));
+      }
+      if (attempt < 2) {
+        await new Promise((resolve) => setTimeout(resolve, 1200));
       }
     }
+  }
 
-    console.error(
-      `${logPrefix} [roast] Giving up after 2 attempts:`,
-      lastError?.message || "unknown error"
-    );
-    try {
-      await markRoastFailed(redesignId);
-    } catch (updateError) {
-      console.error(`${logPrefix} [roast] Could not mark failed:`, updateError.message);
-    }
+  console.error(
+    `${logPrefix} [roast] Giving up after 2 attempts:`,
+    lastError?.message || "unknown error"
+  );
+  try {
+    await markRoastFailed(redesignId);
+  } catch (updateError) {
+    console.error(`${logPrefix} [roast] Could not mark failed:`, updateError.message);
+  }
+  return false;
+}
+
+/** @deprecated Use runPreviewGeneration for sequential roast → redesign. */
+export function runRoastGeneration({ redesignId, normalizedUrl, logPrefix }) {
+  setImmediate(() => {
+    executeRoastGeneration({ redesignId, normalizedUrl, logPrefix });
   });
+}
+
+async function executeRedesignGeneration({
+  redesignId,
+  normalizedUrl,
+  engine,
+  maxTokens,
+  logPrefix,
+}) {
+  try {
+    const html = await generateRedesignFromUrl({
+      normalizedUrl,
+      engine,
+      maxTokens,
+      logPrefix,
+    });
+    await completeRedesign(redesignId, html);
+    console.log(`${logPrefix} Preview is live.`);
+    await sendDesignReadyNotification(redesignId, logPrefix);
+  } catch (error) {
+    console.error(`${logPrefix} Background generation failed:`, error.message);
+    try {
+      await markRedesignFailed(redesignId);
+    } catch (updateError) {
+      console.error(`${logPrefix} Could not mark redesign failed:`, updateError.message);
+    }
+  }
+}
+
+/**
+ * Sequential preview pipeline: Phase 1 roast, then Phase 2 redesign.
+ */
+export function runPreviewGeneration({
+  redesignId,
+  normalizedUrl,
+  engine,
+  maxTokens,
+  logPrefix,
+}) {
+  setImmediate(async () => {
+    console.log(`${logPrefix} Phase 1: roast generation...`);
+    await executeRoastGeneration({ redesignId, normalizedUrl, logPrefix });
+    console.log(`${logPrefix} Phase 2: redesign generation...`);
+    await executeRedesignGeneration({
+      redesignId,
+      normalizedUrl,
+      engine,
+      maxTokens,
+      logPrefix,
+    });
+  });
+}
+
+export function runRedesignGeneration({ redesignId, normalizedUrl, engine, maxTokens, logPrefix }) {
+  setImmediate(() =>
+    executeRedesignGeneration({ redesignId, normalizedUrl, engine, maxTokens, logPrefix })
+  );
 }
 
 /**
@@ -598,7 +656,8 @@ async function sendDesignReadyNotification(redesignId, logPrefix) {
 
     const previewUrl = `${PREVIEW_BASE_URL}${encodeURIComponent(info.preview_token)}`;
     const roastBullets =
-      info.roast_status === "ready" && Array.isArray(info.roast_bullets)
+      (info.roast_status === "roast_ready" || info.roast_status === "ready") &&
+      Array.isArray(info.roast_bullets)
         ? info.roast_bullets
         : null;
 
@@ -614,29 +673,6 @@ async function sendDesignReadyNotification(redesignId, logPrefix) {
   } catch (error) {
     console.error(`${logPrefix} Design-ready email failed:`, error.message);
   }
-}
-
-export function runRedesignGeneration({ redesignId, normalizedUrl, engine, maxTokens, logPrefix }) {
-  setImmediate(async () => {
-    try {
-      const html = await generateRedesignFromUrl({
-        normalizedUrl,
-        engine,
-        maxTokens,
-        logPrefix,
-      });
-      await completeRedesign(redesignId, html);
-      console.log(`${logPrefix} Preview is live.`);
-      await sendDesignReadyNotification(redesignId, logPrefix);
-    } catch (error) {
-      console.error(`${logPrefix} Background generation failed:`, error.message);
-      try {
-        await markRedesignFailed(redesignId);
-      } catch (updateError) {
-        console.error(`${logPrefix} Could not mark redesign failed:`, updateError.message);
-      }
-    }
-  });
 }
 
 export function registerAdminRoutes(app, { verifyCronSecret }) {

@@ -715,7 +715,7 @@ export async function saveRoastBullets(redesignId, roastBullets) {
     .from("redesigns")
     .update({
       roast_bullets: roastBullets,
-      roast_status: "ready",
+      roast_status: "roast_ready",
     })
     .eq("id", redesignId);
 

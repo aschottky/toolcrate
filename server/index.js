@@ -11,7 +11,7 @@ import { handleInstantlyWebhook } from "./instantly-webhook.js";
 import { normalizeWebsiteUrl, scrapeWebsiteText } from "./scrape.js";
 import { generateRedesignHtml } from "./redesign.js";
 import { generateRedesignHtmlClaude } from "./redesign-claude.js";
-import { registerAdminRoutes, runRedesignGeneration, runRoastGeneration } from "./admin.js";
+import { registerAdminRoutes, runPreviewGeneration } from "./admin.js";
 import { registerCheckoutRoutes } from "./checkout.js";
 import {
   assertStripeKeyMatchesSession,
@@ -499,26 +499,42 @@ function parseRoastBulletsFromDb(raw) {
   return null;
 }
 
+function roastBulletTexts(raw) {
+  const parsed = parseRoastBulletsFromDb(raw);
+  if (!parsed?.length) return null;
+  return parsed
+    .slice(0, 6)
+    .map((bullet) => (typeof bullet === "string" ? bullet : bullet?.text || ""))
+    .map((text) => text.trim())
+    .filter(Boolean);
+}
+
+function previewSessionStatus(redesign) {
+  if (redesign.status === "failed") return "failed";
+  if (redesign.html) return "ready";
+
+  const texts = roastBulletTexts(redesign.roast_bullets);
+  const roastDone =
+    redesign.roast_status === "roast_ready" || redesign.roast_status === "ready";
+  if (texts?.length && roastDone) {
+    return "roast_ready";
+  }
+
+  return "pending";
+}
+
 function previewStatusPayload(redesign) {
-  const companyName =
-    redesign.business_name?.trim() ||
-    redesign.company_name?.trim() ||
-    companyNameFromUrl(redesign.website_url);
+  const status = previewSessionStatus(redesign);
+  const payload = { status };
 
-  const roastBullets = parseRoastBulletsFromDb(redesign.roast_bullets);
-  const hasRoastBullets = roastBullets?.length > 0;
+  if (status === "roast_ready" || status === "ready") {
+    const roast_bullets = roastBulletTexts(redesign.roast_bullets);
+    if (roast_bullets?.length) {
+      payload.roast_bullets = roast_bullets;
+    }
+  }
 
-  return {
-    ok: true,
-    ready: Boolean(redesign.html),
-    failed: redesign.status === "failed",
-    companyName,
-    roastReady:
-      hasRoastBullets &&
-      (redesign.roast_status === "ready" || redesign.roast_status == null),
-    roastFailed: redesign.roast_status === "failed",
-    roastBullets: hasRoastBullets ? roastBullets : null,
-  };
+  return payload;
 }
 
 // Public preview of a stored redesign (prospect-facing, unguessable token).
@@ -682,17 +698,11 @@ app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
       maxTokens: DEFAULT_REDESIGN_MAX_TOKENS,
     });
 
-    runRedesignGeneration({
+    runPreviewGeneration({
       redesignId: pending.id,
       normalizedUrl: websiteUrl,
       engine,
       maxTokens: DEFAULT_REDESIGN_MAX_TOKENS,
-      logPrefix: `${logPrefix}:${pending.id}`,
-    });
-
-    runRoastGeneration({
-      redesignId: pending.id,
-      normalizedUrl: websiteUrl,
       logPrefix: `${logPrefix}:${pending.id}`,
     });
 
@@ -826,17 +836,11 @@ function runVariationGenerationFromSession(session) {
 
       console.log(`${logPrefix} Paid variation queued for ${rootDomain} (${pending.id}).`);
 
-      runRedesignGeneration({
+      runPreviewGeneration({
         redesignId: pending.id,
         normalizedUrl: websiteUrl,
         engine,
         maxTokens: DEFAULT_REDESIGN_MAX_TOKENS,
-        logPrefix: `${logPrefix}:${pending.id}`,
-      });
-
-      runRoastGeneration({
-        redesignId: pending.id,
-        normalizedUrl: websiteUrl,
         logPrefix: `${logPrefix}:${pending.id}`,
       });
     } catch (error) {

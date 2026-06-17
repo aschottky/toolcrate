@@ -5,6 +5,7 @@ const token = new URLSearchParams(window.location.search).get("t")?.trim();
 const POLL_INTERVAL_MS = 4000;
 const STAT_ROTATE_MS = 5000;
 const STAT_START_DELAY_MS = 3500;
+const FINDING_REVEAL_MS = 800;
 const QUESTION_AT_MS = 60000;
 const READY_BANNER_MS = 1500;
 const CONFIRM_DISMISS_MS = 3000;
@@ -14,20 +15,17 @@ const STAGES = [
   {
     at: 0,
     title: "Analyzing your current site",
-    steps: ["We're reviewing your layout, messaging, and conversion structure."],
+    subtitle: "We are reviewing your layout, messaging, and conversion structure.",
   },
   {
     at: 15000,
     title: "Building your custom preview",
-    steps: [
-      "Our AI is designing a version of your site built to convert.",
-      "You'll see the before and after side by side.",
-    ],
+    subtitle: "Our AI is designing a version of your site built to convert.",
   },
   {
     at: 60000,
     title: "Almost there",
-    steps: ["Putting the finishing touches on your preview."],
+    subtitle: "Putting the finishing touches on your preview.",
   },
 ];
 
@@ -45,6 +43,7 @@ const timers = [];
 let finished = false;
 let statRotateTimer = null;
 let delayNoticeShown = false;
+let findingsRevealed = false;
 
 function later(fn, ms) {
   timers.push(setTimeout(fn, ms));
@@ -62,6 +61,13 @@ function clearProgressTimers() {
     clearInterval(id);
   });
   timers.length = 0;
+}
+
+function stopStats() {
+  if (statRotateTimer) {
+    clearInterval(statRotateTimer);
+    statRotateTimer = null;
+  }
 }
 
 function showError(title, detail) {
@@ -101,32 +107,88 @@ async function fetchPreviewHtml() {
 function setStage(stage) {
   const container = document.getElementById("stage-main");
   const title = document.getElementById("stage-title");
-  const steps = document.getElementById("stage-steps");
+  const subtitle = document.getElementById("stage-subtitle");
 
   container.classList.add("is-fading");
 
   later(() => {
     title.textContent = stage.title;
-    steps.innerHTML = "";
-    stage.steps.forEach((text) => {
-      const li = document.createElement("li");
-      li.textContent = text;
-      steps.appendChild(li);
-    });
+    subtitle.textContent = stage.subtitle;
     container.classList.remove("is-fading");
   }, 450);
 }
 
 function startStats() {
+  if (findingsRevealed) return;
+
+  document.getElementById("stats-panel").hidden = false;
+  document.getElementById("findings-panel").hidden = true;
+
   const quote = document.getElementById("fact-quote");
   let index = 0;
 
   quote.textContent = STATS[index];
 
   statRotateTimer = setInterval(() => {
+    if (findingsRevealed) return;
     index = (index + 1) % STATS.length;
     fadeStatQuote(STATS[index]);
   }, STAT_ROTATE_MS);
+}
+
+function normalizeFindingTexts(bullets) {
+  if (!Array.isArray(bullets)) return [];
+  return bullets
+    .slice(0, 6)
+    .map((bullet) => (typeof bullet === "string" ? bullet : bullet?.text || ""))
+    .map((text) => text.trim())
+    .filter(Boolean);
+}
+
+function revealFindings(bullets) {
+  if (findingsRevealed || finished) return;
+
+  const texts = normalizeFindingTexts(bullets);
+  if (!texts.length) return;
+
+  findingsRevealed = true;
+  stopStats();
+
+  document.getElementById("stats-panel").hidden = true;
+  const findingsPanel = document.getElementById("findings-panel");
+  const findingsList = document.getElementById("findings-list");
+  const findingsFooter = document.getElementById("findings-footer");
+
+  findingsPanel.hidden = false;
+  findingsList.innerHTML = "";
+  findingsFooter.hidden = true;
+
+  texts.forEach((text, index) => {
+    later(() => {
+      const li = document.createElement("li");
+      li.className = "finding-line";
+      li.textContent = text;
+      findingsList.appendChild(li);
+      requestAnimationFrame(() => li.classList.add("is-visible"));
+
+      if (index === texts.length - 1) {
+        later(() => {
+          findingsFooter.hidden = false;
+          findingsFooter.classList.add("is-visible");
+        }, FINDING_REVEAL_MS);
+      }
+    }, index * FINDING_REVEAL_MS);
+  });
+}
+
+function applyPreviewStatus(status) {
+  if (!status || finished) return;
+
+  if (status.status === "roast_ready" || status.status === "ready") {
+    if (status.roast_bullets?.length) {
+      revealFindings(status.roast_bullets);
+    }
+  }
 }
 
 function setupQuestion() {
@@ -172,10 +234,7 @@ async function finish() {
   if (finished) return;
   finished = true;
   clearProgressTimers();
-  if (statRotateTimer) {
-    clearInterval(statRotateTimer);
-    statRotateTimer = null;
-  }
+  stopStats();
 
   const fill = document.getElementById("progress-fill");
   fill.classList.add("is-done");
@@ -197,18 +256,12 @@ function showGenerationFailed() {
   if (finished) return;
   finished = true;
   clearProgressTimers();
-  if (statRotateTimer) {
-    clearInterval(statRotateTimer);
-    statRotateTimer = null;
-  }
+  stopStats();
 
-  const stageMain = document.getElementById("stage-main");
   document.getElementById("stage-title").textContent = "Preview unavailable";
-  document.getElementById("stage-steps").innerHTML = "";
-  const note = document.createElement("li");
-  note.textContent = "Please try this link again in a few minutes.";
-  document.getElementById("stage-steps").appendChild(note);
-  stageMain.classList.remove("is-fading");
+  document.getElementById("stage-subtitle").textContent =
+    "Please try this link again in a few minutes.";
+  document.getElementById("stage-main").classList.remove("is-fading");
   document.getElementById("delay-notice").hidden = true;
 }
 
@@ -220,10 +273,11 @@ async function pollPreviewStatus() {
     if (!response.ok) return;
 
     const status = await response.json();
+    applyPreviewStatus(status);
 
-    if (status.ready) {
+    if (status.status === "ready") {
       finish();
-    } else if (status.failed) {
+    } else if (status.status === "failed") {
       showGenerationFailed();
     }
   } catch {
@@ -236,7 +290,7 @@ function startPolling() {
   every(pollPreviewStatus, POLL_INTERVAL_MS);
 }
 
-function startWaitScreen() {
+function startWaitScreen(initialStatus) {
   document.getElementById("loader").hidden = true;
   document.getElementById("wait").hidden = false;
 
@@ -249,7 +303,13 @@ function startWaitScreen() {
     later(() => setStage(stage), stage.at);
   });
 
-  later(() => startStats(), STAT_START_DELAY_MS);
+  if (initialStatus?.status === "roast_ready" && initialStatus.roast_bullets?.length) {
+    revealFindings(initialStatus.roast_bullets);
+  } else {
+    later(() => startStats(), STAT_START_DELAY_MS);
+  }
+
+  applyPreviewStatus(initialStatus);
   later(() => showDelayNotice(), DELAY_NOTICE_MS);
 
   setupQuestion();
@@ -274,14 +334,14 @@ async function loadPreview() {
     }
 
     if (result.pending) {
-      if (result.info?.failed) {
+      if (result.info?.status === "failed") {
         showError(
           "Preview not ready",
           "We hit a snag preparing your preview. Please try this link again in a few minutes."
         );
         return;
       }
-      startWaitScreen();
+      startWaitScreen(result.info);
       return;
     }
 
