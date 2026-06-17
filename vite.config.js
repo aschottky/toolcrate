@@ -16,7 +16,7 @@ const MPA_ROUTES = [
 ];
 
 function mpaPathRewrite() {
-  const rewrite = (req, _res, next) => {
+  const rewrite = (req, res, next) => {
     const url = req.url || "/";
     const qIndex = url.indexOf("?");
     const pathname = qIndex === -1 ? url : url.slice(0, qIndex);
@@ -32,6 +32,11 @@ function mpaPathRewrite() {
       !segment.includes(".") &&
       MPA_ROUTES.includes(segment)
     ) {
+      if (!pathname.endsWith("/")) {
+        res.writeHead(302, { Location: `/${segment}/${search}` });
+        res.end();
+        return;
+      }
       req.url = `/${segment}/index.html${search}`;
     }
     next();

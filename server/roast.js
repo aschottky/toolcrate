@@ -64,7 +64,10 @@ function normalizeRoastBullets(raw) {
  */
 export async function generateSiteRoast(scraped) {
   const anthropic = getAnthropic();
-  const model = process.env.ANTHROPIC_ROAST_MODEL || "claude-sonnet-4-20250514";
+  const model =
+    process.env.ANTHROPIC_ROAST_MODEL ||
+    process.env.ANTHROPIC_REDESIGN_MODEL ||
+    "claude-sonnet-4-5";
 
   const message = await anthropic.messages.create({
     model,
