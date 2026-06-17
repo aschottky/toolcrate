@@ -7,6 +7,7 @@ import {
   DEFAULT_REDESIGN_MAX_TOKENS,
   resolveRedesignEngine,
 } from "./server/redesign-engines.js";
+import { DEFAULT_PUBLIC_REDESIGN_ENGINE } from "./server/anthropic-models.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUTPUT_PATH = join(__dirname, "index.html");
@@ -53,7 +54,7 @@ ${SCRAPED_SITE_DATA}
 
 async function main() {
   const engine = resolveRedesignEngine(
-    process.env.PUBLIC_REDESIGN_ENGINE || "claude-opus"
+    process.env.PUBLIC_REDESIGN_ENGINE || DEFAULT_PUBLIC_REDESIGN_ENGINE
   );
 
   const html = await generateRedesignHtmlClaude(

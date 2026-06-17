@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { CLAUDE_OPUS_MODEL } from "./anthropic-models.js";
 
 let anthropicClient;
 
@@ -84,10 +85,8 @@ function normalizeRoastBullets(raw) {
  */
 export async function generateSiteRoast(scraped) {
   const anthropic = getAnthropic();
-  const model =
-    process.env.ANTHROPIC_ROAST_MODEL ||
-    process.env.ANTHROPIC_REDESIGN_MODEL ||
-    "claude-opus-4-5";
+  const model = CLAUDE_OPUS_MODEL;
+  console.log(`[Roast] Using model: ${model}`);
 
   const message = await anthropic.messages.create({
     model,

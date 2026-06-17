@@ -26,6 +26,7 @@ import {
   DEFAULT_REDESIGN_MAX_TOKENS,
   resolveRedesignEngine,
 } from "./redesign-engines.js";
+import { DEFAULT_PUBLIC_REDESIGN_ENGINE } from "./anthropic-models.js";
 import { normalizeRootDomain } from "./url-utils.js";
 import { processNurtureEmails } from "./nurture.js";
 import { processWarmLeadNurture } from "./warm-lead-nurture.js";
@@ -667,7 +668,7 @@ app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
     }
 
     const engine = resolveRedesignEngine(
-      process.env.PUBLIC_REDESIGN_ENGINE || "claude-opus"
+      process.env.PUBLIC_REDESIGN_ENGINE || DEFAULT_PUBLIC_REDESIGN_ENGINE
     );
 
     const pending = await insertPendingRedesign({
@@ -810,7 +811,7 @@ function runVariationGenerationFromSession(session) {
 
       const websiteUrl = normalizeWebsiteUrl(rootDomain);
       const engine = resolveRedesignEngine(
-        process.env.PUBLIC_REDESIGN_ENGINE || "claude-opus"
+        process.env.PUBLIC_REDESIGN_ENGINE || DEFAULT_PUBLIC_REDESIGN_ENGINE
       );
 
       const pending = await insertPendingRedesign({

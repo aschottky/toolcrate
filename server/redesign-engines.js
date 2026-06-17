@@ -1,5 +1,6 @@
 import { generateRedesignHtml } from "./redesign.js";
 import { generateRedesignHtmlClaude } from "./redesign-claude.js";
+import { CLAUDE_OPUS_MODEL } from "./anthropic-models.js";
 
 export const DEFAULT_REDESIGN_MAX_TOKENS = 20000;
 
@@ -10,7 +11,7 @@ export const DEFAULT_REDESIGN_MAX_TOKENS = 20000;
 export const REDESIGN_ENGINES = {
   "claude-opus": {
     label: "Claude Opus 4.5 (best quality, ~2 min)",
-    model: "claude-opus-4-5",
+    model: CLAUDE_OPUS_MODEL,
     generate: generateRedesignHtmlClaude,
   },
   "claude-sonnet": {

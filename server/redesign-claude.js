@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { CLAUDE_OPUS_MODEL } from "./anthropic-models.js";
 import {
   buildUserMessage,
   filterLoadableImageUrls,
@@ -126,8 +127,8 @@ const MAX_ATTEMPTS = 2;
 export async function generateRedesignHtmlClaude(scraped, options = {}) {
   const anthropic = getAnthropic();
   const imageUrls = await filterLoadableImageUrls(scraped.imageUrls);
-  const model =
-    options.model || process.env.ANTHROPIC_REDESIGN_MODEL || "claude-opus-4-5";
+  const model = CLAUDE_OPUS_MODEL;
+  console.log(`[Redesign] Using model: ${model}`);
   // Claude writes rich pages; 8192 tokens truncates mid-CSS and renders blank.
   const maxTokens = Number(options.maxTokens) || 20000;
   let lastError;
