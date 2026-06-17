@@ -35,6 +35,7 @@ import {
   fetchRedesignByToken,
   findAuditByStripeSessionId,
   findLatestRedesignForDomain,
+  fetchPreviousDesignExclusions,
   insertPendingRedesign,
   setRedesignEmail,
   setRedesignFirstName,
@@ -425,15 +426,26 @@ async function handleRedesign(req, res, { websiteUrl, asHtml, generate, logPrefi
     const scraped = await scrapeWebsiteText(normalizedUrl);
 
     console.log(`${logPrefix} Generating redesign HTML...`);
-    const html = await generate(scraped, { websiteUrl: normalizedUrl });
-    console.log(`${logPrefix} Redesign ready (${html.length} chars)`);
+    const generationExclusions = await fetchPreviousDesignExclusions(normalizedUrl);
+    const result = await generate(scraped, {
+      websiteUrl: normalizedUrl,
+      generationExclusions,
+    });
+    console.log(`${logPrefix} Redesign ready (${result.html.length} chars)`);
 
     if (asHtml) {
       res.setHeader("Content-Type", "text/html; charset=utf-8");
-      return res.send(html);
+      return res.send(result.html);
     }
 
-    return res.json({ ok: true, websiteUrl: normalizedUrl, html });
+    return res.json({
+      ok: true,
+      websiteUrl: normalizedUrl,
+      html: result.html,
+      styleDirection: result.styleDirection,
+      heroHeadline: result.heroHeadline,
+      primaryAccentColor: result.primaryAccentColor,
+    });
   } catch (error) {
     return sendAuditError(res, error, logPrefix);
   }

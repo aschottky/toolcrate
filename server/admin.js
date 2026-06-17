@@ -20,6 +20,7 @@ import {
   fetchRecentAudits,
   fetchRecentRedesigns,
   fetchRedesignById,
+  fetchPreviousDesignExclusions,
   resetRedesignForRetry,
   findAuditByStripeSessionId,
   fetchWarmLeadById,
@@ -570,30 +571,54 @@ export async function orderRedesign(req) {
     engine: engine.id,
     model: engine.model,
     maxTokens,
-    html,
+    html: html.html,
+    styleDirection: html.styleDirection,
+    heroHeadline: html.heroHeadline,
+    primaryAccentColor: html.primaryAccentColor,
   });
 
   return { ok: true, redesign };
 }
 
-async function generateRedesignFromUrl({ normalizedUrl, engine, maxTokens, logPrefix }) {
+async function generateRedesignFromUrl({
+  normalizedUrl,
+  engine,
+  maxTokens,
+  logPrefix,
+  redesignId,
+}) {
   console.log(`${logPrefix} Scraping [${normalizedUrl}]...`);
   const scraped = await scrapeWebsiteText(normalizedUrl);
+
+  const generationExclusions = await fetchPreviousDesignExclusions(normalizedUrl, {
+    excludeRedesignId: redesignId,
+  });
+
+  if (
+    generationExclusions.styleDirections.length ||
+    generationExclusions.heroHeadlines.length ||
+    generationExclusions.primaryAccentColors.length
+  ) {
+    console.log(
+      `${logPrefix} Excluding prior designs — styles: [${generationExclusions.styleDirections.join(", ")}], headlines: ${generationExclusions.heroHeadlines.length}, accents: ${generationExclusions.primaryAccentColors.length}`
+    );
+  }
 
   console.log(
     `${logPrefix} Generating with ${engine.id} (${engine.model}, max_tokens ${maxTokens})...`
   );
   const started = Date.now();
-  const html = await engine.generate(scraped, {
+  const result = await engine.generate(scraped, {
     model: engine.model,
     maxTokens,
     websiteUrl: normalizedUrl,
+    generationExclusions,
   });
   console.log(
-    `${logPrefix} Generated ${html.length} chars in ${Math.round((Date.now() - started) / 1000)}s`
+    `${logPrefix} Generated ${result.html.length} chars (${result.styleDirection}) in ${Math.round((Date.now() - started) / 1000)}s`
   );
 
-  return html;
+  return result;
 }
 
 const PREVIEW_BASE_URL = "https://usetoolcrate.com/preview-view?t=";
@@ -665,13 +690,14 @@ async function executeRedesignGeneration({
   logPrefix,
 }) {
   try {
-    const html = await generateRedesignFromUrl({
+    const result = await generateRedesignFromUrl({
       normalizedUrl,
       engine,
       maxTokens,
       logPrefix,
+      redesignId,
     });
-    await completeRedesign(redesignId, html);
+    await completeRedesign(redesignId, result);
     console.log(`${logPrefix} Preview is live.`);
     await sendDesignReadyNotification(redesignId, logPrefix);
   } catch (error) {

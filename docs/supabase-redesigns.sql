@@ -58,6 +58,15 @@ alter table public.redesigns
 comment on column public.redesigns.roast_bullets is 'Site-specific AI roast bullets [{emoji, text}] for wait screen + /roast page';
 comment on column public.redesigns.roast_status is 'pending (generating) | roast_ready | ready (legacy) | failed';
 
+-- Design variation tracking (style/headline/color dedup for paid reruns)
+alter table public.redesigns add column if not exists style_direction text;
+alter table public.redesigns add column if not exists hero_headline text;
+alter table public.redesigns add column if not exists primary_accent_color text;
+
+comment on column public.redesigns.style_direction is 'Style slug used: bold_type_led | light_professional | dark_dramatic | high_energy_local | editorial_magazine';
+comment on column public.redesigns.hero_headline is 'Hero h1 headline text — excluded from future generations for same domain';
+comment on column public.redesigns.primary_accent_color is 'Primary accent hex — excluded from future generations for same domain';
+
 alter table public.redesigns drop constraint if exists redesigns_source_type_check;
 
 alter table public.redesigns

@@ -295,54 +295,137 @@ export function validateRedesignHtml(html) {
  */
 const MAX_ATTEMPTS = 2;
 
-const STYLE_DIRECTIONS = [
-  `STYLE DIRECTION 1 - BOLD TYPE-LED
+const STYLE_DIRECTION_SPECS = [
+  {
+    slug: "bold_type_led",
+    prompt: `STYLE DIRECTION 1 - BOLD TYPE-LED
 - Hero: White or off-white background, NO dark overlay, text is the hero
 - Typography: Extra-bold sans-serif headline (900 weight), very large (80-100px), black or near-black text
 - Color: One strong accent color (not orange unless scraped brand uses it), used sparingly
 - Layout: Centered hero, headline takes up 60% of the viewport, CTA buttons below
 - Unique element: A large typographic "stamp" or badge (e.g. "EST. 2004" or service area) as a decorative element
 - Feel: Modernist poster, bold, confident, no photography required in the hero`,
-
-  `STYLE DIRECTION 2 - LIGHT PROFESSIONAL
+  },
+  {
+    slug: "light_professional",
+    prompt: `STYLE DIRECTION 2 - LIGHT PROFESSIONAL
 - Hero: Light gray or pure white background, image confined to a right-column card with rounded corners and a drop shadow - NOT full bleed
 - Typography: Clean geometric sans-serif, medium weight
 - Color: Light palette, one muted accent (slate blue, forest green, warm gray - whatever fits the brand)
 - Layout: Classic split - text left 55%, image card right 45%
 - Unique element: A horizontal stat bar below the hero ("1,200+ Roofs Replaced · A+ BBB · 20 Years in KC")
 - Feel: Established professional firm, trust-forward, approachable`,
-
-  `STYLE DIRECTION 3 - DARK DRAMATIC
+  },
+  {
+    slug: "dark_dramatic",
+    prompt: `STYLE DIRECTION 3 - DARK DRAMATIC
 - Hero: Dark background ONLY if a high-quality photo justifies it, photo must be full bleed with overlay
 - Typography: Serif display font for headline, contrasting weight between headline and subtext
 - Color: Deep background, single warm accent
 - Layout: Text lower-left anchored, image fills upper right - NOT centered
 - Unique element: Vertical text element or side label along one edge
 - Feel: Premium, cinematic - ONLY use this direction if verified photos are high quality. If no good photos exist, adapt toward Style 2 instead.`,
-
-  `STYLE DIRECTION 4 - HIGH ENERGY LOCAL
+  },
+  {
+    slug: "high_energy_local",
+    prompt: `STYLE DIRECTION 4 - HIGH ENERGY LOCAL
 - Hero: Bold color block background (NOT dark - think deep red, navy, forest green, burnt orange based on brand colors)
 - Typography: Tall condensed sans-serif headline in white, large
 - Color: High contrast - saturated background block, white text, one bright accent for CTAs
 - Layout: Full-width stacked, headline centered and dominant, trust badges in a row below
 - Unique element: A "service area" callout prominently placed ("Proudly Serving Kansas City & Surrounding Areas")
 - Feel: Energetic local business, approachable, community-rooted`,
-
-  `STYLE DIRECTION 5 - EDITORIAL MAGAZINE
+  },
+  {
+    slug: "editorial_magazine",
+    prompt: `STYLE DIRECTION 5 - EDITORIAL MAGAZINE
 - Hero: Asymmetric grid layout - headline in large serif on one side, image cropped unconventionally on the other
 - Typography: Mix of serif display (headline) and clean sans-serif (body) - intentional contrast
 - Color: Mostly neutral with one editorial accent (deep burgundy, forest, slate)
 - Layout: Intentional white space, elements do NOT fill every pixel
 - Unique element: A pull-quote or short brand manifesto line in large italic type below the hero
 - Feel: Architecture firm or high-end home services brand, sophisticated`,
+  },
 ];
 
-function pickStyleDirection(imageUrls) {
-  let pool = STYLE_DIRECTIONS;
+export const STYLE_DIRECTION_SLUGS = STYLE_DIRECTION_SPECS.map((spec) => spec.slug);
+
+/** Pick a style direction, excluding previously used slugs for this URL when possible. */
+export function pickStyleDirectionForGeneration({
+  imageUrls = [],
+  usedStyleDirections = [],
+} = {}) {
+  let pool = STYLE_DIRECTION_SPECS;
   if (!imageUrls?.length) {
-    pool = STYLE_DIRECTIONS.filter((d) => !d.startsWith("STYLE DIRECTION 3"));
+    pool = pool.filter((spec) => spec.slug !== "dark_dramatic");
   }
-  return pool[Math.floor(Math.random() * pool.length)];
+
+  const available = pool.filter((spec) => !usedStyleDirections.includes(spec.slug));
+  const candidates = available.length > 0 ? available : pool;
+  return candidates[Math.floor(Math.random() * candidates.length)];
+}
+
+function normalizeHexColor(value) {
+  if (!value) return null;
+  const hex = String(value).trim();
+  if (/^#[0-9a-fA-F]{3}$/.test(hex)) {
+    const r = hex[1];
+    const g = hex[2];
+    const b = hex[3];
+    return `#${r}${r}${g}${g}${b}${b}`.toUpperCase();
+  }
+  if (/^#[0-9a-fA-F]{6}$/.test(hex)) {
+    return hex.toUpperCase();
+  }
+  return null;
+}
+
+/** Extract hero headline text from generated HTML for deduplication on reruns. */
+export function extractHeroHeadline(html) {
+  const h1Match = String(html || "").match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
+  if (!h1Match) return null;
+
+  const text = h1Match[1]
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return text ? text.slice(0, 240) : null;
+}
+
+/** Extract primary accent hex from meta comment or CSS heuristics. */
+export function extractPrimaryAccentColor(html) {
+  const source = String(html || "");
+
+  const metaMatch = source.match(/<!--\s*toolcrate-accent:\s*(#[0-9a-fA-F]{3,8})\s*-->/i);
+  if (metaMatch) {
+    return normalizeHexColor(metaMatch[1]);
+  }
+
+  const varMatch = source.match(
+    /--(?:accent|primary|brand|color-primary)[^:]*:\s*(#[0-9a-fA-F]{3,8})/i
+  );
+  if (varMatch) {
+    return normalizeHexColor(varMatch[1]);
+  }
+
+  const btnMatch = source.match(
+    /\.(?:btn|button|cta|primary)[^{]*\{[^}]*background(?:-color)?:\s*(#[0-9a-fA-F]{3,8})/i
+  );
+  if (btnMatch) {
+    return normalizeHexColor(btnMatch[1]);
+  }
+
+  return null;
+}
+
+export function buildRedesignGenerationResult(html, styleDirectionSlug) {
+  return {
+    html,
+    styleDirection: styleDirectionSlug,
+    heroHeadline: extractHeroHeadline(html),
+    primaryAccentColor: extractPrimaryAccentColor(html),
+  };
 }
 
 const IMAGE_CHECK_TIMEOUT_MS = 5000;
@@ -376,7 +459,7 @@ export async function filterLoadableImageUrls(urls) {
     .filter(Boolean);
 }
 
-export function buildUserMessage(scraped, imageUrls) {
+export function buildUserMessage(scraped, imageUrls, generationContext = {}) {
   const parts = [
     "Here is the scraped data from the business's current website. Output the complete redesigned landing page HTML:",
     "",
@@ -393,17 +476,49 @@ export function buildUserMessage(scraped, imageUrls) {
     );
   }
 
-  const direction = pickStyleDirection(imageUrls);
+  const styleDirection =
+    generationContext.styleDirection ??
+    pickStyleDirectionForGeneration({
+      imageUrls,
+      usedStyleDirections: generationContext.usedStyleDirections ?? [],
+    });
+
+  const previousHeadlines = generationContext.previousHeadlines ?? [];
+  const previousAccentColors = generationContext.previousAccentColors ?? [];
+
+  if (previousHeadlines.length || previousAccentColors.length) {
+    parts.push("", "IMPORTANT - PREVIOUS DESIGNS TO AVOID:");
+    if (previousHeadlines.length) {
+      parts.push(
+        "The following headline angles were already used for this site. Do NOT reuse them or close variations:"
+      );
+      for (const headline of previousHeadlines) {
+        parts.push(`- "${headline}"`);
+      }
+      parts.push(
+        "Find a completely different angle from the scraped content. If previous designs focused on one theme (sustainability, energy, family, etc.), this one must lead with a different value: speed, craftsmanship, local trust, storm damage expertise, warranty, etc."
+      );
+    }
+    if (previousAccentColors.length) {
+      parts.push(
+        `Previously used accent colors for this site: ${previousAccentColors.join(", ")}`
+      );
+      parts.push("Use a different primary accent color for this design.");
+    }
+  }
+
   parts.push(
     "",
     "MANDATORY STYLE DIRECTION — treat every bullet below as a hard constraint, not a loose suggestion. Do not fall back to generic dark-overlay split heroes, default orange accents, or serif headlines unless this direction requires them:",
     "",
-    direction,
+    styleDirection.prompt,
+    "",
+    "Immediately after the opening <body> tag, include an HTML comment with your primary accent color: <!-- toolcrate-accent: #RRGGBB -->",
     "",
     "Alternate light and dark sections for visual rhythm in the rest of the page. No emoji icons anywhere. Follow this direction's hero scale and layout rules — not a generic template."
   );
 
-  return parts.join("\n");
+  return { message: parts.join("\n"), styleDirection };
 }
 
 // gpt-4o caps completion output at 16384 tokens.
@@ -412,6 +527,13 @@ const OPENAI_MAX_OUTPUT_TOKENS = 16384;
 export async function generateRedesignHtml(scraped, options = {}) {
   const openai = getOpenAI();
   const imageUrls = await filterLoadableImageUrls(scraped.imageUrls);
+  const exclusions = options.generationExclusions ?? {};
+  const { message: userMessage, styleDirection } = buildUserMessage(scraped, imageUrls, {
+    styleDirection: options.styleDirection,
+    usedStyleDirections: exclusions.styleDirections ?? [],
+    previousHeadlines: exclusions.heroHeadlines ?? [],
+    previousAccentColors: exclusions.primaryAccentColors ?? [],
+  });
   const model =
     options.model ||
     process.env.OPENAI_REDESIGN_MODEL ||
@@ -435,7 +557,7 @@ export async function generateRedesignHtml(scraped, options = {}) {
           // Attach the actual images (low detail) so a vision-capable model
           // can tell photos from logos and pick brand colors from imagery.
           content: [
-            { type: "text", text: buildUserMessage(scraped, imageUrls) },
+            { type: "text", text: userMessage },
             ...imageUrls.map((url) => ({
               type: "image_url",
               image_url: { url, detail: "low" },
@@ -456,7 +578,7 @@ export async function generateRedesignHtml(scraped, options = {}) {
         options.websiteUrl || extractWebsiteUrlFromScraped(scraped);
       const html = prepareRedesignHtml(raw, websiteUrl);
       validateRedesignHtml(html);
-      return html;
+      return buildRedesignGenerationResult(html, styleDirection.slug);
     } catch (error) {
       lastError = error;
       console.warn(

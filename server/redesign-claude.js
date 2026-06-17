@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { CLAUDE_OPUS_MODEL } from "./anthropic-models.js";
 import {
   buildUserMessage,
+  buildRedesignGenerationResult,
   extractWebsiteUrlFromScraped,
   filterLoadableImageUrls,
   prepareRedesignHtml,
@@ -155,10 +156,16 @@ function buildRetryNote(attempt, lastError, stopReason) {
 export async function generateRedesignHtmlClaude(scraped, options = {}) {
   const anthropic = getAnthropic();
   const imageUrls = await filterLoadableImageUrls(scraped.imageUrls);
+  const exclusions = options.generationExclusions ?? {};
+  const { message: baseUserMessage, styleDirection } = buildUserMessage(scraped, imageUrls, {
+    styleDirection: options.styleDirection,
+    usedStyleDirections: exclusions.styleDirections ?? [],
+    previousHeadlines: exclusions.heroHeadlines ?? [],
+    previousAccentColors: exclusions.primaryAccentColors ?? [],
+  });
   const model = CLAUDE_OPUS_MODEL;
-  console.log(`[Redesign] Using model: ${model}`);
+  console.log(`[Redesign] Using model: ${model}, style: ${styleDirection.slug}`);
   const maxTokens = Number(options.maxTokens) || 32000;
-  const baseUserMessage = buildUserMessage(scraped, imageUrls);
   let lastError;
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
@@ -195,9 +202,9 @@ export async function generateRedesignHtmlClaude(scraped, options = {}) {
       const html = prepareRedesignHtml(raw, websiteUrl);
       validateRedesignHtml(html);
       console.log(
-        `[redesign-claude] Attempt ${attempt}/${MAX_ATTEMPTS} succeeded (${html.length} chars).`
+        `[redesign-claude] Attempt ${attempt}/${MAX_ATTEMPTS} succeeded (${html.length} chars, style=${styleDirection.slug}).`
       );
-      return html;
+      return buildRedesignGenerationResult(html, styleDirection.slug);
     } catch (error) {
       lastError = error;
       console.warn(

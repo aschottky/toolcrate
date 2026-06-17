@@ -57,13 +57,13 @@ async function main() {
     process.env.PUBLIC_REDESIGN_ENGINE || DEFAULT_PUBLIC_REDESIGN_ENGINE
   );
 
-  const html = await generateRedesignHtmlClaude(
+  const result = await generateRedesignHtmlClaude(
     { textForAudit, imageUrls: [] },
     { model: engine.model, maxTokens: DEFAULT_REDESIGN_MAX_TOKENS }
   );
 
   mkdirSync(dirname(OUTPUT_PATH), { recursive: true });
-  writeFileSync(OUTPUT_PATH, html, "utf8");
+  writeFileSync(OUTPUT_PATH, result.html, "utf8");
   console.log("Homepage generated successfully");
 }
 

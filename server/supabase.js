@@ -541,8 +541,11 @@ export async function markWarmLeadAuditSent(leadId) {
   return data;
 }
 
-const REDESIGN_LIST_SELECT =
+const REDESIGN_LIST_SELECT_LEGACY =
   "id, website_url, email, source_type, source_id, engine, model, max_tokens, preview_token, status, created_at";
+
+const REDESIGN_LIST_SELECT =
+  `${REDESIGN_LIST_SELECT_LEGACY}, style_direction, hero_headline, primary_accent_color`;
 
 function isMissingRedesignsTable(message = "") {
   return /relation .*redesigns.* does not exist|Could not find the table/i.test(message);
@@ -566,23 +569,43 @@ export async function insertRedesign({
   model,
   maxTokens,
   html,
+  styleDirection,
+  heroHeadline,
+  primaryAccentColor,
 }) {
   const supabase = getSupabaseAdmin();
 
-  const { data, error } = await supabase
+  const row = {
+    website_url: websiteUrl,
+    email: email?.trim().toLowerCase() || null,
+    source_type: sourceType,
+    source_id: sourceId || null,
+    engine,
+    model,
+    max_tokens: maxTokens,
+    html,
+  };
+
+  if (styleDirection) row.style_direction = styleDirection;
+  if (heroHeadline) row.hero_headline = heroHeadline;
+  if (primaryAccentColor) row.primary_accent_color = primaryAccentColor;
+
+  let { data, error } = await supabase
     .from("redesigns")
-    .insert({
-      website_url: websiteUrl,
-      email: email?.trim().toLowerCase() || null,
-      source_type: sourceType,
-      source_id: sourceId || null,
-      engine,
-      model,
-      max_tokens: maxTokens,
-      html,
-    })
+    .insert(row)
     .select(REDESIGN_LIST_SELECT)
     .single();
+
+  if (error && isMissingDesignVariationColumns(error.message)) {
+    delete row.style_direction;
+    delete row.hero_headline;
+    delete row.primary_accent_color;
+    ({ data, error } = await supabase
+      .from("redesigns")
+      .insert(row)
+      .select(REDESIGN_LIST_SELECT)
+      .single());
+  }
 
   if (error) {
     throw wrapRedesignError(error, "insert redesign");
@@ -595,11 +618,19 @@ export async function fetchRecentRedesigns(limit = 50) {
   const supabase = getSupabaseAdmin();
   const safeLimit = Math.min(Math.max(Number(limit) || 50, 1), 100);
 
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("redesigns")
     .select(REDESIGN_LIST_SELECT)
     .order("created_at", { ascending: false })
     .limit(safeLimit);
+
+  if (error && isMissingDesignVariationColumns(error.message)) {
+    ({ data, error } = await supabase
+      .from("redesigns")
+      .select(REDESIGN_LIST_SELECT_LEGACY)
+      .order("created_at", { ascending: false })
+      .limit(safeLimit));
+  }
 
   if (error) {
     throw wrapRedesignError(error, "fetch redesigns");
@@ -718,6 +749,12 @@ export async function deleteAllRedesignsForDomain(rootDomain) {
   };
 }
 
+function isMissingDesignVariationColumns(message = "") {
+  return /'?(style_direction|hero_headline|primary_accent_color)'? column|column .*(style_direction|hero_headline|primary_accent_color)/i.test(
+    message
+  );
+}
+
 function isMissingPreviewWaitColumns(message = "") {
   return /'?(status|lead_intent)'? column|column .*(status|lead_intent)/i.test(message);
 }
@@ -781,6 +818,14 @@ export async function insertPendingRedesign({
       .single());
   }
 
+  if (error && isMissingDesignVariationColumns(error.message)) {
+    ({ data, error } = await supabase
+      .from("redesigns")
+      .insert(row)
+      .select(REDESIGN_LIST_SELECT_LEGACY)
+      .single());
+  }
+
   if (error) {
     throw wrapRedesignError(error, "insert pending redesign");
   }
@@ -788,17 +833,74 @@ export async function insertPendingRedesign({
   return data;
 }
 
-export async function completeRedesign(redesignId, html) {
+export async function completeRedesign(redesignId, payload) {
   const supabase = getSupabaseAdmin();
+  const html = typeof payload === "string" ? payload : payload?.html;
+  const update = { html, status: "ready" };
 
-  const { error } = await supabase
-    .from("redesigns")
-    .update({ html, status: "ready" })
-    .eq("id", redesignId);
+  if (payload && typeof payload === "object") {
+    if (payload.styleDirection) update.style_direction = payload.styleDirection;
+    if (payload.heroHeadline) update.hero_headline = payload.heroHeadline;
+    if (payload.primaryAccentColor) update.primary_accent_color = payload.primaryAccentColor;
+  }
+
+  let { error } = await supabase.from("redesigns").update(update).eq("id", redesignId);
+
+  if (error && isMissingDesignVariationColumns(error.message)) {
+    ({ error } = await supabase
+      .from("redesigns")
+      .update({ html, status: "ready" })
+      .eq("id", redesignId));
+  }
 
   if (error) {
     throw wrapRedesignError(error, "complete redesign");
   }
+}
+
+/**
+ * Prior successful designs for the same root domain — used to exclude reused
+ * style directions, headline angles, and accent colors on paid variations.
+ */
+export async function fetchPreviousDesignExclusions(websiteUrl, { excludeRedesignId } = {}) {
+  const rootDomain = normalizeRootDomain(websiteUrl);
+  if (!rootDomain) {
+    return { styleDirections: [], heroHeadlines: [], primaryAccentColors: [] };
+  }
+
+  const supabase = getSupabaseAdmin();
+
+  let { data, error } = await supabase
+    .from("redesigns")
+    .select("id, website_url, status, style_direction, hero_headline, primary_accent_color")
+    .eq("status", "ready")
+    .ilike("website_url", `%${rootDomain}%`)
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  if (error && isMissingDesignVariationColumns(error.message)) {
+    return { styleDirections: [], heroHeadlines: [], primaryAccentColors: [] };
+  }
+
+  if (error) {
+    throw wrapRedesignError(error, "fetch previous design exclusions");
+  }
+
+  const rows = (data ?? []).filter(
+    (row) =>
+      normalizeRootDomain(row.website_url) === rootDomain &&
+      row.id !== excludeRedesignId
+  );
+
+  return {
+    styleDirections: [
+      ...new Set(rows.map((row) => row.style_direction).filter(Boolean)),
+    ],
+    heroHeadlines: [...new Set(rows.map((row) => row.hero_headline).filter(Boolean))],
+    primaryAccentColors: [
+      ...new Set(rows.map((row) => row.primary_accent_color).filter(Boolean)),
+    ],
+  };
 }
 
 export async function saveRoastBullets(redesignId, roastBullets) {
