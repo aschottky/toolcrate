@@ -463,10 +463,13 @@ function showGenerationFailed() {
   clearProgressTimers();
   stopStats();
 
-  document.getElementById("stage-title").textContent = "Preview unavailable";
-  document.getElementById("stage-subtitle").textContent =
-    "Please try this link again in a few minutes.";
-  document.getElementById("stage-main").classList.remove("is-fading");
+  const container = document.getElementById("stage-main");
+  container.classList.remove("is-fading");
+  container.innerHTML = `
+    <h1 class="stage-title">Preview unavailable</h1>
+    <p class="stage-subtitle">We hit a snag building your redesign. Your site analysis above is still accurate.</p>
+    <p class="stage-subtitle">Please try this link again in a few minutes, or submit your URL again on /try.</p>
+  `;
 }
 
 async function pollPreviewStatus() {

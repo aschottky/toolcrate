@@ -12,11 +12,15 @@ import {
 import {
   completeRedesign,
   deleteRedesignById,
+  deleteAllRedesignsForDomain,
+  fetchAllRedesignsForDomain,
   fetchAuditById,
   fetchRedesignNotificationInfo,
   fetchAuditDetailById,
   fetchRecentAudits,
   fetchRecentRedesigns,
+  fetchRedesignById,
+  resetRedesignForRetry,
   findAuditByStripeSessionId,
   fetchWarmLeadById,
   fetchWarmLeads,
@@ -368,15 +372,94 @@ export async function deleteRedesign(req) {
     throw err;
   }
 
-  const deleted = await deleteRedesignById(redesignId);
-  if (!deleted) {
+  const result = await deleteRedesignById(redesignId);
+  if (!result?.count) {
     const err = new Error("Redesign not found.");
     err.statusCode = 404;
     throw err;
   }
 
-  console.log(`[admin] Deleted redesign ${deleted.id} (${deleted.website_url})`);
-  return { ok: true, deleted };
+  console.log(
+    `[admin] Deleted ${result.count} preview row(s) for ${result.root_domain ?? "unknown domain"}:`,
+    result.deleted.map((row) => row.preview_token).join(", ")
+  );
+
+  return { ok: true, ...result };
+}
+
+export async function deleteRedesignsForDomain(req) {
+  requireSupabase();
+
+  const websiteUrl = String(req.body?.url ?? req.query?.url ?? "").trim();
+  if (!websiteUrl) {
+    const err = new Error("url is required.");
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const rootDomain = normalizeRootDomain(websiteUrl);
+  if (!rootDomain) {
+    const err = new Error("Could not parse a valid domain from url.");
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const result = await deleteAllRedesignsForDomain(rootDomain);
+
+  console.log(
+    `[admin] Domain wipe ${rootDomain}: removed ${result.count} preview row(s)`
+  );
+
+  return { ok: true, ...result };
+}
+
+export async function retryRedesign(req) {
+  requireSupabase();
+
+  const redesignId = String(req.params.id ?? "").trim();
+  if (!redesignId) {
+    const err = new Error("Redesign id is required.");
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const existing = await fetchRedesignById(redesignId);
+  if (!existing) {
+    const err = new Error("Redesign not found.");
+    err.statusCode = 404;
+    throw err;
+  }
+
+  if (existing.status === "ready") {
+    const err = new Error("This preview is already ready.");
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const redesign = await resetRedesignForRetry(redesignId);
+  const normalizedUrl = normalizeWebsiteUrl(
+    normalizeRootDomain(existing.website_url) ?? existing.website_url
+  );
+  const engine = resolveRedesignEngine(existing.engine || "claude-opus");
+  const maxTokens = existing.max_tokens || DEFAULT_REDESIGN_MAX_TOKENS;
+  const logPrefix = `[admin-retry:${redesignId}]`;
+
+  runRedesignGeneration({
+    redesignId,
+    normalizedUrl,
+    engine,
+    maxTokens,
+    logPrefix,
+  });
+
+  console.log(`${logPrefix} Queued redesign retry for ${normalizedUrl}.`);
+
+  return {
+    ok: true,
+    redesign,
+    queued: true,
+    preview_token: redesign.preview_token,
+  };
 }
 
 /**
@@ -706,5 +789,7 @@ export function registerAdminRoutes(app, { verifyCronSecret }) {
   app.post("/api/admin/send-free-audit", guard(sendFreeAudit));
   app.get("/api/admin/redesigns", guard(listRedesigns));
   app.post("/api/admin/redesigns", guard(orderRedesign));
+  app.delete("/api/admin/redesigns/by-domain", guard(deleteRedesignsForDomain));
+  app.post("/api/admin/redesigns/:id/retry", guard(retryRedesign));
   app.delete("/api/admin/redesigns/:id", guard(deleteRedesign));
 }

@@ -3,7 +3,7 @@ import { CLAUDE_OPUS_MODEL } from "./anthropic-models.js";
 import {
   buildUserMessage,
   filterLoadableImageUrls,
-  sanitizeHtmlOutput,
+  prepareRedesignHtml,
   validateRedesignHtml,
 } from "./redesign.js";
 
@@ -80,7 +80,7 @@ The hero must feel like the most expensive part of the page. Rules:
 
 4. Visual treatment: If using a background image, apply a gradient overlay that is DARKER at the bottom (where text lives) and lighter or transparent at the top - not a flat dark overlay across the entire image. This creates depth.
 
-5. Trust signal: A small badge or inline text row above or below the headline (e.g. "★★★★★ A+ BBB Rated · Family-Owned · Serving Kansas City Since 1987") adds instant credibility without taking up space.
+5. Trust signal: A small badge or inline text row above or below the headline (e.g. "A+ BBB Rated · Family-Owned · Serving Kansas City Since 1987") adds instant credibility without taking up space. Use plain text or ★ characters for stars — never emoji.
 
 The hero should feel like the prospect is looking at a $5,000 agency site, not a $500 Squarespace template.
 
@@ -98,6 +98,7 @@ TECHNICAL RULES:
 - All CSS in a style tag, Google Fonts via @import, no external frameworks
 - Looks great at 1280px wide - will be screenshotted by Puppeteer
 - Fully responsive at all screen sizes. Use CSS media queries with breakpoints at 768px and 480px. On mobile: single column layout, stacked navigation, full-width buttons, font sizes scaled down. The site must look as good on a phone as it does at 1280px.
+- The document MUST end with a closing </html> tag. Do not truncate mid-file.
 
 MOBILE NAVIGATION:
 
@@ -115,7 +116,29 @@ NO HORIZONTAL SCROLL OR ZOOM SHIFT:
 
 - Output ONLY raw HTML, no explanation, no markdown fences`;
 
-const MAX_ATTEMPTS = 2;
+const MAX_ATTEMPTS = 3;
+
+function buildRetryNote(attempt, lastError, stopReason) {
+  if (attempt === 1) return "";
+
+  const parts = [
+    "",
+    `RETRY ${attempt}/${MAX_ATTEMPTS} — your previous output was rejected.`,
+  ];
+
+  if (stopReason === "max_tokens") {
+    parts.push(
+      "The HTML was TRUNCATED (hit max_tokens). Generate a complete page that fits: keep CSS compact, fewer sections if needed, but MUST include Google Fonts @import, @media (768px and 480px), and a closing </html> tag."
+    );
+  } else if (lastError?.message) {
+    parts.push(`Validation error: ${lastError.message}`);
+    parts.push(
+      "Fix this and output the FULL corrected HTML file only. Required: Google Fonts @import in <style>, @media queries, no emoji icons, closing </html>."
+    );
+  }
+
+  return parts.join("\n");
+}
 
 /**
  * Claude-powered copy of generateRedesignHtml() — same scrape input, same
@@ -129,22 +152,25 @@ export async function generateRedesignHtmlClaude(scraped, options = {}) {
   const imageUrls = await filterLoadableImageUrls(scraped.imageUrls);
   const model = CLAUDE_OPUS_MODEL;
   console.log(`[Redesign] Using model: ${model}`);
-  // Claude writes rich pages; 8192 tokens truncates mid-CSS and renders blank.
-  const maxTokens = Number(options.maxTokens) || 20000;
+  const maxTokens = Number(options.maxTokens) || 32000;
+  const baseUserMessage = buildUserMessage(scraped, imageUrls);
   let lastError;
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-    const message = await anthropic.messages.create({
+    const retryNote = buildRetryNote(attempt, lastError, null);
+    const stream = anthropic.messages.stream({
       model,
       max_tokens: maxTokens,
       system: CLAUDE_REDESIGN_SYSTEM_PROMPT,
       messages: [
         {
           role: "user",
-          content: buildUserMessage(scraped, imageUrls),
+          content: baseUserMessage + retryNote,
         },
       ],
     });
+
+    const message = await stream.finalMessage();
 
     if (message.stop_reason === "max_tokens") {
       lastError = new Error("Claude redesign output was truncated (max_tokens).");
@@ -159,8 +185,11 @@ export async function generateRedesignHtmlClaude(scraped, options = {}) {
     }
 
     try {
-      const html = sanitizeHtmlOutput(raw);
+      const html = prepareRedesignHtml(raw);
       validateRedesignHtml(html);
+      console.log(
+        `[redesign-claude] Attempt ${attempt}/${MAX_ATTEMPTS} succeeded (${html.length} chars).`
+      );
       return html;
     } catch (error) {
       lastError = error;

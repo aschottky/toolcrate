@@ -45,6 +45,7 @@ const redesignEngineSelect = document.getElementById("redesign-engine");
 const redesignMaxTokensInput = document.getElementById("redesign-max-tokens");
 const redesignManualUrlInput = document.getElementById("redesign-manual-url");
 const orderRedesignManualBtn = document.getElementById("order-redesign-manual");
+const clearRedesignDomainBtn = document.getElementById("clear-redesign-domain");
 const redesignsStatus = document.getElementById("redesigns-status");
 const redesignsTableWrap = document.getElementById("redesigns-table-wrap");
 const redesignsBody = document.getElementById("redesigns-body");
@@ -366,6 +367,33 @@ function renderWarmLeads(leads) {
   setStatus(warmLeadsStatus, `${leads.length} warm lead(s) loaded.`, false);
 }
 
+function rootDomainFromUrl(url) {
+  const trimmed = String(url || "").trim().toLowerCase();
+  if (!trimmed) return null;
+
+  const withProtocol = /^[a-z][a-z0-9+.-]*:\/\//.test(trimmed)
+    ? trimmed
+    : `https://${trimmed}`;
+
+  try {
+    const { hostname } = new URL(withProtocol);
+    const domain = hostname.replace(/^www\./, "").replace(/\.+$/, "");
+    return domain || null;
+  } catch {
+    return null;
+  }
+}
+
+function removeRedesignsForDomainFromCache(websiteUrl) {
+  const rootDomain = rootDomainFromUrl(websiteUrl);
+  if (!rootDomain) return;
+
+  redesignsCache = redesignsCache.filter(
+    (item) => rootDomainFromUrl(item.website_url) !== rootDomain
+  );
+  renderRedesigns(redesignsCache);
+}
+
 function previewLinkFor(redesign) {
   return new URL(
     `../preview-view/?t=${encodeURIComponent(redesign.preview_token)}`,
@@ -395,10 +423,16 @@ function renderRedesigns(redesigns) {
           <td class="cell-url">${escapeHtml(item.website_url)}</td>
           <td>${item.email ? escapeHtml(item.email) : '<span class="admin-muted">—</span>'}</td>
           <td>${escapeHtml(ENGINE_LABELS[item.engine] || item.engine)}</td>
+          <td>${escapeHtml(item.status || "ready")}</td>
           <td>${formatDate(item.created_at)}</td>
           <td class="cell-actions">
             <a class="btn btn-small" href="${previewLinkFor(item)}" target="_blank" rel="noopener">Open preview</a>
             <button type="button" class="btn btn-small" data-action="copy-preview">Copy link</button>
+            ${
+              item.status === "failed" || item.status === "pending"
+                ? '<button type="button" class="btn btn-small" data-action="retry-redesign">Retry</button>'
+                : ""
+            }
             <button type="button" class="btn btn-small btn-danger" data-action="delete-redesign">Delete</button>
           </td>
         </tr>`
@@ -424,7 +458,7 @@ async function loadRedesigns() {
 function redesignSettings() {
   return {
     engine: redesignEngineSelect.value,
-    max_tokens: Number(redesignMaxTokensInput.value) || 20000,
+    max_tokens: Number(redesignMaxTokensInput.value) || 32000,
   };
 }
 
@@ -492,9 +526,47 @@ async function handleRedesignsTableClick(event) {
     return;
   }
 
-  if (button.dataset.action === "delete-redesign") {
+  if (button.dataset.action === "retry-redesign") {
     const confirmed = confirm(
-      `Delete this redesign for ${redesign.website_url}?\n\nThis removes the stored preview and lets that domain use the free /try flow again (no $9 paywall). This cannot be undone.`
+      `Retry redesign for ${redesign.website_url}?\n\nRoast bullets are kept. Only the HTML preview will regenerate (~2-3 min).`
+    );
+    if (!confirmed) return;
+
+    button.disabled = true;
+    setStatus(redesignsStatus, "Queuing redesign retry…", false);
+
+    try {
+      const data = await adminFetch(
+        `/api/admin/redesigns/${encodeURIComponent(redesign.id)}/retry`,
+        { method: "POST" }
+      );
+      const idx = redesignsCache.findIndex((item) => item.id === redesign.id);
+      if (idx >= 0) {
+        redesignsCache[idx] = { ...redesignsCache[idx], status: "pending" };
+        renderRedesigns(redesignsCache);
+      }
+      setStatus(
+        redesignsStatus,
+        `Retry queued for ${redesign.website_url}. Same preview link still works.`,
+        false
+      );
+    } catch (error) {
+      button.disabled = false;
+      setStatus(redesignsStatus, serverConfigHint(error.message), true);
+    }
+    return;
+  }
+
+  if (button.dataset.action === "delete-redesign") {
+    const rootDomain = rootDomainFromUrl(redesign.website_url);
+    const siblingCount = redesignsCache.filter(
+      (item) => rootDomainFromUrl(item.website_url) === rootDomain
+    ).length;
+
+    const confirmed = confirm(
+      `Delete all preview data for ${redesign.website_url}?\n\n` +
+        `This removes ${siblingCount} preview row(s) for ${rootDomain} — including HTML, roast bullets, tokens, and wait-screen answers. ` +
+        `The domain will be free for /try again.\n\nThis cannot be undone.`
     );
     if (!confirmed) return;
 
@@ -502,14 +574,13 @@ async function handleRedesignsTableClick(event) {
     setStatus(redesignsStatus, "Deleting…", false);
 
     try {
-      await adminFetch(`/api/admin/redesigns/${encodeURIComponent(redesign.id)}`, {
+      const data = await adminFetch(`/api/admin/redesigns/${encodeURIComponent(redesign.id)}`, {
         method: "DELETE",
       });
-      redesignsCache = redesignsCache.filter((item) => item.id !== redesign.id);
-      renderRedesigns(redesignsCache);
+      removeRedesignsForDomainFromCache(redesign.website_url);
       setStatus(
         redesignsStatus,
-        `Deleted ${redesign.website_url} — domain is free for /try again.`,
+        `Deleted ${data.count} preview row(s) for ${data.root_domain ?? rootDomain} — domain is free for /try again.`,
         false
       );
     } catch (error) {
@@ -1063,6 +1134,51 @@ orderRedesignManualBtn.addEventListener("click", () => {
     return;
   }
   orderRedesign({ sourceType: "manual", websiteUrl: url, label: url });
+});
+clearRedesignDomainBtn.addEventListener("click", async () => {
+  const url = redesignManualUrlInput.value.trim();
+  if (!url) {
+    setStatus(redesignsStatus, "Enter a website URL first.", true);
+    return;
+  }
+
+  const rootDomain = rootDomainFromUrl(url);
+  if (!rootDomain) {
+    setStatus(redesignsStatus, "Enter a valid website URL.", true);
+    return;
+  }
+
+  const siblingCount = redesignsCache.filter(
+    (item) => rootDomainFromUrl(item.website_url) === rootDomain
+  ).length;
+
+  const confirmed = confirm(
+    `Delete ALL preview data for ${rootDomain}?\n\n` +
+      `This removes every preview row for this domain` +
+      (siblingCount ? ` (${siblingCount} loaded in this list)` : "") +
+      ` — HTML, roast bullets, tokens, and wait-screen answers.\n\nThis cannot be undone.`
+  );
+  if (!confirmed) return;
+
+  clearRedesignDomainBtn.disabled = true;
+  setStatus(redesignsStatus, `Deleting all previews for ${rootDomain}…`, false);
+
+  try {
+    const data = await adminFetch(
+      `/api/admin/redesigns/by-domain?url=${encodeURIComponent(url)}`,
+      { method: "DELETE" }
+    );
+    removeRedesignsForDomainFromCache(url);
+    setStatus(
+      redesignsStatus,
+      `Deleted ${data.count} preview row(s) for ${data.root_domain ?? rootDomain}.`,
+      false
+    );
+  } catch (error) {
+    setStatus(redesignsStatus, serverConfigHint(error.message), true);
+  } finally {
+    clearRedesignDomainBtn.disabled = false;
+  }
 });
 addWarmLeadToggleBtn.addEventListener("click", () => toggleAddWarmLeadForm(addWarmLeadForm.hidden));
 addWarmLeadForm.addEventListener("submit", submitWarmLead);

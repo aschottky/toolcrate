@@ -84,3 +84,8 @@ comment on column public.redesigns.engine is 'gpt-4o | claude-opus | claude-sonn
 comment on column public.redesigns.preview_token is 'Unguessable public preview slug';
 comment on column public.redesigns.status is 'pending (generating) | ready | failed';
 comment on column public.redesigns.lead_intent is 'Prospect''s wait-screen answer to "biggest challenge right now"';
+
+-- Preview delete note: ALL prospect-facing preview state lives on this table only
+-- (html, roast_bullets, roast_status, lead_intent, preview_token). There are no
+-- separate roast/session/scrape-cache tables. Admin delete wipes every row whose
+-- website_url resolves to the same root domain so /try cannot reuse stale tokens.

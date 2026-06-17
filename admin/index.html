@@ -151,12 +151,13 @@
         </div>
         <div class="admin-preview-row">
           <label for="redesign-max-tokens">Max tokens</label>
-          <input id="redesign-max-tokens" type="number" value="20000" min="4000" max="64000" step="1000" />
+          <input id="redesign-max-tokens" type="number" value="32000" min="4000" max="64000" step="1000" />
         </div>
         <div class="admin-preview-row">
           <label for="redesign-manual-url">Or order by URL</label>
           <input id="redesign-manual-url" type="url" placeholder="https://example.com" autocomplete="url" />
           <button type="button" id="order-redesign-manual" class="btn btn-primary">Order redesign</button>
+          <button type="button" id="clear-redesign-domain" class="btn btn-danger">Delete all for URL</button>
         </div>
         <p id="redesigns-status" class="admin-status">Enter your admin secret and click Refresh.</p>
         <div class="admin-table-wrap" id="redesigns-table-wrap" hidden>
@@ -166,6 +167,7 @@
                 <th>Website</th>
                 <th>Email</th>
                 <th>Agent</th>
+                <th>Status</th>
                 <th>Created</th>
                 <th>Actions</th>
               </tr>

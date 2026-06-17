@@ -123,6 +123,72 @@ export function sanitizeHtmlOutput(raw) {
   return html;
 }
 
+/** Remove pictographic emoji from visible HTML — keeps ★ • → in copy. */
+export function stripEmojiFromHtmlBody(html) {
+  const parts = String(html || "").split(
+    /(<style[\s\S]*?<\/style>|<script[\s\S]*?<\/script>)/gi
+  );
+
+  return parts
+    .map((part) => {
+      if (/^<(style|script)/i.test(part)) return part;
+      return part.replace(/\p{Extended_Pictographic}/gu, "");
+    })
+    .join("");
+}
+
+/**
+ * Best-effort fixes for common model output issues before strict validation.
+ * Does not guarantee pass — retries still run when validation fails.
+ */
+export function repairRedesignHtml(html) {
+  let fixed = String(html || "").trim();
+  if (!fixed) return fixed;
+
+  if (!/<html[\s>]/i.test(fixed)) {
+    fixed = `<!DOCTYPE html>\n<html lang="en">\n${fixed}`;
+  }
+
+  if (!/<head[\s>]/i.test(fixed)) {
+    fixed = fixed.replace(/<html([^>]*)>/i, "<html$1>\n<head></head>");
+  }
+
+  if (!/<style[\s>]/i.test(fixed)) {
+    fixed = fixed.replace(/<\/head>/i, "<style></style>\n</head>");
+  }
+
+  if (!/fonts\.googleapis\.com/i.test(fixed)) {
+    const fontImport =
+      '@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap");';
+    fixed = fixed.replace(/<style([^>]*)>/i, `<style$1>\n${fontImport}\n`);
+  }
+
+  if (!/@media/i.test(fixed)) {
+    const mediaQueries = `
+@media (max-width: 768px) {
+  .container, .wrap, main { padding-left: 1rem; padding-right: 1rem; }
+}
+@media (max-width: 480px) {
+  h1 { font-size: clamp(2rem, 8vw, 2.75rem); }
+  .btn, button, a.button { width: 100%; }
+}`;
+    fixed = fixed.replace(/<\/style>/i, `${mediaQueries}\n</style>`);
+  }
+
+  if (!/<\/body>/i.test(fixed)) {
+    fixed += "\n</body>";
+  }
+  if (!/<\/html>\s*$/i.test(fixed)) {
+    fixed += "\n</html>";
+  }
+
+  return stripEmojiFromHtmlBody(fixed);
+}
+
+export function prepareRedesignHtml(raw) {
+  return repairRedesignHtml(sanitizeHtmlOutput(raw));
+}
+
 /** Pictographic emoji in page body (allows ★ → • etc. used in professional copy). */
 export function htmlContainsEmojiIcons(html) {
   const stripped = String(html || "")
@@ -277,7 +343,7 @@ export async function generateRedesignHtml(scraped, options = {}) {
     }
 
     try {
-      const html = sanitizeHtmlOutput(raw);
+      const html = prepareRedesignHtml(raw);
       validateRedesignHtml(html);
       return html;
     } catch (error) {

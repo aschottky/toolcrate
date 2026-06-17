@@ -542,7 +542,7 @@ export async function markWarmLeadAuditSent(leadId) {
 }
 
 const REDESIGN_LIST_SELECT =
-  "id, website_url, email, source_type, source_id, engine, model, max_tokens, preview_token, created_at";
+  "id, website_url, email, source_type, source_id, engine, model, max_tokens, preview_token, status, created_at";
 
 function isMissingRedesignsTable(message = "") {
   return /relation .*redesigns.* does not exist|Could not find the table/i.test(message);
@@ -611,18 +611,111 @@ export async function fetchRecentRedesigns(limit = 50) {
 export async function deleteRedesignById(redesignId) {
   const supabase = getSupabaseAdmin();
 
+  const { data: row, error: fetchError } = await supabase
+    .from("redesigns")
+    .select("id, website_url, preview_token")
+    .eq("id", redesignId)
+    .maybeSingle();
+
+  if (fetchError) {
+    throw wrapRedesignError(fetchError, "fetch redesign for delete");
+  }
+  if (!row) {
+    return null;
+  }
+
+  const rootDomain = normalizeRootDomain(row.website_url);
+  if (!rootDomain) {
+    const { data, error } = await supabase
+      .from("redesigns")
+      .delete()
+      .eq("id", redesignId)
+      .select("id, website_url, preview_token, roast_status, status")
+      .maybeSingle();
+
+    if (error) {
+      throw wrapRedesignError(error, "delete redesign");
+    }
+
+    return data
+      ? {
+          root_domain: null,
+          deleted: [data],
+          count: 1,
+        }
+      : null;
+  }
+
+  return deleteAllRedesignsForDomain(rootDomain);
+}
+
+/**
+ * Every preview row for a root domain (www/protocol/path variants included).
+ * All preview state — html, roast_bullets, roast_status, lead_intent, tokens —
+ * lives on redesigns; there are no separate roast/session/scrape tables.
+ */
+export async function fetchAllRedesignsForDomain(rootDomain) {
+  const normalized = normalizeRootDomain(rootDomain);
+  if (!normalized) {
+    return [];
+  }
+
+  const supabase = getSupabaseAdmin();
+
+  let { data, error } = await supabase
+    .from("redesigns")
+    .select("id, website_url, preview_token, roast_status, status, created_at")
+    .ilike("website_url", `%${normalized}%`)
+    .order("created_at", { ascending: false })
+    .limit(100);
+
+  if (error && isMissingPreviewWaitColumns(error.message)) {
+    ({ data, error } = await supabase
+      .from("redesigns")
+      .select("id, website_url, preview_token, created_at")
+      .ilike("website_url", `%${normalized}%`)
+      .order("created_at", { ascending: false })
+      .limit(100));
+  }
+
+  if (error) {
+    throw wrapRedesignError(error, "fetch redesigns for domain");
+  }
+
+  return (data ?? []).filter(
+    (row) => normalizeRootDomain(row.website_url) === normalized
+  );
+}
+
+/**
+ * Atomically remove every preview row for a domain (single DELETE … IN (…)).
+ */
+export async function deleteAllRedesignsForDomain(rootDomain) {
+  const rows = await fetchAllRedesignsForDomain(rootDomain);
+  const normalized = normalizeRootDomain(rootDomain);
+
+  if (!rows.length) {
+    return { root_domain: normalized, deleted: [], count: 0 };
+  }
+
+  const ids = rows.map((row) => row.id);
+  const supabase = getSupabaseAdmin();
+
   const { data, error } = await supabase
     .from("redesigns")
     .delete()
-    .eq("id", redesignId)
-    .select("id, website_url")
-    .maybeSingle();
+    .in("id", ids)
+    .select("id, website_url, preview_token, roast_status, status");
 
   if (error) {
-    throw wrapRedesignError(error, "delete redesign");
+    throw wrapRedesignError(error, "delete redesigns for domain");
   }
 
-  return data;
+  return {
+    root_domain: normalized,
+    deleted: data ?? [],
+    count: data?.length ?? 0,
+  };
 }
 
 function isMissingPreviewWaitColumns(message = "") {
@@ -748,6 +841,39 @@ export async function markRedesignFailed(redesignId) {
   if (error) {
     throw wrapRedesignError(error, "mark redesign failed");
   }
+}
+
+export async function fetchRedesignById(redesignId) {
+  const supabase = getSupabaseAdmin();
+
+  const { data, error } = await supabase
+    .from("redesigns")
+    .select("id, website_url, status, engine, model, max_tokens, preview_token")
+    .eq("id", redesignId)
+    .maybeSingle();
+
+  if (error) {
+    throw wrapRedesignError(error, "fetch redesign by id");
+  }
+
+  return data;
+}
+
+export async function resetRedesignForRetry(redesignId) {
+  const supabase = getSupabaseAdmin();
+
+  const { data, error } = await supabase
+    .from("redesigns")
+    .update({ status: "pending", html: null })
+    .eq("id", redesignId)
+    .select("id, website_url, status, engine, model, max_tokens, preview_token")
+    .maybeSingle();
+
+  if (error) {
+    throw wrapRedesignError(error, "reset redesign for retry");
+  }
+
+  return data;
 }
 
 /**

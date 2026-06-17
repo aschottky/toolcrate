@@ -2,7 +2,7 @@ import { generateRedesignHtml } from "./redesign.js";
 import { generateRedesignHtmlClaude } from "./redesign-claude.js";
 import { CLAUDE_OPUS_MODEL } from "./anthropic-models.js";
 
-export const DEFAULT_REDESIGN_MAX_TOKENS = 20000;
+export const DEFAULT_REDESIGN_MAX_TOKENS = 32000;
 
 /**
  * Engines selectable from the admin dashboard when ordering a redesign.
