@@ -3,58 +3,48 @@ import { apiUrl } from "../scripts/api-config.js";
 const token = new URLSearchParams(window.location.search).get("t")?.trim();
 
 const POLL_INTERVAL_MS = 4000;
-const FACT_ROTATE_MS = 8000;
+const STAT_ROTATE_MS = 5000;
+const STAT_START_DELAY_MS = 3500;
 const QUESTION_AT_MS = 60000;
 const READY_BANNER_MS = 1500;
 const CONFIRM_DISMISS_MS = 3000;
-const SUB_STEP_STAGGER_MS = 1800;
-
-const ROAST_LABEL = "Here's what our AI found on YOUR site:";
-const ROAST_FALLBACK =
-  "Our AI had trouble reading that site — double-check the URL and try again.";
+const DELAY_NOTICE_MS = 240000;
 
 const STAGES = [
   {
     at: 0,
-    title: (name) => `🔍 Analyzing ${name}…`,
+    title: "Analyzing your current site",
+    steps: ["We're reviewing your layout, messaging, and conversion structure."],
+  },
+  {
+    at: 15000,
+    title: "Building your custom preview",
     steps: [
-      "Reading your current site structure",
-      "Identifying conversion gaps",
-      "Pulling your brand assets",
+      "Our AI is designing a version of your site built to convert.",
+      "You'll see the before and after side by side.",
     ],
   },
   {
-    at: 45000,
-    title: () => "✏️ Building your design concept…",
-    steps: [
-      "Selecting typography that converts",
-      "Composing your hero section",
-      "Writing conversion-focused copy",
-    ],
-  },
-  {
-    at: 150000,
-    title: () => "✨ Almost ready…",
-    steps: ["Polishing final details", "Preparing your preview"],
+    at: 60000,
+    title: "Almost there",
+    steps: ["Putting the finishing touches on your preview."],
   },
 ];
 
-const FACTS = [
-  "75% of people judge a business's credibility by their website - within 3 seconds.",
-  "Local businesses with modern websites convert 2-3x more visitors into paying customers.",
-  "Adding a click-to-call button increases mobile conversions by 45%.",
-  "Sites that load under 3 seconds get 2x more form submissions.",
-  "A one-second delay in page load time can reduce conversions by 7%.",
-  "Most small business websites were last updated over 4 years ago.",
-  "88% of online consumers are less likely to return after a bad website experience.",
+const STATS = [
+  "94% of first impressions are based on website design alone.",
+  "You have about 7 seconds to convince a visitor to stay.",
+  "Most small business websites have no clear call to action above the fold.",
+  "A slow-loading site loses half its visitors before the page finishes loading.",
+  "Most business websites were built once and never updated since.",
+  "Visitors who can't find your phone number in 5 seconds will call a competitor.",
+  "68% of small business sites are not optimized for mobile.",
 ];
 
 const timers = [];
 let finished = false;
-let factRotateTimer = null;
-let roastMode = false;
-let roastBullets = [];
-let roastIndex = 0;
+let statRotateTimer = null;
+let delayNoticeShown = false;
 
 function later(fn, ms) {
   timers.push(setTimeout(fn, ms));
@@ -66,16 +56,12 @@ function every(fn, ms) {
   return id;
 }
 
-function clearAllTimers() {
+function clearProgressTimers() {
   timers.forEach((id) => {
     clearTimeout(id);
     clearInterval(id);
   });
   timers.length = 0;
-  if (factRotateTimer) {
-    clearInterval(factRotateTimer);
-    factRotateTimer = null;
-  }
 }
 
 function showError(title, detail) {
@@ -86,7 +72,7 @@ function showError(title, detail) {
   loader.innerHTML = `<h1>${title}</h1><p>${detail}</p>`;
 }
 
-function fadeFactQuote(nextText) {
+function fadeStatQuote(nextText) {
   const card = document.getElementById("fact-card");
   const quote = document.getElementById("fact-quote");
 
@@ -95,63 +81,6 @@ function fadeFactQuote(nextText) {
     quote.textContent = nextText;
     card.classList.remove("is-fading");
   }, 400);
-}
-
-function formatRoastBullet(bullet) {
-  const emoji = bullet.emoji || "⚠️";
-  const text = bullet.text || bullet;
-  return `${emoji} ${text}`;
-}
-
-function transitionToRoastMode(bullets) {
-  if (roastMode || !bullets?.length) return;
-  roastMode = true;
-  roastBullets = bullets;
-  roastIndex = 0;
-
-  if (factRotateTimer) {
-    clearInterval(factRotateTimer);
-    factRotateTimer = null;
-  }
-
-  const label = document.getElementById("fact-label");
-  if (label) {
-    label.textContent = ROAST_LABEL;
-  }
-
-  fadeFactQuote(formatRoastBullet(roastBullets[0]));
-
-  factRotateTimer = every(() => {
-    roastIndex = (roastIndex + 1) % roastBullets.length;
-    fadeFactQuote(formatRoastBullet(roastBullets[roastIndex]));
-  }, FACT_ROTATE_MS);
-}
-
-function showRoastFallback() {
-  if (roastMode) return;
-  roastMode = true;
-
-  if (factRotateTimer) {
-    clearInterval(factRotateTimer);
-    factRotateTimer = null;
-  }
-
-  const fallbackLabel = document.getElementById("fact-label");
-  if (fallbackLabel) {
-    fallbackLabel.textContent = ROAST_LABEL;
-  }
-  fadeFactQuote(ROAST_FALLBACK);
-}
-
-function applyRoastStatus(status) {
-  const bullets = status?.roastBullets;
-  const hasBullets = Array.isArray(bullets) && bullets.length > 0;
-
-  if (status?.roastReady || hasBullets) {
-    transitionToRoastMode(bullets);
-  } else if (status?.roastFailed && !roastMode) {
-    showRoastFallback();
-  }
 }
 
 async function fetchPreviewHtml() {
@@ -169,41 +98,35 @@ async function fetchPreviewHtml() {
   return { html: await response.text(), ready: true };
 }
 
-/* ---------- Wait screen ---------- */
-
-function setStage(stage, companyName) {
-  const container = document.getElementById("stage");
+function setStage(stage) {
+  const container = document.getElementById("stage-main");
   const title = document.getElementById("stage-title");
   const steps = document.getElementById("stage-steps");
 
   container.classList.add("is-fading");
 
   later(() => {
-    title.textContent = stage.title(companyName);
+    title.textContent = stage.title;
     steps.innerHTML = "";
-    stage.steps.forEach((text, i) => {
+    stage.steps.forEach((text) => {
       const li = document.createElement("li");
       li.textContent = text;
-      li.style.setProperty("--step-delay", `${0.4 + (i * SUB_STEP_STAGGER_MS) / 1000}s`);
       steps.appendChild(li);
     });
     container.classList.remove("is-fading");
   }, 450);
 }
 
-function startFacts() {
-  if (roastMode) return;
-
+function startStats() {
   const quote = document.getElementById("fact-quote");
   let index = 0;
 
-  quote.textContent = FACTS[index];
+  quote.textContent = STATS[index];
 
-  factRotateTimer = every(() => {
-    if (roastMode) return;
-    index = (index + 1) % FACTS.length;
-    fadeFactQuote(FACTS[index]);
-  }, FACT_ROTATE_MS);
+  statRotateTimer = setInterval(() => {
+    index = (index + 1) % STATS.length;
+    fadeStatQuote(STATS[index]);
+  }, STAT_ROTATE_MS);
 }
 
 function setupQuestion() {
@@ -239,17 +162,29 @@ function setupQuestion() {
   });
 }
 
+function showDelayNotice() {
+  if (delayNoticeShown || finished) return;
+  delayNoticeShown = true;
+  document.getElementById("delay-notice").hidden = false;
+}
+
 async function finish() {
   if (finished) return;
   finished = true;
-  clearAllTimers();
+  clearProgressTimers();
+  if (statRotateTimer) {
+    clearInterval(statRotateTimer);
+    statRotateTimer = null;
+  }
 
   const fill = document.getElementById("progress-fill");
   fill.classList.add("is-done");
 
-  const stage = document.getElementById("stage");
-  stage.classList.remove("is-fading");
-  stage.innerHTML = '<h1 class="ready-banner">🎉 Your preview is ready!</h1>';
+  const stageMain = document.getElementById("stage-main");
+  stageMain.classList.remove("is-fading");
+  stageMain.innerHTML = '<h1 class="ready-banner">Your preview is ready</h1>';
+  document.getElementById("delay-notice").hidden = true;
+
   await new Promise((resolve) => setTimeout(resolve, READY_BANNER_MS));
 
   document.getElementById("wait").classList.add("is-leaving");
@@ -259,15 +194,22 @@ async function finish() {
 }
 
 function showGenerationFailed() {
-  clearAllTimers();
-  const stage = document.getElementById("stage");
-  document.getElementById("stage-title").textContent =
-    "😕 This is taking longer than expected";
+  if (finished) return;
+  finished = true;
+  clearProgressTimers();
+  if (statRotateTimer) {
+    clearInterval(statRotateTimer);
+    statRotateTimer = null;
+  }
+
+  const stageMain = document.getElementById("stage-main");
+  document.getElementById("stage-title").textContent = "Preview unavailable";
   document.getElementById("stage-steps").innerHTML = "";
-  stage.classList.remove("is-fading");
   const note = document.createElement("li");
   note.textContent = "Please try this link again in a few minutes.";
   document.getElementById("stage-steps").appendChild(note);
+  stageMain.classList.remove("is-fading");
+  document.getElementById("delay-notice").hidden = true;
 }
 
 async function pollPreviewStatus() {
@@ -278,7 +220,6 @@ async function pollPreviewStatus() {
     if (!response.ok) return;
 
     const status = await response.json();
-    applyRoastStatus(status);
 
     if (status.ready) {
       finish();
@@ -295,26 +236,21 @@ function startPolling() {
   every(pollPreviewStatus, POLL_INTERVAL_MS);
 }
 
-function startWaitScreen(info) {
-  const companyName = info?.companyName?.trim() || "your website";
-
+function startWaitScreen() {
   document.getElementById("loader").hidden = true;
   document.getElementById("wait").hidden = false;
-
-  applyRoastStatus(info);
 
   requestAnimationFrame(() => {
     document.getElementById("progress-fill").classList.add("is-running");
   });
 
-  setStage(STAGES[0], companyName);
+  setStage(STAGES[0]);
   STAGES.slice(1).forEach((stage) => {
-    later(() => setStage(stage, companyName), stage.at);
+    later(() => setStage(stage), stage.at);
   });
 
-  if (!roastMode) {
-    startFacts();
-  }
+  later(() => startStats(), STAT_START_DELAY_MS);
+  later(() => showDelayNotice(), DELAY_NOTICE_MS);
 
   setupQuestion();
   startPolling();
@@ -345,7 +281,7 @@ async function loadPreview() {
         );
         return;
       }
-      startWaitScreen(result.info);
+      startWaitScreen();
       return;
     }
 
@@ -353,7 +289,7 @@ async function loadPreview() {
   } catch {
     showError(
       "Could not load preview",
-      "The preview server may be waking up — please refresh in 30 seconds."
+      "The preview server may be waking up. Please refresh in 30 seconds."
     );
   }
 }

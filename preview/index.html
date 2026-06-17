@@ -149,13 +149,16 @@
         }
       }
 
-      /* Stage block */
       .stage {
+        position: relative;
         min-height: 170px;
+        margin-bottom: 0.5rem;
+      }
+      .stage-main {
         opacity: 1;
         transition: opacity 0.45s ease;
       }
-      .stage.is-fading {
+      .stage-main.is-fading {
         opacity: 0;
       }
       .stage-title {
@@ -175,25 +178,7 @@
       .stage-steps li {
         color: #94a3b8;
         font-size: 0.95rem;
-        opacity: 0;
-        animation: fade-up 0.7s ease forwards;
-        animation-delay: var(--step-delay, 0s);
-      }
-      /* ✓ appears 2s after its step becomes visible */
-      .stage-steps li::before {
-        content: "✓";
-        display: inline-block;
-        color: var(--orange);
-        font-weight: 700;
-        margin-right: 0.5rem;
-        opacity: 0;
-        animation: check-in 0.4s ease forwards;
-        animation-delay: calc(var(--step-delay, 0s) + 2s);
-      }
-      @keyframes check-in {
-        to {
-          opacity: 1;
-        }
+        line-height: 1.55;
       }
       @keyframes fade-up {
         from {
@@ -228,21 +213,39 @@
       .fact-card.is-fading {
         opacity: 0;
       }
-      .fact-label {
-        display: block;
-        color: var(--orange);
-        font-size: 0.78rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        margin-bottom: 0.5rem;
-      }
       .fact-quote {
         margin: 0;
-        font-style: italic;
         font-size: 1.02rem;
         line-height: 1.55;
         color: var(--text);
+      }
+
+      /* Delay notice — overlaid on stage after 4 minutes */
+      .delay-notice {
+        margin-top: 1.25rem;
+        padding: 1.5rem 1.75rem;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 1rem;
+        text-align: left;
+      }
+      .delay-notice[hidden] {
+        display: none !important;
+      }
+      .delay-title {
+        margin: 0 0 0.75rem;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--text);
+      }
+      .delay-body {
+        margin: 0;
+        color: #94a3b8;
+        font-size: 0.95rem;
+        line-height: 1.55;
+      }
+      .delay-body + .delay-body {
+        margin-top: 0.5rem;
       }
 
       /* Interactive question */
@@ -359,8 +362,8 @@
   <body>
     <div class="preview-loader" id="loader">
       <div class="spinner" aria-hidden="true"></div>
-      <h1>Loading your website preview…</h1>
-      <p>This is a design concept prepared just for you.</p>
+      <h1>Loading your preview</h1>
+      <p>Preparing your custom design concept.</p>
     </div>
 
     <div id="wait" hidden>
@@ -370,38 +373,48 @@
 
       <div class="wait-content">
         <p class="wait-disclaimer">
-          We'll email you when your preview is ready - you don't have to keep this tab open.
+          We will email you when your preview is ready. You do not need to keep this tab open.
         </p>
         <div class="stage" id="stage" aria-live="polite">
-          <h1 class="stage-title" id="stage-title"></h1>
-          <ul class="stage-steps" id="stage-steps"></ul>
+          <div class="stage-main" id="stage-main">
+            <h1 class="stage-title" id="stage-title"></h1>
+            <ul class="stage-steps" id="stage-steps"></ul>
+          </div>
+          <div class="delay-notice" id="delay-notice" hidden>
+            <h2 class="delay-title">This is taking longer than expected</h2>
+            <p class="delay-body">
+              Your preview is still being generated. You do not need to keep this tab open.
+            </p>
+            <p class="delay-body">
+              We will send it to your email as soon as it is ready.
+            </p>
+          </div>
         </div>
 
         <div class="fact-card" id="fact-card">
-          <span class="fact-label" id="fact-label">Did you know?</span>
           <p class="fact-quote" id="fact-quote"></p>
         </div>
 
         <div class="question" id="question">
-          <p class="question-kicker">Quick question while we build this…</p>
-          <h2 class="question-title">What's your biggest challenge right now?</h2>
+          <p class="question-kicker">While you wait</p>
+          <h2 class="question-title">What is your biggest challenge right now?</h2>
           <div class="pills" id="pills">
             <button type="button" class="pill" data-intent="not_enough_calls">
-              🔥 Not enough inbound calls
+              Not enough inbound calls
             </button>
             <button type="button" class="pill" data-intent="competitors_look_better">
-              😤 Competitors look more professional
+              Competitors look more professional
             </button>
             <button type="button" class="pill" data-intent="bad_on_mobile">
-              📱 My site looks bad on phones
+              My site looks bad on phones
             </button>
             <button type="button" class="pill" data-intent="unsure_about_traffic">
-              🤷 I don't know if my site gets traffic
+              I do not know if my site gets traffic
             </button>
           </div>
         </div>
         <div class="question-banner" id="question-banner" hidden>
-          Got it, thanks! 👊 We factored that into your design.
+          Got it. We factored that into your design.
         </div>
       </div>
     </div>
