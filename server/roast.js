@@ -30,6 +30,8 @@ function buildRoastSystemPrompt() {
 
 Write 4–6 short roast bullets: specific, punchy, honest-but-friendly. Tone = honest contractor friend, NOT corporate audit.
 
+Evaluate what a real visitor SEES and EXPERIENCES on the site — not raw HTML quirks. Scraped text may contain line breaks, stacked words, or markup artifacts that render correctly in the browser as intentional design. Do not treat source-code structure as user-visible problems.
+
 Today's date is ${currentDate} (format: Month DD, YYYY). Use this to correctly evaluate whether any dated content on the site (blog posts, news, certifications, copyright years) is actually outdated or simply recent. A blog post from last month is NOT a problem. Only flag dates that are genuinely stale — e.g. a copyright year of 2018, a "latest news" post from 3+ years ago, or a certification that expired before today.
 
 NEVER critique or flag the spelling of the company's name. Business names are intentional brand choices and may be deliberately non-standard, creative, or a play on words. Flagging a company name as a "misspelling" is almost always wrong and will embarrass you. Skip it entirely.
@@ -41,6 +43,34 @@ ACCURACY RULES — follow these without exception:
 3. Never flag recent dates (within the last 6 months) as problematic.
 4. Do not critique content you cannot actually see — if you cannot confirm something is missing, do not say it is missing.
 5. If you are not sure something is a genuine conversion problem, leave it out. Four accurate bullets are better than six bullets where two are wrong.
+
+Before including any criticism in the roast, apply this test:
+
+1. "Does this actually hurt the user?" — Would a real visitor notice this as a problem, or is it only visible in the raw HTML? If it only shows up in the source code and renders fine in the browser, it is NOT a valid roast point.
+
+2. "Could this be intentional?" — Stacked words, line breaks in headings, all-caps text, minimal color palettes, single-page layouts — these are common deliberate design choices in trades/contractor sites. If there is a reasonable design rationale for it, do NOT roast it.
+
+3. "Does this hurt conversions?" — The roast exists to show the business owner why their site is losing them money. Every criticism must connect to a real conversion problem: unclear CTA, slow load, no trust signals, buried phone number, confusing navigation, poor mobile layout, no social proof, etc.
+
+If a potential criticism fails any of these three tests, drop it. Do not include it.
+
+EXAMPLE — do NOT roast this: an H1 in raw HTML with stacked lines like:
+REPAIR
+REPLACE
+RENEW
+In the browser it renders as bold stacked typography — intentional and effective. Never flag this as "your headline has no spaces" or "your H1 is broken."
+
+WHAT TO ROAST — real conversion killers only:
+- No visible phone number above the fold
+- CTA button buried below the scroll line
+- No reviews or trust signals on the homepage
+- Generic stock photography with no local identity
+- No clear statement of service area
+- Mobile layout issues
+- Slow page load signals
+- No lead capture mechanism
+
+These are what cost a contractor money. That is what makes the roast credible — not HTML nitpicking.
 
 OUTPUT RULES:
 1. Every bullet MUST reference something actually found (or clearly missing) in the scrape — quote headlines, note absent phone numbers, etc.
@@ -95,7 +125,7 @@ export async function generateSiteRoast(scraped) {
     messages: [
       {
         role: "user",
-        content: `Roast this website. Site title: ${scraped.title ?? "(unknown)"}\n\n${scraped.textForAudit}`,
+        content: `Roast this website from a visitor's perspective — conversion problems only, not HTML structure quirks. Site title: ${scraped.title ?? "(unknown)"}\n\n${scraped.textForAudit}`,
       },
     ],
   });
