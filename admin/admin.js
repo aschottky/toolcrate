@@ -367,9 +367,8 @@ function renderWarmLeads(leads) {
 }
 
 function previewLinkFor(redesign) {
-  // Admin lives at /admin/, the preview page at /preview/ — same origin in dev and prod.
   return new URL(
-    `../roast/?t=${encodeURIComponent(redesign.preview_token)}`,
+    `../preview-view/?t=${encodeURIComponent(redesign.preview_token)}`,
     window.location.href
   ).toString();
 }
@@ -400,6 +399,7 @@ function renderRedesigns(redesigns) {
           <td class="cell-actions">
             <a class="btn btn-small" href="${previewLinkFor(item)}" target="_blank" rel="noopener">Open preview</a>
             <button type="button" class="btn btn-small" data-action="copy-preview">Copy link</button>
+            <button type="button" class="btn btn-small btn-danger" data-action="delete-redesign">Delete</button>
           </td>
         </tr>`
     )
@@ -475,18 +475,47 @@ async function orderRedesign({ sourceType, sourceId = null, websiteUrl = null, l
 }
 
 async function handleRedesignsTableClick(event) {
-  const button = event.target.closest("button[data-action='copy-preview']");
+  const button = event.target.closest("button[data-action]");
   if (!button) return;
 
   const row = button.closest("tr[data-redesign-id]");
   const redesign = redesignsCache.find((item) => item.id === row?.dataset.redesignId);
   if (!redesign) return;
 
-  try {
-    await navigator.clipboard.writeText(previewLinkFor(redesign));
-    setStatus(redesignsStatus, "Preview link copied to clipboard.", false);
-  } catch {
-    setStatus(redesignsStatus, `Copy failed — link: ${previewLinkFor(redesign)}`, true);
+  if (button.dataset.action === "copy-preview") {
+    try {
+      await navigator.clipboard.writeText(previewLinkFor(redesign));
+      setStatus(redesignsStatus, "Preview link copied to clipboard.", false);
+    } catch {
+      setStatus(redesignsStatus, `Copy failed — link: ${previewLinkFor(redesign)}`, true);
+    }
+    return;
+  }
+
+  if (button.dataset.action === "delete-redesign") {
+    const confirmed = confirm(
+      `Delete this redesign for ${redesign.website_url}?\n\nThis removes the stored preview and lets that domain use the free /try flow again (no $9 paywall). This cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    button.disabled = true;
+    setStatus(redesignsStatus, "Deleting…", false);
+
+    try {
+      await adminFetch(`/api/admin/redesigns/${encodeURIComponent(redesign.id)}`, {
+        method: "DELETE",
+      });
+      redesignsCache = redesignsCache.filter((item) => item.id !== redesign.id);
+      renderRedesigns(redesignsCache);
+      setStatus(
+        redesignsStatus,
+        `Deleted ${redesign.website_url} — domain is free for /try again.`,
+        false
+      );
+    } catch (error) {
+      button.disabled = false;
+      setStatus(redesignsStatus, serverConfigHint(error.message), true);
+    }
   }
 }
 

@@ -11,6 +11,7 @@ import {
 } from "./redesign-engines.js";
 import {
   completeRedesign,
+  deleteRedesignById,
   fetchAuditById,
   fetchRedesignNotificationInfo,
   fetchAuditDetailById,
@@ -357,6 +358,27 @@ export async function listRedesigns(req) {
   return { ok: true, redesigns, engines: listRedesignEngines() };
 }
 
+export async function deleteRedesign(req) {
+  requireSupabase();
+
+  const redesignId = String(req.params.id ?? "").trim();
+  if (!redesignId) {
+    const err = new Error("Redesign id is required.");
+    err.statusCode = 400;
+    throw err;
+  }
+
+  const deleted = await deleteRedesignById(redesignId);
+  if (!deleted) {
+    const err = new Error("Redesign not found.");
+    err.statusCode = 404;
+    throw err;
+  }
+
+  console.log(`[admin] Deleted redesign ${deleted.id} (${deleted.website_url})`);
+  return { ok: true, deleted };
+}
+
 /**
  * Order a redesign for a warm lead, a completed audit, or a manual URL.
  * Body: { source_type: 'warm_lead'|'audit'|'manual', source_id?, website_url?, engine, max_tokens? }
@@ -646,4 +668,5 @@ export function registerAdminRoutes(app, { verifyCronSecret }) {
   app.post("/api/admin/send-free-audit", guard(sendFreeAudit));
   app.get("/api/admin/redesigns", guard(listRedesigns));
   app.post("/api/admin/redesigns", guard(orderRedesign));
+  app.delete("/api/admin/redesigns/:id", guard(deleteRedesign));
 }

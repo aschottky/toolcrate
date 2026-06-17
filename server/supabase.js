@@ -608,6 +608,23 @@ export async function fetchRecentRedesigns(limit = 50) {
   return data ?? [];
 }
 
+export async function deleteRedesignById(redesignId) {
+  const supabase = getSupabaseAdmin();
+
+  const { data, error } = await supabase
+    .from("redesigns")
+    .delete()
+    .eq("id", redesignId)
+    .select("id, website_url")
+    .maybeSingle();
+
+  if (error) {
+    throw wrapRedesignError(error, "delete redesign");
+  }
+
+  return data;
+}
+
 function isMissingPreviewWaitColumns(message = "") {
   return /'?(status|lead_intent)'? column|column .*(status|lead_intent)/i.test(message);
 }

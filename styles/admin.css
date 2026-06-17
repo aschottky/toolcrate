@@ -180,6 +180,18 @@
   font-size: 0.75rem;
 }
 
+.btn-danger {
+  color: #991b1b;
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.btn-danger:hover {
+  color: #7f1d1d;
+  border-color: #fca5a5;
+  background: #fee2e2;
+}
+
 .badge {
   display: inline-block;
   padding: 0.15rem 0.45rem;
