@@ -6,16 +6,20 @@ const MAX_CHILD_SITEMAPS = 8;
 const LINK_DENSITY_THRESHOLD = 50;
 const AI_SAMPLE_CHARS = 4_000;
 
-const GATEKEEPER_SYSTEM_PROMPT = `You are the Gatekeeper for an AI website redesign platform. Your job is to look at the scraped text of a company's homepage and determine if it is a good candidate for a high-converting local business website redesign.
+const GATEKEEPER_SYSTEM_PROMPT = `You are the Gatekeeper for ToolCrate, an AI website redesign platform focused on local service businesses and the Full Build tier (core conversion site, up to 10 pages).
 
-Analyze the text for the following rejection criteria:
+Your job is to review scraped homepage text and decide whether this lead is a good fit for an automated Full Build preview and conversion-focused redesign.
 
-- 'dead_site': The text indicates a 404 error, a domain parking page, or a 'site under construction' message.
-- 'not_local_service': The site is a complex SaaS platform, a massive e-commerce marketplace, a social network, or a personal blog rather than a local trade/service business (e.g., roofer, plumber, lawyer, local clinic).
-- 'no_content': The page has virtually no text content to extract context from (e.g., just a login screen or a splash image).
-- 'already_optimized': The site is clearly a modern, high-end corporate site that doesn't need a basic conversion overhaul.
+Approve local service businesses that would benefit from a clearer lead-capture site: roofers, plumbers, HVAC, lawyers, clinics, landscapers, contractors, and similar trades.
 
-You must respond with a strict JSON object matching this structure: { "suitable": true or false, "reason": "approved" or one of the rejection criteria above, "confidence": 0.0 to 1.0, "business_type": "identified trade or industry" }`;
+Use these rejection criteria when the site is NOT a good Full Build fit:
+
+- 'enterprise_scale': The site is a massive corporate entity, large e-commerce store, or huge directory that exceeds our Small Business scope.
+- 'low_intent_land': The URL leads to a parked domain, a generic Under Construction placeholder, or a blank login screen with zero context.
+- 'incompatible_trade': The business is not a service-based trade (e.g., it is a global SaaS, a digital product store, or a news site) and would not benefit from our local-conversion template.
+- 'no_room_for_improvement': The site is already a top-tier, custom-coded masterpiece. Redesigning it with AI would be a downgrade for the client.
+
+You must respond with a strict JSON object matching this structure: { "suitable": true or false, "reason": "approved" or one of the rejection criteria above, "business_category": "identified trade or industry" }`;
 
 const BROWSER_HEADERS = {
   "User-Agent":
@@ -23,12 +27,11 @@ const BROWSER_HEADERS = {
   Accept: "application/xml,text/xml,text/plain,*/*;q=0.8",
 };
 
-const REJECTION_REASONS = new Set([
-  "dead_site",
-  "not_local_service",
-  "no_content",
-  "already_optimized",
-  "whale_site",
+const AI_REJECTION_REASONS = new Set([
+  "enterprise_scale",
+  "low_intent_land",
+  "incompatible_trade",
+  "no_room_for_improvement",
 ]);
 
 let openaiClient;
@@ -50,6 +53,20 @@ export class PreflightRejectedError extends Error {
     this.code = "PREFLIGHT_REJECTED";
     this.preflight = preflight;
   }
+}
+
+/** Internal log label for rejected leads (ASCII only). */
+export function preflightLogCode(preflight) {
+  if (preflight?.suitable) {
+    return "APPROVED";
+  }
+  if (preflight?.reason === "enterprise_scale") {
+    return "MANUAL_OUTREACH_REQUIRED";
+  }
+  if (preflight?.reason === "low_intent_land") {
+    return "INVALID_URL_REJECTED";
+  }
+  return "PREFLIGHT_REJECTED";
 }
 
 function countLocTags(xml) {
@@ -165,26 +182,26 @@ function countHomepageLinkDensity(scrapedText, websiteUrl) {
   return sameOrigin.size;
 }
 
+function buildTechnicalRejection(pageCount, check) {
+  return {
+    suitable: false,
+    reason: "enterprise_scale",
+    pageCount,
+    check,
+    logCode: preflightLogCode({ suitable: false, reason: "enterprise_scale" }),
+  };
+}
+
 async function runTechnicalCheck(scrapedText, websiteUrl) {
   const { pageCount, source } = await countSitemapPages(websiteUrl);
 
   if (pageCount != null && pageCount > WHALE_PAGE_THRESHOLD) {
-    return {
-      suitable: false,
-      reason: "whale_site",
-      pageCount,
-      check: source,
-    };
+    return buildTechnicalRejection(pageCount, source);
   }
 
   const linkDensity = countHomepageLinkDensity(scrapedText, websiteUrl);
   if (linkDensity > LINK_DENSITY_THRESHOLD) {
-    return {
-      suitable: false,
-      reason: "whale_site",
-      pageCount: linkDensity,
-      check: "link_density",
-    };
+    return buildTechnicalRejection(linkDensity, "link_density");
   }
 
   return { suitable: true, reason: "approved", pageCount: pageCount ?? undefined };
@@ -194,21 +211,29 @@ function normalizeAiPreflight(parsed) {
   const suitable = parsed?.suitable === true;
   const reason = suitable
     ? "approved"
-    : REJECTION_REASONS.has(parsed?.reason)
+    : AI_REJECTION_REASONS.has(parsed?.reason)
       ? parsed.reason
-      : "not_local_service";
+      : "incompatible_trade";
 
-  const confidence = Number(parsed?.confidence);
-  const business_type =
-    typeof parsed?.business_type === "string" ? parsed.business_type.trim() : "unknown";
+  const business_category =
+    typeof parsed?.business_category === "string"
+      ? parsed.business_category.trim()
+      : typeof parsed?.business_type === "string"
+        ? parsed.business_type.trim()
+        : "unknown";
 
-  return {
+  const result = {
     suitable,
     reason,
-    confidence: Number.isFinite(confidence) ? Math.min(1, Math.max(0, confidence)) : 0,
-    business_type,
+    business_category,
     check: "ai_screen",
   };
+
+  if (!suitable) {
+    result.logCode = preflightLogCode(result);
+  }
+
+  return result;
 }
 
 async function runAiScreen(scrapedText) {
@@ -250,9 +275,9 @@ async function runAiScreen(scrapedText) {
 /**
  * Pre-flight qualification before expensive Claude Opus redesign/roast calls.
  *
- * @param {string} scrapedText — output of scrapeWebsiteText().textForAudit
- * @param {string} websiteUrl — normalized site URL
- * @returns {Promise<{ suitable: boolean, reason: string, pageCount?: number, confidence?: number, business_type?: string, check?: string }>}
+ * @param {string} scrapedText - output of scrapeWebsiteText().textForAudit
+ * @param {string} websiteUrl - normalized site URL
+ * @returns {Promise<{ suitable: boolean, reason: string, business_category?: string, pageCount?: number, check?: string, logCode?: string }>}
  */
 export async function evaluateLeadSuitability(scrapedText, websiteUrl) {
   const technical = await runTechnicalCheck(scrapedText, websiteUrl);

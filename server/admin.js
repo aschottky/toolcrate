@@ -1,7 +1,7 @@
 import { buildAuditPdf } from "./audit-pipeline.js";
 import { sendDesignReadyEmail, sendFreeAuditEmail } from "./email.js";
 import { generateCallScript } from "./call-script.js";
-import { evaluateLeadSuitability } from "./preflight.js";
+import { evaluateLeadSuitability, preflightLogCode } from "./preflight.js";
 import { generateSiteRoast } from "./roast.js";
 import { normalizeWebsiteUrl, scrapeWebsiteText } from "./scrape.js";
 import { normalizeRootDomain } from "./url-utils.js";
@@ -594,7 +594,8 @@ async function rejectPreflight({
       ? `${preflight.reason} (${preflight.pageCount} pages, ${preflight.check ?? "unknown"})`
       : `${preflight.reason} (${preflight.check ?? "unknown"})`;
 
-  console.warn(`${logPrefix} [preflight] Rejected: ${detail}`);
+  const logCode = preflight.logCode ?? preflightLogCode(preflight);
+  console.warn(`${logPrefix} [preflight] ${logCode}: ${detail}`);
 
   if (runRoast) {
     await markRoastFailed(redesignId).catch((markError) =>
@@ -616,7 +617,7 @@ async function runPreflightGate(scraped, normalizedUrl, logPrefix) {
   }
 
   console.log(
-    `${logPrefix} [preflight] Approved: ${preflight.business_type ?? "unknown"} (confidence ${preflight.confidence ?? "n/a"})`
+    `${logPrefix} [preflight] APPROVED: ${preflight.business_category ?? "unknown"}`
   );
   return preflight;
 }

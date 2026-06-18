@@ -9,7 +9,7 @@ import { generateAuditPDF } from "./pdf.js";
 import { sendAuditError } from "./errors.js";
 import { handleInstantlyWebhook } from "./instantly-webhook.js";
 import { normalizeWebsiteUrl, scrapeWebsiteText } from "./scrape.js";
-import { evaluateLeadSuitability } from "./preflight.js";
+import { evaluateLeadSuitability, preflightLogCode } from "./preflight.js";
 import { generateRedesignHtml } from "./redesign.js";
 import { generateRedesignHtmlClaude } from "./redesign-claude.js";
 import { registerAdminRoutes, runPreviewGeneration } from "./admin.js";
@@ -428,8 +428,9 @@ async function handleRedesign(req, res, { websiteUrl, asHtml, generate, logPrefi
 
     const preflight = await evaluateLeadSuitability(scraped.textForAudit, normalizedUrl);
     if (!preflight.suitable) {
+      const logCode = preflight.logCode ?? preflightLogCode(preflight);
       console.warn(
-        `${logPrefix} [preflight] Rejected: ${preflight.reason}${preflight.pageCount != null ? ` (${preflight.pageCount} pages)` : ""}`
+        `${logPrefix} [preflight] ${logCode}: ${preflight.reason}${preflight.pageCount != null ? ` (${preflight.pageCount} pages)` : ""}`
       );
       return res.status(422).json({
         ok: false,
