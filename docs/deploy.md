@@ -15,6 +15,8 @@ GitHub Pages serves **only the static frontend** (`usetoolcrate.com`). The Expre
 4. After deploy, open `https://toolcrate-backend-500j.onrender.com/api/health` — should return `{"ok":true,...}`.
 5. Point Stripe webhooks to `https://toolcrate-backend-500j.onrender.com/webhook`.
 
+**Render plan:** The free tier is enough for preview generation. Roast and redesign run **sequentially** (one Claude Opus job at a time) so they do not compete for memory. Upgrade to **Starter ($7/mo)** if you want faster cold starts (free tier spins down after ~15 min idle) and more reliable background jobs under load — not required for correctness.
+
 If your Render URL differs, update `VITE_API_BASE_URL` in `.env.production` and redeploy the frontend.
 
 ## 2. Frontend (GitHub Pages)

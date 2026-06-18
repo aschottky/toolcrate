@@ -948,11 +948,19 @@ export async function markRedesignFailed(redesignId) {
 export async function fetchRedesignById(redesignId) {
   const supabase = getSupabaseAdmin();
 
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from("redesigns")
-    .select("id, website_url, status, engine, model, max_tokens, preview_token")
+    .select("id, website_url, status, roast_status, engine, model, max_tokens, preview_token")
     .eq("id", redesignId)
     .maybeSingle();
+
+  if (error && isMissingRoastColumns(error.message)) {
+    ({ data, error } = await supabase
+      .from("redesigns")
+      .select("id, website_url, status, engine, model, max_tokens, preview_token")
+      .eq("id", redesignId)
+      .maybeSingle());
+  }
 
   if (error) {
     throw wrapRedesignError(error, "fetch redesign by id");

@@ -445,15 +445,16 @@ export async function retryRedesign(req) {
   const maxTokens = existing.max_tokens || DEFAULT_REDESIGN_MAX_TOKENS;
   const logPrefix = `[admin-retry:${redesignId}]`;
 
-  runRedesignGeneration({
+  runPreviewPipelineRetry({
     redesignId,
     normalizedUrl,
     engine,
     maxTokens,
     logPrefix,
+    roastStatus: existing.roast_status ?? "pending",
   });
 
-  console.log(`${logPrefix} Queued redesign retry for ${normalizedUrl}.`);
+  console.log(`${logPrefix} Queued preview retry for ${normalizedUrl}.`);
 
   return {
     ok: true,
@@ -586,9 +587,9 @@ async function generateRedesignFromUrl({
   maxTokens,
   logPrefix,
   redesignId,
+  scraped: scrapedInput,
 }) {
-  console.log(`${logPrefix} Scraping [${normalizedUrl}]...`);
-  const scraped = await scrapeWebsiteText(normalizedUrl);
+  const scraped = scrapedInput ?? (await scrapeWebsiteText(normalizedUrl));
 
   const generationExclusions = await fetchPreviousDesignExclusions(normalizedUrl, {
     excludeRedesignId: redesignId,
@@ -626,13 +627,23 @@ const PREVIEW_BASE_URL = "https://usetoolcrate.com/preview-view?t=";
 /**
  * Phase 1: site-specific roast. Returns true when bullets were saved.
  */
-export async function executeRoastGeneration({ redesignId, normalizedUrl, logPrefix }) {
+export async function executeRoastGeneration({
+  redesignId,
+  normalizedUrl,
+  logPrefix,
+  scraped: scrapedInput,
+}) {
   let lastError = null;
 
   for (let attempt = 1; attempt <= 2; attempt++) {
     try {
-      console.log(`${logPrefix} [roast] Attempt ${attempt}/2 — scraping ${normalizedUrl}...`);
-      const scraped = await scrapeWebsiteText(normalizedUrl);
+      let scraped = scrapedInput;
+      if (!scraped) {
+        console.log(`${logPrefix} [roast] Attempt ${attempt}/2 — scraping ${normalizedUrl}...`);
+        scraped = await scrapeWebsiteText(normalizedUrl);
+      } else if (attempt === 1) {
+        console.log(`${logPrefix} [roast] Attempt ${attempt}/2 — using shared scrape`);
+      }
       console.log(
         `${logPrefix} [roast] Scrape OK (${scraped.scrapeSource}, ${scraped.charCount} chars)`
       );
@@ -647,6 +658,7 @@ export async function executeRoastGeneration({ redesignId, normalizedUrl, logPre
       return true;
     } catch (error) {
       lastError = error;
+      scrapedInput = null;
       const phase = /scrape|access this website|blocking/i.test(error.message)
         ? "scrape"
         : "roast-ai";
@@ -688,6 +700,7 @@ async function executeRedesignGeneration({
   engine,
   maxTokens,
   logPrefix,
+  scraped,
 }) {
   try {
     const result = await generateRedesignFromUrl({
@@ -696,6 +709,7 @@ async function executeRedesignGeneration({
       maxTokens,
       logPrefix,
       redesignId,
+      scraped,
     });
     await completeRedesign(redesignId, result);
     console.log(`${logPrefix} Preview is live.`);
@@ -711,6 +725,66 @@ async function executeRedesignGeneration({
 }
 
 /**
+ * One scrape, then roast, then redesign — never two Opus streams at once.
+ * Redesign still runs if roast fails (roast is best-effort for the wait screen).
+ */
+async function executePreviewPipeline({
+  redesignId,
+  normalizedUrl,
+  engine,
+  maxTokens,
+  logPrefix,
+  runRoast = true,
+  runRedesign = true,
+}) {
+  console.log(
+    `${logPrefix} Pipeline: sequential scrape → roast → redesign (single Opus job at a time)`
+  );
+
+  let scraped;
+  try {
+    console.log(`${logPrefix} Scraping ${normalizedUrl}...`);
+    scraped = await scrapeWebsiteText(normalizedUrl);
+    console.log(
+      `${logPrefix} Scrape OK (${scraped.scrapeSource}, ${scraped.charCount} chars, ${scraped.imageUrls?.length ?? 0} images)`
+    );
+  } catch (error) {
+    console.error(`${logPrefix} Scrape failed — cannot continue:`, error.message);
+    if (runRoast) {
+      await markRoastFailed(redesignId).catch((markError) =>
+        console.error(`${logPrefix} Could not mark roast failed:`, markError.message)
+      );
+    }
+    if (runRedesign) {
+      await markRedesignFailed(redesignId).catch((markError) =>
+        console.error(`${logPrefix} Could not mark redesign failed:`, markError.message)
+      );
+    }
+    return;
+  }
+
+  if (runRoast) {
+    await executeRoastGeneration({
+      redesignId,
+      normalizedUrl,
+      logPrefix,
+      scraped,
+    });
+  }
+
+  if (runRedesign) {
+    await executeRedesignGeneration({
+      redesignId,
+      normalizedUrl,
+      engine,
+      maxTokens,
+      logPrefix,
+      scraped,
+    });
+  }
+}
+
+/**
  * Sequential preview pipeline: Phase 1 roast, then Phase 2 redesign.
  */
 export function runPreviewGeneration({
@@ -720,19 +794,39 @@ export function runPreviewGeneration({
   maxTokens,
   logPrefix,
 }) {
-  setImmediate(async () => {
-    console.log(`${logPrefix} Phase 1+2: roast and redesign (parallel)...`);
-    await Promise.all([
-      executeRoastGeneration({ redesignId, normalizedUrl, logPrefix }),
-      executeRedesignGeneration({
-        redesignId,
-        normalizedUrl,
-        engine,
-        maxTokens,
-        logPrefix,
-      }),
-    ]);
-  });
+  setImmediate(() =>
+    executePreviewPipeline({
+      redesignId,
+      normalizedUrl,
+      engine,
+      maxTokens,
+      logPrefix,
+      runRoast: true,
+      runRedesign: true,
+    })
+  );
+}
+
+export function runPreviewPipelineRetry({
+  redesignId,
+  normalizedUrl,
+  engine,
+  maxTokens,
+  logPrefix,
+  roastStatus,
+}) {
+  const runRoast = roastStatus === "failed" || roastStatus === "pending";
+  setImmediate(() =>
+    executePreviewPipeline({
+      redesignId,
+      normalizedUrl,
+      engine,
+      maxTokens,
+      logPrefix,
+      runRoast,
+      runRedesign: true,
+    })
+  );
 }
 
 export function runRedesignGeneration({ redesignId, normalizedUrl, engine, maxTokens, logPrefix }) {
