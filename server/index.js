@@ -9,6 +9,7 @@ import { generateAuditPDF } from "./pdf.js";
 import { sendAuditError } from "./errors.js";
 import { handleInstantlyWebhook } from "./instantly-webhook.js";
 import { normalizeWebsiteUrl, scrapeWebsiteText } from "./scrape.js";
+import { evaluateLeadSuitability } from "./preflight.js";
 import { generateRedesignHtml } from "./redesign.js";
 import { generateRedesignHtmlClaude } from "./redesign-claude.js";
 import { registerAdminRoutes, runPreviewGeneration } from "./admin.js";
@@ -424,6 +425,20 @@ async function handleRedesign(req, res, { websiteUrl, asHtml, generate, logPrefi
 
     console.log(`${logPrefix} Scraping [${normalizedUrl}]...`);
     const scraped = await scrapeWebsiteText(normalizedUrl);
+
+    const preflight = await evaluateLeadSuitability(scraped.textForAudit, normalizedUrl);
+    if (!preflight.suitable) {
+      console.warn(
+        `${logPrefix} [preflight] Rejected: ${preflight.reason}${preflight.pageCount != null ? ` (${preflight.pageCount} pages)` : ""}`
+      );
+      return res.status(422).json({
+        ok: false,
+        error: "This site is not eligible for an automated redesign preview.",
+        code: "PREFLIGHT_REJECTED",
+        reason: preflight.reason,
+        pageCount: preflight.pageCount ?? null,
+      });
+    }
 
     console.log(`${logPrefix} Generating redesign HTML...`);
     const generationExclusions = await fetchPreviousDesignExclusions(normalizedUrl);

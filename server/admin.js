@@ -1,6 +1,7 @@
 import { buildAuditPdf } from "./audit-pipeline.js";
 import { sendDesignReadyEmail, sendFreeAuditEmail } from "./email.js";
 import { generateCallScript } from "./call-script.js";
+import { evaluateLeadSuitability } from "./preflight.js";
 import { generateSiteRoast } from "./roast.js";
 import { normalizeWebsiteUrl, scrapeWebsiteText } from "./scrape.js";
 import { normalizeRootDomain } from "./url-utils.js";
@@ -581,6 +582,45 @@ export async function orderRedesign(req) {
   return { ok: true, redesign };
 }
 
+async function rejectPreflight({
+  redesignId,
+  logPrefix,
+  preflight,
+  runRoast,
+  runRedesign,
+}) {
+  const detail =
+    preflight.pageCount != null
+      ? `${preflight.reason} (${preflight.pageCount} pages, ${preflight.check ?? "unknown"})`
+      : `${preflight.reason} (${preflight.check ?? "unknown"})`;
+
+  console.warn(`${logPrefix} [preflight] Rejected: ${detail}`);
+
+  if (runRoast) {
+    await markRoastFailed(redesignId).catch((markError) =>
+      console.error(`${logPrefix} Could not mark roast failed:`, markError.message)
+    );
+  }
+  if (runRedesign) {
+    await markRedesignFailed(redesignId).catch((markError) =>
+      console.error(`${logPrefix} Could not mark redesign failed:`, markError.message)
+    );
+  }
+}
+
+async function runPreflightGate(scraped, normalizedUrl, logPrefix) {
+  const preflight = await evaluateLeadSuitability(scraped.textForAudit, normalizedUrl);
+
+  if (!preflight.suitable) {
+    return preflight;
+  }
+
+  console.log(
+    `${logPrefix} [preflight] Approved: ${preflight.business_type ?? "unknown"} (confidence ${preflight.confidence ?? "n/a"})`
+  );
+  return preflight;
+}
+
 async function generateRedesignFromUrl({
   normalizedUrl,
   engine,
@@ -588,8 +628,19 @@ async function generateRedesignFromUrl({
   logPrefix,
   redesignId,
   scraped: scrapedInput,
+  skipPreflight = false,
 }) {
   const scraped = scrapedInput ?? (await scrapeWebsiteText(normalizedUrl));
+
+  if (!skipPreflight) {
+    const preflight = await runPreflightGate(scraped, normalizedUrl, logPrefix);
+    if (!preflight.suitable) {
+      const err = new Error(`Preflight rejected: ${preflight.reason}`);
+      err.code = "PREFLIGHT_REJECTED";
+      err.preflight = preflight;
+      throw err;
+    }
+  }
 
   const generationExclusions = await fetchPreviousDesignExclusions(normalizedUrl, {
     excludeRedesignId: redesignId,
@@ -701,6 +752,7 @@ async function executeRedesignGeneration({
   maxTokens,
   logPrefix,
   scraped,
+  preflightComplete = false,
 }) {
   try {
     const result = await generateRedesignFromUrl({
@@ -710,6 +762,7 @@ async function executeRedesignGeneration({
       logPrefix,
       redesignId,
       scraped,
+      skipPreflight: preflightComplete,
     });
     await completeRedesign(redesignId, result);
     console.log(`${logPrefix} Preview is live.`);
@@ -763,6 +816,18 @@ async function executePreviewPipeline({
     return;
   }
 
+  const preflight = await runPreflightGate(scraped, normalizedUrl, logPrefix);
+  if (!preflight.suitable) {
+    await rejectPreflight({
+      redesignId,
+      logPrefix,
+      preflight,
+      runRoast,
+      runRedesign,
+    });
+    return;
+  }
+
   if (runRoast) {
     await executeRoastGeneration({
       redesignId,
@@ -780,6 +845,7 @@ async function executePreviewPipeline({
       maxTokens,
       logPrefix,
       scraped,
+      preflightComplete: true,
     });
   }
 }
