@@ -279,7 +279,7 @@ export async function sendWelcomeEmail(email, name, tier) {
   <p>Hey ${greeting}, Alexander here from ToolCrate.</p>
   <p>Your payment went through and I'm already looking forward to building something great for your business.</p>
   <p>Here's what happens next:</p>
-  <p>[1] You'll receive a short intake form within the hour — takes about 5 minutes.<br>
+  <p>[1] Complete your 5-minute intake form here: <a href="https://usetoolcrate.com/intake">https://usetoolcrate.com/intake</a><br>
   [2] I'll review it and reach out within 24 hours to confirm scope and timeline.<br>
   [3] Your build starts within 3 business days.</p>
   <p>Questions? Just reply to this email.</p>
@@ -290,7 +290,7 @@ export async function sendWelcomeEmail(email, name, tier) {
 Your payment went through and I'm already looking forward to building something great for your business.
 
 Here's what happens next:
-[1] You'll receive a short intake form within the hour - takes about 5 minutes.
+[1] Complete your 5-minute intake form here: https://usetoolcrate.com/intake
 [2] I'll review it and reach out within 24 hours to confirm scope and timeline.
 [3] Your build starts within 3 business days.
 

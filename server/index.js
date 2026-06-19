@@ -276,6 +276,115 @@ app.post("/api/apply", async (req, res) => {
   }
 });
 
+app.post("/api/intake", async (req, res) => {
+  const {
+    name,
+    businessName,
+    website,
+    phone,
+    description,
+    idealCustomer,
+    primaryGoal,
+    frustration,
+    hasLogo,
+    additionalNotes,
+  } = req.body ?? {};
+
+  const trimmedName = String(name ?? "").trim();
+  const trimmedBusinessName = String(businessName ?? "").trim();
+  const trimmedWebsite = String(website ?? "").trim();
+  const trimmedPhone = String(phone ?? "").trim();
+  const trimmedDescription = String(description ?? "").trim();
+  const trimmedIdealCustomer = String(idealCustomer ?? "").trim();
+  const trimmedPrimaryGoal = String(primaryGoal ?? "").trim();
+  const trimmedFrustration = String(frustration ?? "").trim();
+  const trimmedHasLogo = String(hasLogo ?? "").trim();
+  const trimmedAdditionalNotes = String(additionalNotes ?? "").trim();
+
+  if (
+    !trimmedName ||
+    !trimmedBusinessName ||
+    !trimmedWebsite ||
+    !trimmedDescription ||
+    !trimmedFrustration
+  ) {
+    return res.status(400).json({
+      error: "name, businessName, website, description, and frustration are required.",
+    });
+  }
+
+  let normalizedWebsite = trimmedWebsite;
+  try {
+    normalizedWebsite = normalizeWebsiteUrl(trimmedWebsite);
+  } catch {
+    return res.status(400).json({
+      error: "Please enter a valid website URL.",
+    });
+  }
+
+  const escapeHtml = (value) =>
+    String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+
+  const formatMultiline = (value) =>
+    escapeHtml(value || "—").replace(/\n/g, "<br>");
+
+  const rows = [
+    ["Your Name", trimmedName],
+    ["Business Name", trimmedBusinessName],
+    ["Website URL", normalizedWebsite],
+    ["Phone Number", trimmedPhone || "—"],
+    ["What the business does", trimmedDescription],
+    ["Ideal customer", trimmedIdealCustomer || "—"],
+    ["Primary site goal", trimmedPrimaryGoal || "—"],
+    ["#1 frustration", trimmedFrustration],
+    ["Logo status", trimmedHasLogo || "—"],
+    ["Additional notes", trimmedAdditionalNotes || "—"],
+  ];
+
+  const tableRows = rows
+    .map(
+      ([label, value]) => `
+        <tr>
+          <td style="padding: 10px 16px 10px 0; font-weight: 600; vertical-align: top; width: 38%; color: #374151; border-bottom: 1px solid #e5e7eb;">${escapeHtml(label)}</td>
+          <td style="padding: 10px 0; vertical-align: top; color: #111827; border-bottom: 1px solid #e5e7eb;">${formatMultiline(value)}</td>
+        </tr>`
+    )
+    .join("");
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #111;">
+      <h2 style="margin: 0 0 16px;">New Client Intake — ${escapeHtml(trimmedBusinessName)}</h2>
+      <table style="border-collapse: collapse; width: 100%; max-width: 640px;">
+        ${tableRows}
+      </table>
+    </div>
+  `.trim();
+
+  try {
+    const resend = getResend();
+    const { error } = await resend.emails.send({
+      from: "ToolCrate <onboarding@usetoolcrate.com>",
+      to: "alexander@usetoolcrate.com",
+      subject: `New Client Intake - ${trimmedBusinessName} (${trimmedName})`,
+      html,
+    });
+
+    if (error) {
+      console.error("[intake] Resend error:", error);
+      return res.status(500).json({ error: "Failed to send intake form." });
+    }
+
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error("[intake]", err.message);
+    return res.status(500).json({ error: "Failed to send intake form." });
+  }
+});
+
 app.post("/api/webhooks/instantly", handleInstantlyWebhook);
 
 app.get("/api/health", (_req, res) => {
