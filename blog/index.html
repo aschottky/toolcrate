@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1JPM7QNHFN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-1JPM7QNHFN');
+    </script>
+    <meta name="robots" content="index, follow" />
+    <title>Blog — ToolCrate</title>
+    <meta
+      name="description"
+      content="Insights on websites, conversions, and growing your business online from ToolCrate."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles/main.css" />
+    <style>
+      body.blog-page {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .blog-main {
+        flex: 1;
+        padding: 3rem 0 4rem;
+      }
+
+      .blog-intro {
+        max-width: 42rem;
+        margin: 0 auto 2.5rem;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 1.125rem;
+        line-height: 1.7;
+      }
+
+      .blog-intro h1 {
+        font-family: var(--font-serif);
+        font-size: clamp(2rem, 5vw, 2.75rem);
+        font-weight: 400;
+        color: var(--text);
+        margin: 0 0 1rem;
+        line-height: 1.15;
+      }
+
+      #soro-blog {
+        width: min(100%, 900px);
+        margin: 0 auto;
+      }
+    </style>
+  </head>
+  <body class="blog-page">
+    <header class="site-header">
+      <div class="container header-inner">
+        <a href="/" class="logo">ToolCrate</a>
+      </div>
+    </header>
+
+    <main class="blog-main">
+      <div class="container">
+        <div class="blog-intro">
+          <h1>Blog</h1>
+          <p>Insights on websites, conversions, and growing your business online.</p>
+        </div>
+
+        <div id="soro-blog"></div>
+        <script src="https://app.trysoro.com/api/embed/9d3f8837-a8f6-4848-a8e8-7546fb8db7e2" defer></script>
+      </div>
+    </main>
+  </body>
+</html>

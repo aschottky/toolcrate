@@ -16,7 +16,7 @@ function showError() {
   errorState.hidden = false;
 }
 
-function showSuccess({ email }) {
+function showSuccess({ email, tier, sessionId }) {
   loadingEl.hidden = true;
   errorState.hidden = true;
 
@@ -30,6 +30,21 @@ function showSuccess({ email }) {
   }
 
   successContent.hidden = false;
+
+  if (typeof gtag === "function" && sessionId) {
+    gtag("event", "purchase", {
+      transaction_id: sessionId,
+      value: tier === "conversion-os" ? 2500 : 497,
+      currency: "USD",
+      items: [
+        {
+          item_name: tier === "conversion-os" ? "Conversion OS" : "Full Build",
+          price: tier === "conversion-os" ? 2500 : 497,
+          quantity: 1,
+        },
+      ],
+    });
+  }
 }
 
 async function init() {
@@ -55,7 +70,11 @@ async function init() {
       return;
     }
 
-    showSuccess({ email: data.email || null });
+    showSuccess({
+      email: data.email || null,
+      tier: data.tier || null,
+      sessionId,
+    });
   } catch {
     showError();
   }
