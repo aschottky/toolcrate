@@ -4,7 +4,7 @@ import express from "express";
 import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import { runSiteAudit } from "./audit.js";
 import { buildAuditPdf } from "./audit-pipeline.js";
-import { sendAuditReportEmail, sendPreviewStartedNotification, sendWelcomeEmail, normalizeProspectFirstName } from "./email.js";
+import { sendAuditReportEmail, sendPreviewStartedNotification, sendWelcomeEmail, normalizeProspectFirstName, getResend } from "./email.js";
 import { generateAuditPDF } from "./pdf.js";
 import { sendAuditError } from "./errors.js";
 import { handleInstantlyWebhook } from "./instantly-webhook.js";
@@ -192,6 +192,78 @@ app.post("/api/webhook/stripe", stripeWebhookRaw, handleStripeWebhook);
 app.post("/webhook", stripeWebhookRaw, handleStripeWebhook);
 
 app.use(express.json({ limit: "32kb" }));
+
+app.post("/api/apply", async (req, res) => {
+  const { name, website, businessType, frustration, timeline } = req.body ?? {};
+
+  const trimmedName = String(name ?? "").trim();
+  const trimmedWebsite = String(website ?? "").trim();
+  const trimmedBusinessType = String(businessType ?? "").trim();
+  const trimmedFrustration = String(frustration ?? "").trim();
+  const trimmedTimeline = String(timeline ?? "").trim();
+
+  if (!trimmedName || !trimmedBusinessType || !trimmedFrustration) {
+    return res.status(400).json({
+      error: "name, businessType, and frustration are required.",
+    });
+  }
+
+  const escapeHtml = (value) =>
+    String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #111;">
+      <h2 style="margin: 0 0 16px;">New Founding Member Application</h2>
+      <table style="border-collapse: collapse; width: 100%; max-width: 560px;">
+        <tr>
+          <td style="padding: 8px 0; font-weight: 600; vertical-align: top;">Full Name</td>
+          <td style="padding: 8px 0;">${escapeHtml(trimmedName)}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; font-weight: 600; vertical-align: top;">Business Website</td>
+          <td style="padding: 8px 0;">${escapeHtml(trimmedWebsite || "—")}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; font-weight: 600; vertical-align: top;">Business Type</td>
+          <td style="padding: 8px 0;">${escapeHtml(trimmedBusinessType)}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; font-weight: 600; vertical-align: top;">Biggest Frustration</td>
+          <td style="padding: 8px 0;">${escapeHtml(trimmedFrustration).replace(/\n/g, "<br>")}</td>
+        </tr>
+        <tr>
+          <td style="padding: 8px 0; font-weight: 600; vertical-align: top;">Timeline</td>
+          <td style="padding: 8px 0;">${escapeHtml(trimmedTimeline || "—")}</td>
+        </tr>
+      </table>
+      <p style="margin: 24px 0 0; color: #555;">Follow up manually using the business website above.</p>
+    </div>
+  `.trim();
+
+  try {
+    const resend = getResend();
+    const { error } = await resend.emails.send({
+      from: "ToolCrate <onboarding@usetoolcrate.com>",
+      to: "alexander@usetoolcrate.com",
+      subject: `New Founding Member Application - ${trimmedName}`,
+      html,
+    });
+
+    if (error) {
+      console.error("[apply] Resend error:", error);
+      return res.status(500).json({ error: "Failed to send application." });
+    }
+
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error("[apply]", err.message);
+    return res.status(500).json({ error: "Failed to send application." });
+  }
+});
 
 app.post("/api/webhooks/instantly", handleInstantlyWebhook);
 

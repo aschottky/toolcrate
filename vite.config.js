@@ -14,6 +14,7 @@ const MPA_ROUTES = [
   "checkout",
   "success",
   "blog",
+  "apply",
 ];
 
 function mpaPathRewrite() {
@@ -82,6 +83,7 @@ export default defineConfig(({ mode }) => {
         checkout: resolve(__dirname, "checkout/index.html"),
         success: resolve(__dirname, "success/index.html"),
         blog: resolve(__dirname, "blog/index.html"),
+        apply: resolve(__dirname, "apply/index.html"),
       },
     },
   },

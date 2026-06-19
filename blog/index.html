@@ -18,6 +18,165 @@
       gtag('js', new Date());
       gtag('config', 'G-1JPM7QNHFN');
     </script>
+    <style>
+      /* Homepage header + dark theme (index.html uses inline CSS — not in main.css) */
+      body.blog-page {
+        min-height: 100vh;
+        margin: 0;
+        background: #0a0a0a;
+        color: #e4e4e7;
+        font-family: "DM Sans", system-ui, sans-serif;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 0;
+        max-width: 1200px;
+        width: 100%;
+        margin: 0 auto;
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+
+      .logo {
+        font-size: 24px;
+        font-weight: 800;
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .logo-tagline {
+        font-size: 11px;
+        color: #71717a;
+        font-weight: 400;
+        margin-left: 8px;
+        letter-spacing: 0.5px;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 32px;
+        align-items: center;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .nav-links a {
+        color: #a1a1aa;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: color 0.3s ease;
+      }
+
+      .nav-links a:hover {
+        color: #e4e4e7;
+      }
+
+      .hamburger {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+        gap: 5px;
+      }
+
+      .hamburger span {
+        width: 25px;
+        height: 2px;
+        background: #e4e4e7;
+        transition: all 0.3s ease;
+      }
+
+      .hamburger.active span:nth-child(1) {
+        transform: rotate(45deg) translate(7px, 7px);
+      }
+
+      .hamburger.active span:nth-child(2) {
+        opacity: 0;
+      }
+
+      .hamburger.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(6px, -6px);
+      }
+
+      .blog-main {
+        padding: 7rem 24px 4rem;
+      }
+
+      .blog-main .container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .blog-intro {
+        max-width: 42rem;
+        margin: 0 auto 2.5rem;
+        text-align: center;
+      }
+
+      .blog-intro h1 {
+        font-family: "Instrument Serif", Georgia, serif;
+        font-size: clamp(2rem, 5vw, 2.75rem);
+        font-weight: 400;
+        color: #e4e4e7;
+        margin: 0 0 1rem;
+        line-height: 1.15;
+      }
+
+      .blog-intro p {
+        margin: 0;
+        color: #a1a1aa;
+        font-size: 1.125rem;
+        line-height: 1.7;
+      }
+
+      #soro-blog {
+        width: 100%;
+        margin: 0 auto;
+      }
+
+      @media (max-width: 768px) {
+        .nav-links {
+          position: fixed;
+          top: 71px;
+          left: 0;
+          right: 0;
+          background: rgba(10, 10, 10, 0.98);
+          backdrop-filter: blur(12px);
+          flex-direction: column;
+          padding: 32px;
+          gap: 24px;
+          display: none;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-links.active {
+          display: flex;
+        }
+
+        .hamburger {
+          display: flex;
+        }
+      }
+    </style>
   </head>
   <body class="blog-page">
     <header>
@@ -27,11 +186,11 @@
                 <span class="logo-tagline">AI done right.</span>
             </div>
             <ul class="nav-links" id="navLinks">
-                <li><a href="#problem">The Problem</a></li>
-                <li><a href="#about">Who Built This</a></li>
-                <li><a href="#products">Pricing</a></li>
+                <li><a href="/#problem">The Problem</a></li>
+                <li><a href="/#about">Who Built This</a></li>
+                <li><a href="/#products">Pricing</a></li>
                 <li><a href="/blog/">Blog</a></li>
-                <li><a href="#cta">Get Started</a></li>
+                <li><a href="/#cta">Get Started</a></li>
             </ul>
             <div class="hamburger" id="hamburger">
                 <span></span>
@@ -56,12 +215,12 @@
     <script>
         const hamburger = document.getElementById('hamburger');
         const navLinks = document.getElementById('navLinks');
-        
+
         hamburger.addEventListener('click', () => {
             hamburger.classList.toggle('active');
             navLinks.classList.toggle('active');
         });
-        
+
         navLinks.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => {
                 hamburger.classList.remove('active');
