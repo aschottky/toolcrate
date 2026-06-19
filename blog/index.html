@@ -32,12 +32,12 @@
       }
 
       header {
-        position: fixed;
+        position: fixed !important;
         top: 0;
         left: 0;
         right: 0;
-        z-index: 1000;
-        background: rgba(10, 10, 10, 0.8);
+        z-index: 99999;
+        background: rgba(10, 10, 10, 0.92);
         backdrop-filter: blur(12px);
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       }
@@ -128,7 +128,15 @@
       }
 
       .blog-main {
-        padding: 7rem 24px 4rem;
+        padding: 6rem 24px 4rem;
+      }
+
+      body.blog-post-view .blog-intro {
+        display: none;
+      }
+
+      body.blog-post-view .blog-main {
+        padding-top: 5.5rem;
       }
 
       .blog-main .container {
@@ -161,6 +169,11 @@
       #soro-blog {
         width: 100%;
         margin: 0 auto;
+        scroll-margin-top: 5.5rem;
+      }
+
+      body.blog-post-view #soro-blog .soro-blog {
+        margin-top: 0;
       }
 
       @media (max-width: 768px) {
@@ -189,6 +202,11 @@
     </style>
   </head>
   <body class="blog-page">
+    <script>
+      if (new URLSearchParams(location.search).has("post")) {
+        document.body.classList.add("blog-post-view");
+      }
+    </script>
     <header>
         <nav>
             <a href="/" class="logo">
@@ -212,7 +230,7 @@
 
     <main class="blog-main">
       <div class="container">
-        <div class="blog-intro">
+        <div class="blog-intro" id="blog-intro">
           <h1>Blog</h1>
           <p>Insights on websites, conversions, and growing your business online.</p>
         </div>
@@ -222,21 +240,6 @@
       </div>
     </main>
 
-    <script>
-        const hamburger = document.getElementById('hamburger');
-        const navLinks = document.getElementById('navLinks');
-
-        hamburger.addEventListener('click', () => {
-            hamburger.classList.toggle('active');
-            navLinks.classList.toggle('active');
-        });
-
-        navLinks.querySelectorAll('a').forEach(link => {
-            link.addEventListener('click', () => {
-                hamburger.classList.remove('active');
-                navLinks.classList.remove('active');
-            });
-        });
-    </script>
+    <script type="module" src="./blog.js"></script>
   </body>
 </html>
