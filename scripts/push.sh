@@ -12,6 +12,7 @@ fi
 MSG="$*"
 
 git add -A
+git restore --staged .github 2>/dev/null || true
 
 if git diff --cached --quiet; then
   echo "Nothing to commit."
