@@ -208,6 +208,17 @@ app.post("/api/apply", async (req, res) => {
     });
   }
 
+  let normalizedWebsite = trimmedWebsite;
+  if (trimmedWebsite) {
+    try {
+      normalizedWebsite = normalizeWebsiteUrl(trimmedWebsite);
+    } catch {
+      return res.status(400).json({
+        error: "Please enter a valid website URL.",
+      });
+    }
+  }
+
   const escapeHtml = (value) =>
     String(value)
       .replace(/&/g, "&amp;")
@@ -225,7 +236,7 @@ app.post("/api/apply", async (req, res) => {
         </tr>
         <tr>
           <td style="padding: 8px 0; font-weight: 600; vertical-align: top;">Business Website</td>
-          <td style="padding: 8px 0;">${escapeHtml(trimmedWebsite || "—")}</td>
+          <td style="padding: 8px 0;">${escapeHtml(normalizedWebsite || "—")}</td>
         </tr>
         <tr>
           <td style="padding: 8px 0; font-weight: 600; vertical-align: top;">Business Type</td>
