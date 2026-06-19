@@ -429,3 +429,48 @@ a {
   color: var(--text-on-dark-muted);
   text-align: center;
 }
+
+/* === Design Polish === */
+
+/* Hero headline gradient accent */
+.hero h1, section:first-of-type h1 {
+  background: linear-gradient(135deg, #ffffff 60%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Problem/feature cards - hover glow */
+.card, [class*="card"], .feature-card, .problem-card {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover, [class*="card"]:hover, .feature-card:hover, .problem-card:hover {
+  border-color: rgba(167, 139, 250, 0.3);
+  box-shadow: 0 0 24px rgba(167, 139, 250, 0.08);
+}
+
+/* Stats row - add subtle top border accent */
+.stats, [class*="stats"] {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+/* SVG icon wrapper consistency */
+.icon-wrap, [class*="icon"] {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 1rem;
+}
+
+/* Subtle section separator */
+section + section {
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+
+/* CTA section - stronger background */
+.cta-section, [class*="cta"] {
+  background: linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(139,92,246,0.1) 100%);
+}

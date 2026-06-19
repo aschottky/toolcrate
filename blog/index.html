@@ -31,9 +31,96 @@
         flex-direction: column;
       }
 
+      header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 0;
+        max-width: 1200px;
+        width: 100%;
+        margin: 0 auto;
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+
+      .logo {
+        font-size: 24px;
+        font-weight: 800;
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .logo-tagline {
+        font-size: 11px;
+        color: #71717a;
+        font-weight: 400;
+        margin-left: 8px;
+        letter-spacing: 0.5px;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 32px;
+        align-items: center;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .nav-links a {
+        color: #a1a1aa;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: color 0.3s ease;
+      }
+
+      .nav-links a:hover {
+        color: #e4e4e7;
+      }
+
+      .hamburger {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+        gap: 5px;
+      }
+
+      .hamburger span {
+        width: 25px;
+        height: 2px;
+        background: #e4e4e7;
+        transition: all 0.3s ease;
+      }
+
+      .hamburger.active span:nth-child(1) {
+        transform: rotate(45deg) translate(7px, 7px);
+      }
+
+      .hamburger.active span:nth-child(2) {
+        opacity: 0;
+      }
+
+      .hamburger.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(6px, -6px);
+      }
+
       .blog-main {
         flex: 1;
-        padding: 3rem 0 4rem;
+        padding: 7rem 0 4rem;
       }
 
       .blog-intro {
@@ -58,13 +145,52 @@
         width: min(100%, 900px);
         margin: 0 auto;
       }
+
+      @media (max-width: 768px) {
+        .nav-links {
+          position: fixed;
+          top: 71px;
+          left: 0;
+          right: 0;
+          background: rgba(10, 10, 10, 0.98);
+          backdrop-filter: blur(12px);
+          flex-direction: column;
+          padding: 32px;
+          gap: 24px;
+          display: none;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-links.active {
+          display: flex;
+        }
+
+        .hamburger {
+          display: flex;
+        }
+      }
     </style>
   </head>
   <body class="blog-page">
-    <header class="site-header">
-      <div class="container header-inner">
-        <a href="/" class="logo">ToolCrate</a>
-      </div>
+    <header>
+        <nav>
+            <div class="logo">
+                ToolCrate
+                <span class="logo-tagline">AI done right.</span>
+            </div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/#problem">The Problem</a></li>
+                <li><a href="/#about">Who Built This</a></li>
+                <li><a href="/#products">Pricing</a></li>
+                <li><a href="/blog/">Blog</a></li>
+                <li><a href="/#cta">Get Started</a></li>
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
     </header>
 
     <main class="blog-main">
@@ -78,5 +204,22 @@
         <script src="https://app.trysoro.com/api/embed/9d3f8837-a8f6-4848-a8e8-7546fb8db7e2" defer></script>
       </div>
     </main>
+
+    <script>
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+        
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+        
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+    </script>
   </body>
 </html>
