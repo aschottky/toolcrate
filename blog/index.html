@@ -24,25 +24,25 @@
       body.blog-page {
         min-height: 100vh;
         margin: 0;
-        background: #0a0a0a;
-        color: #e4e4e7;
+        background: #0a0a0a !important;
+        color: #e4e4e7 !important;
         font-family: "DM Sans", system-ui, sans-serif;
         line-height: 1.6;
         -webkit-font-smoothing: antialiased;
       }
 
-      header {
+      body.blog-page > header {
         position: fixed !important;
         top: 0;
         left: 0;
         right: 0;
-        z-index: 99999;
+        z-index: 99999 !important;
         background: rgba(10, 10, 10, 0.92);
         backdrop-filter: blur(12px);
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       }
 
-      nav {
+      body.blog-page > header nav {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -80,16 +80,16 @@
         background: none;
       }
 
-      .nav-links {
+      body.blog-page header nav .nav-links {
         display: flex;
         gap: 32px;
         align-items: center;
-        list-style: none;
+        list-style: none !important;
         margin: 0;
         padding: 0;
       }
 
-      .nav-links a {
+      body.blog-page header nav .nav-links a {
         color: #a1a1aa;
         text-decoration: none;
         font-size: 14px;
@@ -97,7 +97,7 @@
         transition: color 0.3s ease;
       }
 
-      .nav-links a:hover {
+      body.blog-page header nav .nav-links a:hover {
         color: #e4e4e7;
       }
 
@@ -172,12 +172,16 @@
         scroll-margin-top: 5.5rem;
       }
 
+      body.blog-post-view #soro-blog {
+        scroll-margin-top: 5.5rem;
+      }
+
       body.blog-post-view #soro-blog .soro-blog {
         margin-top: 0;
       }
 
       @media (max-width: 768px) {
-        .nav-links {
+        body.blog-page header nav .nav-links {
           position: fixed;
           top: 71px;
           left: 0;
@@ -191,11 +195,11 @@
           border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .nav-links.active {
+        body.blog-page header nav .nav-links.active {
           display: flex;
         }
 
-        .hamburger {
+        body.blog-page header nav .hamburger {
           display: flex;
         }
       }
