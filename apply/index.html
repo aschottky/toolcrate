@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/styles/main.css" />
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-1JPM7QNHFN"></script>
@@ -47,23 +48,32 @@
         margin: 0 auto;
         padding-left: 24px;
         padding-right: 24px;
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
       }
 
-      .logo {
+      /* Higher specificity than main.css (loaded after this block in production) */
+      body.apply-page header nav a.logo {
+        display: inline-flex;
+        align-items: baseline;
+        text-decoration: none;
         font-size: 24px;
         font-weight: 800;
+        letter-spacing: normal;
         background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
+        color: transparent;
       }
 
-      .logo-tagline {
+      body.apply-page header nav a.logo .logo-tagline {
         font-size: 11px;
         color: #71717a;
+        -webkit-text-fill-color: #71717a;
         font-weight: 400;
         margin-left: 8px;
         letter-spacing: 0.5px;
+        background: none;
       }
 
       .nav-links {
@@ -258,16 +268,16 @@
   <body class="apply-page">
     <header>
         <nav>
-            <div class="logo">
+            <a href="/" class="logo">
                 ToolCrate
                 <span class="logo-tagline">AI done right.</span>
-            </div>
+            </a>
             <ul class="nav-links" id="navLinks">
-                <li><a href="#problem">The Problem</a></li>
-                <li><a href="#about">Who Built This</a></li>
-                <li><a href="#products">Pricing</a></li>
+                <li><a href="/#problem">The Problem</a></li>
+                <li><a href="/#about">Who Built This</a></li>
+                <li><a href="/#products">Pricing</a></li>
                 <li><a href="/blog/">Blog</a></li>
-                <li><a href="#cta">Get Started</a></li>
+                <li><a href="/#cta">Get Started</a></li>
             </ul>
             <div class="hamburger" id="hamburger">
                 <span></span>
