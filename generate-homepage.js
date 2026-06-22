@@ -15,7 +15,7 @@ const OUTPUT_PATH = join(__dirname, "index.html");
 const SCRAPED_SITE_DATA = `
 BUSINESS NAME: ToolCrate
 TAGLINE: AI done right.
-OWNER: Alexander Schottky - 20+ years of real website and conversion experience
+OWNER: Alexander Schottky - since 2009 of real website and conversion experience
 CORE MESSAGE: Most contractor websites exist. Very few actually work. We show you what yours could look like - free, in 60 seconds.
 TONE: Real, honest, slightly witty. No hype. No dashboards. No nonsense.
 TARGET CUSTOMER: Contractors, roofers, local service businesses who are overwhelmed by tech and just want their phone to ring.
