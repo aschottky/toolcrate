@@ -474,3 +474,275 @@ section + section {
 .cta-section, [class*="cta"] {
   background: linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(139,92,246,0.1) 100%);
 }
+
+/* === Try page (/try/) === */
+
+body.try-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: "DM Sans", system-ui, sans-serif;
+  background: #0a0a0a;
+  color: #e4e4e7;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  padding: 5rem 1.5rem 2rem;
+}
+
+body.try-page input:-webkit-autofill,
+body.try-page input:-webkit-autofill:hover,
+body.try-page input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px #141414 inset;
+  -webkit-text-fill-color: #e4e4e7;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+body.try-page .hero {
+  width: 100%;
+  max-width: 640px;
+  text-align: center;
+  position: relative;
+}
+
+body.try-page .hero::before {
+  content: "";
+  position: absolute;
+  top: -40%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+body.try-page .hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+body.try-page .hero h1 {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: clamp(2.25rem, 6vw, 3.25rem);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 0 0 1rem;
+  background: linear-gradient(135deg, #ffffff 0%, #c4b5fd 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+body.try-page .hero .sub {
+  color: #a1a1aa;
+  font-size: 1.125rem;
+  line-height: 1.6;
+  margin: 0 0 1.5rem;
+  font-weight: 400;
+}
+
+body.try-page .hero .fine-print {
+  color: #71717a;
+  font-size: 0.875rem;
+  margin: 0 0 2rem;
+  text-align: center;
+}
+
+body.try-page .try-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 480px;
+  margin: 0 auto;
+  text-align: left;
+  width: 100%;
+}
+
+body.try-page .field-group--hero {
+  margin-bottom: 1.25rem;
+}
+
+body.try-page .url-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+body.try-page .url-globe {
+  position: absolute;
+  left: 1.25rem;
+  width: 22px;
+  height: 22px;
+  color: #71717a;
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+body.try-page .try-input {
+  font-family: inherit;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+body.try-page .try-input--hero {
+  font-size: clamp(1.125rem, 4vw, 1.375rem);
+  font-weight: 500;
+  color: #fafafa;
+  background: rgba(255, 255, 255, 0.09);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  padding: 1.35rem 1.5rem 1.35rem 3.5rem;
+  min-height: 68px;
+  text-align: left;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+body.try-page .try-input--hero::placeholder {
+  color: #71717a;
+  font-weight: 400;
+}
+
+body.try-page .try-input--hero:focus {
+  border-color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.11);
+  box-shadow:
+    0 0 0 4px rgba(255, 255, 255, 0.06),
+    0 0 40px rgba(59, 130, 246, 0.28),
+    0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+body.try-page .optional-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin-bottom: 1.25rem;
+  padding-top: 0.25rem;
+}
+
+body.try-page .field-group--optional {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+body.try-page .field-helper {
+  color: rgba(161, 161, 170, 0.6);
+  font-size: 0.75rem;
+  line-height: 1.45;
+  margin: 0;
+  text-align: left;
+  font-weight: 400;
+}
+
+body.try-page .try-input--optional {
+  font-size: 0.9375rem;
+  font-weight: 400;
+  color: rgba(228, 228, 231, 0.6);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 0.65rem 1rem;
+  min-height: 42px;
+  text-align: left;
+}
+
+body.try-page .try-input--optional::placeholder {
+  color: rgba(113, 113, 122, 0.6);
+}
+
+body.try-page .try-input--optional:focus {
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.04);
+  color: rgba(228, 228, 231, 0.85);
+}
+
+body.try-page .try-submit {
+  align-self: center;
+  width: 100%;
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  border: none;
+  border-radius: 12px;
+  padding: 18px 48px;
+  margin-top: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 40px rgba(59, 130, 246, 0.3);
+  text-align: center;
+}
+
+body.try-page .try-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 50px rgba(59, 130, 246, 0.4);
+}
+
+body.try-page .try-submit:disabled {
+  opacity: 0.6;
+  cursor: wait;
+  transform: none;
+}
+
+body.try-page .try-form .fine-print {
+  color: #71717a;
+  font-size: 0.875rem;
+  margin: 0.9rem 0 0;
+  text-align: center;
+}
+
+body.try-page .form-error {
+  color: #fca5a5;
+  font-size: 0.9rem;
+  margin: 0.75rem 0 0;
+  min-height: 1.2em;
+  text-align: center;
+}
+
+body.try-page .trust-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem 1.25rem;
+  margin-top: 2rem;
+  color: #a1a1aa;
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+body.try-page .trust-row span::before {
+  content: "✓";
+  color: #8b5cf6;
+  font-weight: 700;
+  margin-right: 0.4rem;
+}
+
+body.try-page .success-banner {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  border-radius: 12px;
+  color: #e4e4e7;
+  font-weight: 600;
+  padding: 1rem 1.5rem;
+  margin: 0 auto 2rem;
+  max-width: 480px;
+}
+
+@media (max-width: 480px) {
+  body.try-page .try-input--hero {
+    padding-left: 3.25rem;
+    min-height: 64px;
+  }
+
+  body.try-page .url-globe {
+    left: 1rem;
+    width: 20px;
+    height: 20px;
+  }
+}

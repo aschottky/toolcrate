@@ -19,9 +19,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="/styles/main.css" />
     <style>
       :root {
         color-scheme: dark;
@@ -39,28 +40,6 @@
         padding: 0;
       }
 
-      input:-webkit-autofill,
-      input:-webkit-autofill:hover,
-      input:-webkit-autofill:focus {
-        -webkit-box-shadow: 0 0 0px 1000px #141414 inset;
-        -webkit-text-fill-color: #e4e4e7;
-        transition: background-color 5000s ease-in-out 0s;
-      }
-
-      body {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
-        background: var(--bg);
-        color: var(--text);
-        line-height: 1.6;
-        -webkit-font-smoothing: antialiased;
-        padding: 5rem 1.5rem 2rem;
-      }
-
       .back-link {
         position: fixed;
         top: 0;
@@ -71,170 +50,12 @@
         text-decoration: none;
         font-size: 14px;
         font-weight: 500;
+        font-family: "DM Sans", system-ui, sans-serif;
         transition: color 0.3s ease;
       }
 
       .back-link:hover {
         color: var(--text);
-      }
-
-      .hero {
-        width: 100%;
-        max-width: 640px;
-        text-align: center;
-        position: relative;
-      }
-
-      .hero::before {
-        content: "";
-        position: absolute;
-        top: -40%;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 600px;
-        height: 600px;
-        background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 70%);
-        pointer-events: none;
-      }
-
-      .hero > * {
-        position: relative;
-        z-index: 1;
-      }
-
-      .hero h1 {
-        font-size: clamp(2rem, 6vw, 3rem);
-        font-weight: 800;
-        letter-spacing: -0.03em;
-        line-height: 1.1;
-        margin: 0 0 1rem;
-        background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-      }
-
-      .hero .sub {
-        color: var(--muted);
-        font-size: 1.125rem;
-        line-height: 1.6;
-        margin: 0 0 2.25rem;
-        font-weight: 400;
-      }
-
-      .try-form {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-        max-width: 460px;
-        margin: 0 auto;
-        text-align: left;
-      }
-
-      .field-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.4rem;
-      }
-
-      .field-helper {
-        color: var(--muted-soft);
-        font-size: 0.8125rem;
-        line-height: 1.5;
-        text-align: center;
-      }
-
-      .try-input {
-        font-family: inherit;
-        font-size: 1rem;
-        font-weight: 400;
-        color: var(--text);
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        padding: 0.95rem 1.25rem;
-        text-align: center;
-        outline: none;
-        transition: border-color 0.3s ease, box-shadow 0.3s ease;
-      }
-
-      .try-input::placeholder {
-        color: var(--muted-soft);
-      }
-
-      .try-input:focus {
-        border-color: rgba(59, 130, 246, 0.5);
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-      }
-
-      .try-submit {
-        font-family: inherit;
-        font-size: 18px;
-        font-weight: 600;
-        color: #ffffff;
-        background: linear-gradient(135deg, var(--accent-start) 0%, var(--accent-end) 100%);
-        border: none;
-        border-radius: 12px;
-        padding: 18px 48px;
-        margin-top: 0.25rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 10px 40px rgba(59, 130, 246, 0.3);
-      }
-
-      .try-submit:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 15px 50px rgba(59, 130, 246, 0.4);
-      }
-
-      .try-submit:disabled {
-        opacity: 0.6;
-        cursor: wait;
-        transform: none;
-      }
-
-      .fine-print {
-        color: var(--muted-soft);
-        font-size: 0.875rem;
-        margin: 0.9rem 0 0;
-        text-align: center;
-      }
-
-      .form-error {
-        color: #fca5a5;
-        font-size: 0.9rem;
-        margin: 0.75rem 0 0;
-        min-height: 1.2em;
-        text-align: center;
-      }
-
-      .trust-row {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 0.4rem 1.25rem;
-        margin-top: 2rem;
-        color: var(--muted);
-        font-size: 0.9rem;
-        font-weight: 400;
-      }
-
-      .trust-row span::before {
-        content: "✓";
-        color: var(--accent-end);
-        font-weight: 700;
-        margin-right: 0.4rem;
-      }
-
-      .success-banner {
-        background: rgba(59, 130, 246, 0.1);
-        border: 1px solid rgba(59, 130, 246, 0.35);
-        border-radius: 12px;
-        color: var(--text);
-        font-weight: 600;
-        padding: 1rem 1.5rem;
-        margin: 0 auto 2rem;
-        max-width: 460px;
       }
 
       .splash {
@@ -266,6 +87,7 @@
         box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
         transform: translateY(12px);
         transition: transform 0.35s ease;
+        font-family: "DM Sans", system-ui, sans-serif;
       }
 
       .splash.is-visible .splash-card {
@@ -280,8 +102,9 @@
       }
 
       .splash-card h2 {
+        font-family: "Instrument Serif", Georgia, serif;
         font-size: 1.5rem;
-        font-weight: 800;
+        font-weight: 400;
         margin: 0 0 0.75rem;
         color: var(--text);
       }
@@ -355,7 +178,7 @@
       }
     </style>
   </head>
-  <body>
+  <body class="try-page">
     <a href="/" class="back-link">← ToolCrate</a>
 
     <main class="hero">
@@ -369,38 +192,51 @@
       <p class="fine-print">No discovery call. No proposal. Just see your redesign in 3 minutes - free.</p>
 
       <form class="try-form" id="try-form" novalidate>
-        <div class="field-group">
-          <input
-            class="try-input"
-            id="first-name-input"
-            type="text"
-            autocomplete="given-name"
-            placeholder="First name (optional)"
-            aria-label="First name (optional)"
-          />
+        <div class="field-group field-group--hero">
+          <div class="url-input-wrap">
+            <svg class="url-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M2 12h20"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            <input
+              class="try-input try-input--hero"
+              id="website-input"
+              type="text"
+              inputmode="url"
+              autocomplete="url"
+              placeholder="yourbusiness.com"
+              aria-label="Your website address"
+              required
+            />
+          </div>
         </div>
-        <div class="field-group">
-          <input
-            class="try-input"
-            id="email-input"
-            type="email"
-            inputmode="email"
-            autocomplete="email"
-            placeholder="your@email.com (optional)"
-            aria-label="Email (optional)"
-          />
-          <p class="field-helper">Add your email and we'll send you a link when it's ready</p>
+
+        <div class="optional-fields">
+          <div class="field-group field-group--optional">
+            <input
+              class="try-input try-input--optional"
+              id="first-name-input"
+              type="text"
+              autocomplete="given-name"
+              placeholder="First name (optional)"
+              aria-label="First name (optional)"
+            />
+          </div>
+          <div class="field-group field-group--optional">
+            <p class="field-helper">Add your email and we'll send you a link when it's ready</p>
+            <input
+              class="try-input try-input--optional"
+              id="email-input"
+              type="email"
+              inputmode="email"
+              autocomplete="email"
+              placeholder="your@email.com (optional)"
+              aria-label="Email (optional)"
+            />
+          </div>
         </div>
-        <input
-          class="try-input"
-          id="website-input"
-          type="text"
-          inputmode="url"
-          autocomplete="url"
-          placeholder="yourbusiness.com"
-          aria-label="Your website address"
-          required
-        />
+
         <button class="try-submit" id="submit-btn" type="submit">
           Generate My Free Preview →
         </button>
@@ -441,6 +277,6 @@
       </div>
     </div>
 
-    <script type="module" src="/try/try.js"></script>
+    <script type="module" src="./try.js"></script>
   </body>
 </html>
