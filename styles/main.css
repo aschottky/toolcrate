@@ -477,6 +477,14 @@ section + section {
 
 /* === Try page (/try/) === */
 
+:root {
+  --try-page-bg: #161b26;
+}
+
+html:has(body.try-page) {
+  background: var(--try-page-bg);
+}
+
 body.try-page {
   min-height: 100vh;
   display: flex;
@@ -484,7 +492,7 @@ body.try-page {
   align-items: center;
   justify-content: center;
   font-family: "DM Sans", system-ui, sans-serif;
-  background: #0a0a0a;
+  background: var(--try-page-bg);
   color: #e4e4e7;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
@@ -494,7 +502,7 @@ body.try-page {
 body.try-page input:-webkit-autofill,
 body.try-page input:-webkit-autofill:hover,
 body.try-page input:-webkit-autofill:focus {
-  -webkit-box-shadow: 0 0 0px 1000px #141414 inset;
+  -webkit-box-shadow: 0 0 0px 1000px var(--try-page-bg) inset;
   -webkit-text-fill-color: #e4e4e7;
   transition: background-color 5000s ease-in-out 0s;
 }
@@ -593,13 +601,13 @@ body.try-page .try-input--hero {
   font-size: clamp(1.125rem, 4vw, 1.375rem);
   font-weight: 500;
   color: #fafafa;
-  background: rgba(255, 255, 255, 0.09);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 14px;
   padding: 1.35rem 1.5rem 1.35rem 3.5rem;
   min-height: 68px;
   text-align: left;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  box-shadow: none;
 }
 
 body.try-page .try-input--hero::placeholder {
@@ -608,12 +616,11 @@ body.try-page .try-input--hero::placeholder {
 }
 
 body.try-page .try-input--hero:focus {
-  border-color: rgba(255, 255, 255, 0.85);
-  background: rgba(255, 255, 255, 0.11);
+  border-color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.03);
   box-shadow:
-    0 0 0 4px rgba(255, 255, 255, 0.06),
-    0 0 40px rgba(59, 130, 246, 0.28),
-    0 8px 32px rgba(0, 0, 0, 0.35);
+    0 0 0 3px rgba(59, 130, 246, 0.15),
+    0 0 32px rgba(59, 130, 246, 0.12);
 }
 
 body.try-page .contact-fields,
@@ -654,8 +661,8 @@ body.try-page .try-input--contact {
   font-size: 1.0625rem;
   font-weight: 500;
   color: #fafafa;
-  background: rgba(255, 255, 255, 0.07);
-  border: 2px solid rgba(255, 255, 255, 0.16);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 12px;
   padding: 1rem 1.125rem;
   min-height: 54px;
@@ -668,11 +675,11 @@ body.try-page .try-input--contact::placeholder {
 }
 
 body.try-page .try-input--contact:focus {
-  border-color: rgba(255, 255, 255, 0.75);
-  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.03);
   box-shadow:
-    0 0 0 3px rgba(255, 255, 255, 0.05),
-    0 0 28px rgba(59, 130, 246, 0.22);
+    0 0 0 3px rgba(59, 130, 246, 0.15),
+    0 0 28px rgba(59, 130, 246, 0.1);
 }
 
 body.try-page .try-input--optional {
@@ -820,9 +827,9 @@ body.try-page .curated-lead-note {
   padding: 0.875rem 1rem;
   font-size: 0.8125rem;
   line-height: 1.55;
-  color: rgba(161, 161, 170, 0.85);
-  background: rgba(139, 92, 246, 0.08);
-  border: 1px solid rgba(139, 92, 246, 0.18);
+  color: rgba(161, 161, 170, 0.9);
+  background: transparent;
+  border: 1px solid rgba(139, 92, 246, 0.22);
   border-radius: 10px;
   text-align: left;
 }
