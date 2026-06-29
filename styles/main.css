@@ -507,34 +507,40 @@ body.try-page input:-webkit-autofill:focus {
   transition: background-color 5000s ease-in-out 0s;
 }
 
-body.try-page .hero {
+body.try-page .try-shell {
   width: 100%;
   max-width: 640px;
   text-align: center;
   position: relative;
-  background: transparent;
+  background: none;
   padding: 0;
   color: #e4e4e7;
 }
 
-body.try-page .hero::before {
+body.try-page::before {
   content: "";
-  position: absolute;
-  top: -40%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 70%);
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 50% at 50% 0%,
+    rgba(59, 130, 246, 0.1) 0%,
+    transparent 70%
+  );
   pointer-events: none;
+  z-index: 0;
 }
 
-body.try-page .hero > * {
+body.try-page > * {
   position: relative;
   z-index: 1;
 }
 
-body.try-page .hero h1 {
+body.try-page .try-shell > * {
+  position: relative;
+  z-index: 1;
+}
+
+body.try-page .try-shell h1 {
   font-family: "Instrument Serif", Georgia, serif;
   font-size: clamp(2.25rem, 6vw, 3.25rem);
   font-weight: 400;
@@ -547,7 +553,7 @@ body.try-page .hero h1 {
   background-clip: text;
 }
 
-body.try-page .hero .sub {
+body.try-page .try-shell .sub {
   color: #a1a1aa;
   font-size: 1.125rem;
   line-height: 1.6;
@@ -555,7 +561,7 @@ body.try-page .hero .sub {
   font-weight: 400;
 }
 
-body.try-page .hero .fine-print {
+body.try-page .try-shell .fine-print {
   color: #71717a;
   font-size: 0.875rem;
   margin: 0 0 2rem;

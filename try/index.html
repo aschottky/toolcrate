@@ -181,7 +181,7 @@
   <body class="try-page">
     <a href="/" class="back-link">← ToolCrate</a>
 
-    <main class="hero">
+    <main class="try-shell">
       <div class="success-banner" id="variation-success" hidden>
         🎉 Your new design is on its way - check your email!
       </div>
@@ -295,5 +295,20 @@
     </div>
 
     <script type="module" src="./try.js"></script>
+    <style>
+      /* Production-safe overrides: bundled main.css loads before this block in dev,
+         but Vite injects CSS after inline head styles in production — these rules
+         must win over global .hero styles from main.css. */
+      html,
+      body.try-page {
+        background: #161b26 !important;
+      }
+
+      body.try-page .try-shell {
+        background: none !important;
+        padding: 0 !important;
+        color: #e4e4e7 !important;
+      }
+    </style>
   </body>
 </html>
