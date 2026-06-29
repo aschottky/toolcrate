@@ -16,22 +16,22 @@ const SCRAPED_SITE_DATA = `
 BUSINESS NAME: ToolCrate
 TAGLINE: AI done right.
 OWNER: Alexander Schottky - since 2009 of real website and conversion experience
-CORE MESSAGE: Most contractor websites exist. Very few actually work. We show you what yours could look like - free, in 60 seconds.
+CORE MESSAGE: Most contractor websites exist. Very few actually work. Submit your URL and Alexander will personally prepare a custom conversion redesign—free, no commitment.
 TONE: Real, honest, slightly witty. No hype. No dashboards. No nonsense.
 TARGET CUSTOMER: Contractors, roofers, local service businesses who are overwhelmed by tech and just want their phone to ring.
-POSITIONING: Alexander replicated his decades of experience into AI so more businesses can access what used to cost thousands.
+POSITIONING: Expert-led conversion redesign by Alexander Schottky—real experience since 2009, without the $15,000 agency price tag.
 
 PRODUCTS:
-- Free Design Preview (no email, no credit card - just see it) → CTA: "Get my free Design Preview" → links to /try
+- Free Redesign Review (name, email, URL required — expert-curated, delivered to inbox) → CTA: "Request My Custom Redesign" → links to /try
 - Full Build: $497 setup + $99/mo → CTA: "Let's build it"
 - Conversion OS (founding member): $2,500 + $997/mo, includes monthly iterations, Loom walkthroughs, and every new ToolCrate tool free forever → CTA: "Apply for founding membership"
 
 KEY COPY LINES TO USE:
 - "Your website isn't broken. It's just... not doing anything."
-- "I didn't automate the soul out of it. I just made it faster."
+- "I didn't automate the soul out of it. Every site gets a personal review."
 - "Don't fall for the 'make millions overnight' AI hype."
-- "I basically replicated myself in AI."
 - "No dashboard. No drag and drop. Just results."
+- Never promise instant results, 3-minute previews, or speed — emphasize expert-led personal review by Alexander.
 - The primary CTA should appear at least twice: once in the hero, once at the bottom.
 
 DESIGN DIRECTION:

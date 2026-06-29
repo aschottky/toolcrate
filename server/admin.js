@@ -32,6 +32,8 @@ import {
   isSupabaseConfigured,
   markDesignEmailSent,
   markInitialEmailSent,
+  markPendingReviewDelivered,
+  markPendingReviewReady,
   markRedesignFailed,
   markRoastFailed,
   saveRoastBullets,
@@ -927,6 +929,11 @@ async function sendDesignReadyNotification(redesignId, logPrefix) {
     }
 
     const previewUrl = `${PREVIEW_BASE_URL}${encodeURIComponent(info.preview_token)}`;
+
+    await markPendingReviewReady(redesignId, previewUrl).catch((error) =>
+      console.warn(`${logPrefix} Pending review ready update failed:`, error.message)
+    );
+
     const roastBullets =
       (info.roast_status === "roast_ready" || info.roast_status === "ready") &&
       Array.isArray(info.roast_bullets)
@@ -941,6 +948,9 @@ async function sendDesignReadyNotification(redesignId, logPrefix) {
       firstName: info.first_name,
     });
     await markDesignEmailSent(redesignId);
+    await markPendingReviewDelivered(redesignId).catch((error) =>
+      console.warn(`${logPrefix} Pending review delivered update failed:`, error.message)
+    );
     console.log(`${logPrefix} Design-ready email sent to ${info.email}.`);
   } catch (error) {
     console.error(`${logPrefix} Design-ready email failed:`, error.message);

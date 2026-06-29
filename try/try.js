@@ -1,6 +1,10 @@
 import { apiUrl, normalizeClientError } from "../scripts/api-config.js";
 
 const form = document.getElementById("try-form");
+const trySuccess = document.getElementById("try-success");
+const trySuccessEmail = document.getElementById("try-success-email");
+const trySuccessUrl = document.getElementById("try-success-url");
+const pageSub = document.getElementById("page-sub");
 const firstNameInput = document.getElementById("first-name-input");
 const emailInput = document.getElementById("email-input");
 const input = document.getElementById("website-input");
@@ -12,14 +16,12 @@ const existingPreviewLink = document.getElementById("existing-preview-link");
 const newDesignLink = document.getElementById("new-design-link");
 const variationSuccess = document.getElementById("variation-success");
 
-// Instantly cold-email CTA (plain text — no query params; form collects everything on-page):
-// https://usetoolcrate.com/try
-//
-// URL param pre-fill (?first=, ?email=, ?url=) is for HTML channels only (SMS, ManyChat, etc.).
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Remembered from the duplicate submission so the $9 checkout knows
 // which domain/email to attach as session metadata.
 let lastSubmission = null;
+let isSubmitting = false;
 
 /** Client-side mirror of server/url-utils.js — root domain only, lowercased. */
 function normalizeRootDomain(value) {
@@ -56,6 +58,24 @@ function isValidWebsiteParam(value) {
   return /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/i.test(domain);
 }
 
+function isValidFirstName(value) {
+  const name = String(value || "").trim();
+  return name.length > 0 && !/[@.]/.test(name);
+}
+
+function isFormValid() {
+  const domain = normalizeRootDomain(input.value);
+  return (
+    isValidFirstName(firstNameInput.value) &&
+    EMAIL_RE.test(emailInput.value.trim()) &&
+    Boolean(domain && domain.includes("."))
+  );
+}
+
+function updateSubmitState() {
+  submitBtn.disabled = isSubmitting || !isFormValid();
+}
+
 function prefillFromQueryParams() {
   const params = new URLSearchParams(window.location.search);
 
@@ -73,10 +93,11 @@ function prefillFromQueryParams() {
   if (urlParam && isValidWebsiteParam(urlParam)) {
     input.value = normalizeRootDomain(urlParam) || urlParam.replace(/^https?:\/\//i, "").split(/[/?#]/)[0];
   }
+
+  updateSubmitState();
 }
 
 function previewLinkFor(token) {
-  // /try/ and /preview/ are sibling pages — same origin in dev and prod.
   return new URL(
     `../preview/?t=${encodeURIComponent(token)}`,
     window.location.href
@@ -88,10 +109,24 @@ function setError(message) {
 }
 
 function setSubmitting(submitting) {
-  submitBtn.disabled = submitting;
+  isSubmitting = submitting;
   submitBtn.textContent = submitting
-    ? "Starting your preview…"
-    : "Generate My Free Preview →";
+    ? "Submitting your request…"
+    : "Submit for Alexander's Review →";
+  updateSubmitState();
+}
+
+function showSuccessState(email, domain) {
+  form.hidden = true;
+  pageSub.hidden = true;
+  trySuccess.hidden = false;
+  if (trySuccessEmail) {
+    trySuccessEmail.textContent = email;
+  }
+  if (trySuccessUrl) {
+    trySuccessUrl.textContent = domain;
+  }
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function showSplash(token) {
@@ -102,8 +137,6 @@ function showSplash(token) {
 
 let startingCheckout = false;
 
-// "$9 New Design Variation" → Stripe Checkout (session created server-side
-// with domain/email metadata; the webhook queues the generation after payment).
 newDesignLink.addEventListener("click", async (event) => {
   event.preventDefault();
   if (startingCheckout || !lastSubmission) return;
@@ -135,6 +168,10 @@ newDesignLink.addEventListener("click", async (event) => {
   }
 });
 
+for (const field of [firstNameInput, emailInput, input]) {
+  field.addEventListener("input", updateSubmitState);
+}
+
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   setError("");
@@ -143,15 +180,19 @@ form.addEventListener("submit", async (event) => {
   const emailRaw = emailInput.value.trim();
   const domain = normalizeRootDomain(input.value);
 
-  let email = null;
-  if (emailRaw) {
-    if (!emailRaw.includes("@")) {
-      setError("Please enter a valid email address.");
-      emailInput.focus();
-      return;
-    }
-    email = emailRaw;
+  if (!isValidFirstName(firstNameRaw)) {
+    setError("Please enter your first name.");
+    firstNameInput.focus();
+    return;
   }
+
+  if (!EMAIL_RE.test(emailRaw)) {
+    setError("Please enter a valid email address.");
+    emailInput.focus();
+    return;
+  }
+
+  const email = emailRaw;
 
   if (!domain || !domain.includes(".")) {
     setError("Please enter a valid website, e.g. yourbusiness.com");
@@ -160,7 +201,7 @@ form.addEventListener("submit", async (event) => {
   }
 
   input.value = domain;
-  lastSubmission = { domain, email: email || "" };
+  lastSubmission = { domain, email, first_name: firstNameRaw };
   setSubmitting(true);
 
   try {
@@ -169,8 +210,8 @@ form.addEventListener("submit", async (event) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         url: domain,
-        email: email || "",
-        first_name: firstNameRaw || "",
+        email,
+        first_name: firstNameRaw,
       }),
     });
 
@@ -191,8 +232,12 @@ form.addEventListener("submit", async (event) => {
       return;
     }
 
-    // status: "generating" — the preview page's wait screen takes over.
-    window.location.href = previewLinkFor(data.token);
+    if (data.status === "received" || data.ok) {
+      showSuccessState(email, domain);
+      return;
+    }
+
+    setError("Something went wrong. Please try again.");
   } catch (error) {
     setError(normalizeClientError(error.message || ""));
   } finally {
@@ -201,9 +246,8 @@ form.addEventListener("submit", async (event) => {
 });
 
 prefillFromQueryParams();
+updateSubmitState();
 
-// Back from a successful $9 variation checkout
-// (success_url: /try/?variation=success&session_id=...).
 if (new URLSearchParams(window.location.search).get("variation") === "success") {
   variationSuccess.hidden = false;
 }

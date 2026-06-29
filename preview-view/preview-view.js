@@ -24,7 +24,7 @@ function renderHtml(html) {
 
   const iframe = document.createElement("iframe");
   iframe.className = "preview-frame";
-  iframe.title = "Your free AI redesign preview";
+  iframe.title = "Your custom design preview";
   iframe.src = url;
 
   iframe.addEventListener("load", () => {

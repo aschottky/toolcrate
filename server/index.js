@@ -4,7 +4,7 @@ import express from "express";
 import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import { runSiteAudit } from "./audit.js";
 import { buildAuditPdf } from "./audit-pipeline.js";
-import { sendAuditReportEmail, sendPreviewStartedNotification, sendWelcomeEmail, normalizeProspectFirstName, getResend } from "./email.js";
+import { sendAuditReportEmail, sendNewLeadReviewNotification, sendWelcomeEmail, normalizeProspectFirstName, getResend } from "./email.js";
 import { generateAuditPDF } from "./pdf.js";
 import { sendAuditError } from "./errors.js";
 import { handleInstantlyWebhook } from "./instantly-webhook.js";
@@ -38,6 +38,7 @@ import {
   findLatestRedesignForDomain,
   fetchPreviousDesignExclusions,
   insertPendingRedesign,
+  insertPendingReview,
   setRedesignEmail,
   setRedesignFirstName,
   isSupabaseConfigured,
@@ -868,6 +869,20 @@ app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
     });
   }
 
+  if (!email) {
+    return res.status(400).json({
+      ok: false,
+      error: "Please enter your email so we can send your redesign.",
+    });
+  }
+
+  if (!firstName) {
+    return res.status(400).json({
+      ok: false,
+      error: "Please enter your first name.",
+    });
+  }
+
   if (!isSupabaseConfigured()) {
     return res.status(503).json({
       ok: false,
@@ -931,12 +946,28 @@ app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
       logPrefix: `${logPrefix}:${pending.id}`,
     });
 
-    sendPreviewStartedNotification(websiteUrl, email).catch((error) =>
-      console.warn(`${logPrefix} Preview-started notification failed:`, error.message)
+    const reviewUrl = `https://usetoolcrate.com/preview-view/?t=${encodeURIComponent(pending.preview_token)}`;
+
+    insertPendingReview({
+      redesignId: pending.id,
+      websiteUrl,
+      leadEmail: email,
+      previewToken: pending.preview_token,
+    }).catch((error) =>
+      console.warn(`${logPrefix} Pending review insert failed:`, error.message)
     );
 
-    console.log(`${logPrefix} Queued generation (${engine.id}).`);
-    return res.json({ ok: true, status: "generating", token: pending.preview_token });
+    sendNewLeadReviewNotification({
+      businessUrl: websiteUrl,
+      userEmail: email,
+      userName: firstName,
+      reviewUrl,
+    }).catch((error) =>
+      console.warn(`${logPrefix} New-lead notification failed:`, error.message)
+    );
+
+    console.log(`${logPrefix} Queued expert-curated review (${engine.id}).`);
+    return res.json({ ok: true, status: "received" });
   } catch (error) {
     console.error(`${logPrefix} Failed:`, error.message);
     const status = error.statusCode ?? 500;

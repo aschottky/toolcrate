@@ -616,18 +616,29 @@ body.try-page .try-input--hero:focus {
     0 8px 32px rgba(0, 0, 0, 0.35);
 }
 
+body.try-page .contact-fields,
 body.try-page .optional-fields {
   display: flex;
   flex-direction: column;
-  gap: 0.625rem;
-  margin-bottom: 1.25rem;
-  padding-top: 0.25rem;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-top: 0;
 }
 
+body.try-page .field-group--contact,
 body.try-page .field-group--optional {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.5rem;
+}
+
+body.try-page .field-label {
+  color: #d4d4d8;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 0;
+  text-align: left;
 }
 
 body.try-page .field-helper {
@@ -637,6 +648,31 @@ body.try-page .field-helper {
   margin: 0;
   text-align: left;
   font-weight: 400;
+}
+
+body.try-page .try-input--contact {
+  font-size: 1.0625rem;
+  font-weight: 500;
+  color: #fafafa;
+  background: rgba(255, 255, 255, 0.07);
+  border: 2px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  padding: 1rem 1.125rem;
+  min-height: 54px;
+  text-align: left;
+}
+
+body.try-page .try-input--contact::placeholder {
+  color: #71717a;
+  font-weight: 400;
+}
+
+body.try-page .try-input--contact:focus {
+  border-color: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.05),
+    0 0 28px rgba(59, 130, 246, 0.22);
 }
 
 body.try-page .try-input--optional {
@@ -673,6 +709,7 @@ body.try-page .try-submit {
   border-radius: 12px;
   padding: 18px 48px;
   margin-top: 0;
+  margin-bottom: 0;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 10px 40px rgba(59, 130, 246, 0.3);
@@ -685,9 +722,10 @@ body.try-page .try-submit:hover {
 }
 
 body.try-page .try-submit:disabled {
-  opacity: 0.6;
-  cursor: wait;
+  opacity: 0.45;
+  cursor: not-allowed;
   transform: none;
+  box-shadow: 0 6px 24px rgba(59, 130, 246, 0.15);
 }
 
 body.try-page .try-form .fine-print {
@@ -745,6 +783,72 @@ body.try-page .success-banner {
     width: 20px;
     height: 20px;
   }
+}
+
+body.try-page .try-founder {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: 480px;
+  margin: 0 auto 1.75rem;
+  text-align: left;
+}
+
+body.try-page .try-founder-photo {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(139, 92, 246, 0.4);
+  flex-shrink: 0;
+}
+
+body.try-page .try-founder-text {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #a1a1aa;
+  line-height: 1.5;
+}
+
+body.try-page .try-founder-text strong {
+  color: #e4e4e7;
+  font-weight: 600;
+}
+
+body.try-page .curated-lead-note {
+  margin: 1rem 0 0;
+  padding: 0.875rem 1rem;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: rgba(161, 161, 170, 0.85);
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.18);
+  border-radius: 10px;
+  text-align: left;
+}
+
+body.try-page .try-success {
+  max-width: 520px;
+  margin: 0 auto 1.25rem;
+  text-align: center;
+}
+
+body.try-page .try-success p {
+  color: #a1a1aa;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  margin: 0;
+}
+
+body.try-page .try-success strong {
+  color: #e4e4e7;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+body.try-page #try-footer-note {
+  text-align: center;
+  margin-top: 0.5rem;
 }
 
 /* === Legal pages (/privacy/, /terms/) === */

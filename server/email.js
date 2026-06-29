@@ -196,13 +196,13 @@ export async function sendDesignReadyEmail({
 
   const subject = `we looked at ${companyName}'s site while we were at it...`;
 
-  const previewCtaLabel = "→ See Your Free Design Preview";
+  const previewCtaLabel = "→ See Your Custom Redesign";
   const previewCtaHtml = `<a href="${previewUrl}" style="color: #2563eb; text-decoration: underline;">${previewCtaLabel}</a>`;
 
   const html = `
 <div style="font-family: sans-serif; max-width: 600px; line-height: 1.6; color: #1a1a1a;">
   <p>${greeting}</p>
-  <p>Your free redesign preview is ready — but before you see it, here's what our AI flagged on your current site:</p>
+  <p>Your custom conversion redesign is ready — but before you see it, here's what stood out when I reviewed your current site:</p>
   ${bulletLinesHtml}
   <p style="margin: 1.5rem 0 0.75rem;">Now see what it could look like instead:</p>
   <p style="margin: 0 0 1.5rem;">${previewCtaHtml}</p>
@@ -212,7 +212,7 @@ export async function sendDesignReadyEmail({
 
   const text = `${greeting}
 
-Your free redesign preview is ready — but before you see it, here's what our AI flagged on your current site:
+Your custom conversion redesign is ready — but before you see it, here's what stood out when I reviewed your current site:
 
 ${bulletLinesText}
 
@@ -342,59 +342,67 @@ const PREVIEW_NOTIFY_TO =
   process.env.PREVIEW_NOTIFY_EMAIL?.trim() || "alexschottky@gmail.com";
 
 /**
- * Notify Alexander when someone starts a free preview from /try.
+ * Notify Alexander when a new expert-curated review is queued from /try.
  *
- * @param {string} businessUrl — normalized site URL
- * @param {string|null|undefined} userEmail
+ * @param {object} options
+ * @param {string} options.businessUrl
+ * @param {string|null|undefined} options.userEmail
+ * @param {string|null|undefined} [options.userName]
+ * @param {string} options.reviewUrl — internal preview link for Alexander
  * @returns {Promise<{ id: string }|null>}
  */
-export async function sendPreviewStartedNotification(businessUrl, userEmail) {
+export async function sendNewLeadReviewNotification({ businessUrl, userEmail, userName, reviewUrl }) {
   if (!process.env.RESEND_API_KEY) {
-    console.warn("[email] RESEND_API_KEY not set — skipping preview-started notification.");
+    console.warn("[email] RESEND_API_KEY not set — skipping new-lead review notification.");
     return null;
   }
 
   const resend = getResend();
   const from = getBrandedFrom("ToolCrate");
+  const notifyTo =
+    process.env.PREVIEW_NOTIFY_EMAIL?.trim() || "alexander@usetoolcrate.com";
 
-  const emailLabel = userEmail?.trim() || "None";
-  const currentTime = new Date().toLocaleString("en-US", {
-    timeZone: "America/Los_Angeles",
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
-
-  const subject = `🚀 New ToolCrate Preview: ${businessUrl}`;
+  const emailLabel = userEmail?.trim() || "None provided";
+  const nameLabel = userName?.trim() || "Not provided";
+  const subject = `New Lead: ${businessUrl} - Review Redesign Here`;
 
   const html = `
-    <p>Someone just started a free preview!</p>
-    <p><strong>URL:</strong> ${businessUrl}<br>
-    <strong>Email provided:</strong> ${emailLabel}<br>
-    <strong>Time:</strong> ${currentTime}</p>
-    <p>Check it out: <a href="https://usetoolcrate.com/admin">usetoolcrate.com/admin</a></p>
+    <p>A new site was submitted for expert-curated review.</p>
+    <p><strong>Name:</strong> ${nameLabel}<br>
+    <strong>URL:</strong> ${businessUrl}<br>
+    <strong>Lead email:</strong> ${emailLabel}</p>
+    <p><a href="${reviewUrl}">Review Redesign Here</a></p>
+    <p>The redesign is generating in the background. Refresh the preview link in a few minutes if it is not ready yet.</p>
   `.trim();
 
-  const text = `Someone just started a free preview!
+  const text = `New Lead: ${businessUrl}
 
-URL: ${businessUrl}
-Email provided: ${emailLabel}
-Time: ${currentTime}
+Name: ${nameLabel}
+Lead email: ${emailLabel}
 
-Check it out: https://usetoolcrate.com/admin`;
+Review Redesign Here: ${reviewUrl}`;
 
   const { data, error } = await resend.emails.send({
     from,
-    to: [PREVIEW_NOTIFY_TO],
+    to: [notifyTo],
     subject,
     html,
     text,
   });
 
   if (error) {
-    throw new Error(error.message || "Failed to send preview-started notification via Resend.");
+    throw new Error(error.message || "Failed to send new-lead review notification via Resend.");
   }
 
   return data;
+}
+
+/**
+ * @deprecated Use sendNewLeadReviewNotification for /try submissions.
+ */
+export async function sendPreviewStartedNotification(businessUrl, userEmail) {
+  const reviewUrl = `https://usetoolcrate.com/admin`;
+  return sendNewLeadReviewNotification({ businessUrl, userEmail, reviewUrl });
 }
 
 /**

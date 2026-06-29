@@ -23,13 +23,13 @@ const DELAY_NOTICE_MS = 240000; // 4 minutes — never reset after mount
 const STAGES = [
   {
     at: 0,
-    title: "Analyzing your current site",
+    title: "Reviewing your site structure",
     subtitle: "We are reviewing your layout, messaging, and conversion structure.",
   },
   {
     at: 15000,
-    title: "Building your custom preview",
-    subtitle: "Our AI is designing a version of your site built to convert.",
+    title: "Drafting your conversion-focused redesign",
+    subtitle: "Building a version of your site designed to convert—not just look good.",
   },
   {
     at: 60000,

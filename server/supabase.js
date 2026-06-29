@@ -1248,3 +1248,90 @@ async function markWarmLeadFollowUpStep(leadId, fields) {
     throw new Error(error.message || "Failed to update warm lead follow-up step.");
   }
 }
+
+function isMissingPendingReviewsTable(message) {
+  return /pending_reviews/i.test(String(message ?? ""));
+}
+
+/**
+ * Queue an expert-curated review row for a /try submission.
+ * Safe no-op if pending_reviews table is not migrated yet.
+ */
+export async function insertPendingReview({
+  redesignId,
+  websiteUrl,
+  leadEmail,
+  previewToken,
+}) {
+  const supabase = getSupabaseAdmin();
+
+  const row = {
+    redesign_id: redesignId,
+    website_url: websiteUrl,
+    lead_email: leadEmail?.trim().toLowerCase() || null,
+    preview_token: previewToken,
+    redesign_url: null,
+    status: "pending",
+    updated_at: new Date().toISOString(),
+  };
+
+  const { data, error } = await supabase
+    .from("pending_reviews")
+    .insert(row)
+    .select("id, redesign_id, preview_token")
+    .single();
+
+  if (error) {
+    if (isMissingPendingReviewsTable(error.message)) {
+      console.warn(
+        "[pending_reviews] Table missing — run docs/supabase-pending-reviews.sql in Supabase."
+      );
+      return null;
+    }
+    throw new Error(error.message || "Failed to insert pending review.");
+  }
+
+  return data;
+}
+
+/**
+ * Mark a pending review ready once the redesign HTML is generated.
+ */
+export async function markPendingReviewReady(redesignId, redesignUrl) {
+  const supabase = getSupabaseAdmin();
+
+  const { error } = await supabase
+    .from("pending_reviews")
+    .update({
+      redesign_url: redesignUrl,
+      status: "ready",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("redesign_id", redesignId);
+
+  if (error) {
+    if (isMissingPendingReviewsTable(error.message)) {
+      return;
+    }
+    throw new Error(error.message || "Failed to update pending review.");
+  }
+}
+
+/**
+ * Mark pending review delivered after the prospect design-ready email sends.
+ */
+export async function markPendingReviewDelivered(redesignId) {
+  const supabase = getSupabaseAdmin();
+
+  const { error } = await supabase
+    .from("pending_reviews")
+    .update({
+      status: "delivered",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("redesign_id", redesignId);
+
+  if (error && !isMissingPendingReviewsTable(error.message)) {
+    console.warn("[pending_reviews] Could not mark delivered:", error.message);
+  }
+}

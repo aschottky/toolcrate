@@ -11,10 +11,10 @@
       gtag('js', new Date());
       gtag('config', 'G-1JPM7QNHFN');
     </script>
-    <title>Free AI Website Preview — ToolCrate</title>
+    <title>Request Your Custom Conversion Redesign — ToolCrate</title>
     <meta
       name="description"
-      content="See what your website could look like. Our AI rebuilds your site in minutes — free, no strings attached."
+      content="Request a free custom conversion redesign from Alexander Schottky. Expert-curated review—no commitment."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -185,11 +185,14 @@
       <div class="success-banner" id="variation-success" hidden>
         🎉 Your new design is on its way - check your email!
       </div>
-      <h1>See What Your Website Could Look&nbsp;Like</h1>
-      <p class="sub">
-        Drop your URL. Our AI - trained on what actually converts - will redesign your homepage and show you what's possible.
+      <div class="try-founder">
+        <img src="/alexander.jpg" alt="Alexander Schottky" class="try-founder-photo" width="64" height="64" />
+        <p class="try-founder-text"><strong>Alexander Schottky</strong> personally reviews every request and prepares your custom conversion redesign.</p>
+      </div>
+      <h1>Request your custom Conversion Redesign.</h1>
+      <p class="sub" id="page-sub">
+        Drop your URL below. I'll review your current site and send you a conversion-focused redesign—free, no strings attached.
       </p>
-      <p class="fine-print">No discovery call. No proposal. Just see your redesign in 3 minutes - free.</p>
 
       <form class="try-form" id="try-form" novalidate>
         <div class="field-group field-group--hero">
@@ -212,37 +215,51 @@
           </div>
         </div>
 
-        <div class="optional-fields">
-          <div class="field-group field-group--optional">
+        <div class="contact-fields">
+          <div class="field-group field-group--contact">
+            <label class="field-label" for="first-name-input">First name</label>
             <input
-              class="try-input try-input--optional"
+              class="try-input try-input--contact"
               id="first-name-input"
               type="text"
               autocomplete="given-name"
-              placeholder="First name (optional)"
-              aria-label="First name (optional)"
+              placeholder="Your name"
+              aria-label="First name"
+              required
             />
           </div>
-          <div class="field-group field-group--optional">
-            <p class="field-helper">Add your email and we'll send you a link when it's ready</p>
+          <div class="field-group field-group--contact">
+            <label class="field-label" for="email-input">Email address</label>
             <input
-              class="try-input try-input--optional"
+              class="try-input try-input--contact"
               id="email-input"
               type="email"
               inputmode="email"
               autocomplete="email"
-              placeholder="your@email.com (optional)"
-              aria-label="Email (optional)"
+              placeholder="your@email.com"
+              aria-label="Email address"
+              required
             />
           </div>
         </div>
 
-        <button class="try-submit" id="submit-btn" type="submit">
-          Generate My Free Preview →
+        <button class="try-submit" id="submit-btn" type="submit" disabled>
+          Submit for Alexander's Review →
         </button>
-        <p class="fine-print">Takes 3–5 minutes. No credit card required.</p>
         <p class="form-error" id="form-error" role="alert"></p>
+        <p class="curated-lead-note">I take every redesign seriously. To make sure I'm giving each site the attention it needs to actually convert, I prioritize active businesses ready for growth. Keep an eye on your inbox—I'll send your custom link as soon as it's ready.</p>
       </form>
+
+      <div class="try-success" id="try-success" hidden>
+        <p id="try-success-message">
+          Got it! Your request is in my queue. I'm personally reviewing the architecture of
+          <strong id="try-success-url"></strong>
+          now. Check your inbox at
+          <strong id="try-success-email"></strong>—I'll send your custom redesign link shortly.
+        </p>
+      </div>
+
+      <p class="fine-print" id="try-footer-note">No credit card required.</p>
 
       <div class="trust-row">
         <span>Free</span>
@@ -256,8 +273,8 @@
         <span class="splash-emoji" aria-hidden="true">✨</span>
         <h2 id="splash-title">You've already got a design!</h2>
         <p class="splash-body">
-          We already built a concept for this site. Each new design takes our AI 4+
-          minutes and real computing cost — so we charge a small fee for additional
+          We already built a concept for this site. Each new design takes 4+
+          minutes of focused work and real production cost — so we charge a small fee for additional
           variations. Every new run produces something completely unique.
         </p>
         <p class="splash-body">
