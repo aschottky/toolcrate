@@ -746,3 +746,121 @@ body.try-page .success-banner {
     height: 20px;
   }
 }
+
+/* === Legal pages (/privacy/, /terms/) === */
+
+body.legal-page {
+  min-height: 100vh;
+  margin: 0;
+  background: #0a0a0a;
+  color: #e4e4e7;
+  font-family: "DM Sans", system-ui, sans-serif;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+body.legal-page .legal-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10, 10, 10, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 1rem 1.5rem;
+}
+
+body.legal-page .legal-header a {
+  color: #a1a1aa;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+body.legal-page .legal-header a:hover {
+  color: #e4e4e7;
+}
+
+body.legal-page .legal-main {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 4rem;
+}
+
+body.legal-page .legal-main h1 {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  font-weight: 400;
+  line-height: 1.15;
+  margin: 0 0 0.5rem;
+  color: #fafafa;
+}
+
+body.legal-page .legal-meta {
+  color: #71717a;
+  font-size: 0.875rem;
+  margin: 0 0 2rem;
+}
+
+body.legal-page .legal-intro {
+  color: #a1a1aa;
+  margin: 0 0 2rem;
+  font-size: 1.0625rem;
+}
+
+body.legal-page .legal-main h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #fafafa;
+  margin: 2rem 0 0.75rem;
+}
+
+body.legal-page .legal-main h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #d4d4d8;
+  margin: 1.25rem 0 0.5rem;
+}
+
+body.legal-page .legal-main p {
+  margin: 0 0 1rem;
+  color: #a1a1aa;
+  font-size: 0.975rem;
+}
+
+body.legal-page .legal-main ul {
+  margin: 0 0 1rem 1.25rem;
+  color: #a1a1aa;
+  font-size: 0.975rem;
+}
+
+body.legal-page .legal-main li {
+  margin-bottom: 0.35rem;
+}
+
+body.legal-page .legal-main a {
+  color: #a78bfa;
+  text-decoration: none;
+}
+
+body.legal-page .legal-main a:hover {
+  text-decoration: underline;
+}
+
+body.legal-page .legal-footer {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  text-align: center;
+}
+
+body.legal-page .legal-footer a {
+  color: #71717a;
+  font-size: 0.875rem;
+  text-decoration: none;
+  margin: 0 0.75rem;
+}
+
+body.legal-page .legal-footer a:hover {
+  color: #a1a1aa;
+}
