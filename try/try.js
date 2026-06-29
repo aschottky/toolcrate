@@ -2,25 +2,24 @@ import { apiUrl, normalizeClientError } from "../scripts/api-config.js";
 
 const form = document.getElementById("try-form");
 const trySuccess = document.getElementById("try-success");
+const queueModal = document.getElementById("queue-modal");
 const trySuccessEmail = document.getElementById("try-success-email");
 const trySuccessUrl = document.getElementById("try-success-url");
+const tryDuplicateUrl = document.getElementById("try-duplicate-url");
+const viewRedesignLink = document.getElementById("view-redesign-link");
 const pageSub = document.getElementById("page-sub");
+const pageTitle = document.getElementById("page-title");
+const tryFooterNote = document.getElementById("try-footer-note");
 const firstNameInput = document.getElementById("first-name-input");
 const emailInput = document.getElementById("email-input");
 const input = document.getElementById("website-input");
 const submitBtn = document.getElementById("submit-btn");
+const submitLabel = submitBtn?.querySelector(".try-submit-label");
 const formError = document.getElementById("form-error");
-const splash = document.getElementById("splash");
-const splashError = document.getElementById("splash-error");
-const existingPreviewLink = document.getElementById("existing-preview-link");
-const newDesignLink = document.getElementById("new-design-link");
-const variationSuccess = document.getElementById("variation-success");
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MIN_SUBMIT_FEEDBACK_MS = 450;
 
-// Remembered from the duplicate submission so the $9 checkout knows
-// which domain/email to attach as session metadata.
-let lastSubmission = null;
 let isSubmitting = false;
 
 /** Client-side mirror of server/url-utils.js — root domain only, lowercased. */
@@ -97,9 +96,9 @@ function prefillFromQueryParams() {
   updateSubmitState();
 }
 
-function previewLinkFor(token) {
+function previewViewLinkFor(token) {
   return new URL(
-    `../preview/?t=${encodeURIComponent(token)}`,
+    `../preview-view/?t=${encodeURIComponent(token)}`,
     window.location.href
   ).toString();
 }
@@ -110,16 +109,38 @@ function setError(message) {
 
 function setSubmitting(submitting) {
   isSubmitting = submitting;
-  submitBtn.textContent = submitting
-    ? "Submitting your request…"
-    : "Submit for Alexander's Review →";
+  submitBtn.classList.toggle("is-loading", submitting);
+  if (submitLabel) {
+    submitLabel.textContent = submitting
+      ? "Submitting your request…"
+      : "Submit for Alexander's Review →";
+  }
   updateSubmitState();
 }
 
-function showSuccessState(email, domain) {
+async function waitForSubmitFeedback(startedAt) {
+  const elapsed = Date.now() - startedAt;
+  const remaining = MIN_SUBMIT_FEEDBACK_MS - elapsed;
+  if (remaining > 0) {
+    await new Promise((resolve) => setTimeout(resolve, remaining));
+  }
+}
+
+function hideFormForResultState() {
   form.hidden = true;
   pageSub.hidden = true;
+  if (tryFooterNote) {
+    tryFooterNote.hidden = true;
+  }
+  document.body.classList.add("is-success");
+}
+
+function showSuccessState(email, domain) {
+  hideFormForResultState();
   trySuccess.hidden = false;
+  if (pageTitle) {
+    pageTitle.textContent = "Success! Your redesign is in the queue.";
+  }
   if (trySuccessEmail) {
     trySuccessEmail.textContent = email;
   }
@@ -129,44 +150,22 @@ function showSuccessState(email, domain) {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-function showSplash(token) {
-  existingPreviewLink.href = previewLinkFor(token);
-  splash.hidden = false;
-  requestAnimationFrame(() => splash.classList.add("is-visible"));
-}
-
-let startingCheckout = false;
-
-newDesignLink.addEventListener("click", async (event) => {
-  event.preventDefault();
-  if (startingCheckout || !lastSubmission) return;
-
-  startingCheckout = true;
-  splashError.hidden = true;
-  const originalLabel = newDesignLink.textContent;
-  newDesignLink.textContent = "Opening secure checkout…";
-
-  try {
-    const response = await fetch(apiUrl("/api/variation-checkout"), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(lastSubmission),
-    });
-
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok || !data.url) {
-      throw new Error(data.error || "Could not start checkout. Please try again.");
-    }
-
-    window.location.href = data.url;
-  } catch (error) {
-    splashError.textContent = normalizeClientError(error.message || "");
-    splashError.hidden = false;
-    newDesignLink.textContent = originalLabel;
-    startingCheckout = false;
+function showDuplicateModal(domain, token, ready) {
+  if (tryDuplicateUrl) {
+    tryDuplicateUrl.textContent = domain;
   }
-});
+  if (viewRedesignLink) {
+    if (ready && token) {
+      viewRedesignLink.href = previewViewLinkFor(token);
+      viewRedesignLink.hidden = false;
+    } else {
+      viewRedesignLink.hidden = true;
+    }
+  }
+  queueModal.hidden = false;
+  document.body.classList.add("modal-open");
+  requestAnimationFrame(() => queueModal.classList.add("is-visible"));
+}
 
 for (const field of [firstNameInput, emailInput, input]) {
   field.addEventListener("input", updateSubmitState);
@@ -201,7 +200,7 @@ form.addEventListener("submit", async (event) => {
   }
 
   input.value = domain;
-  lastSubmission = { domain, email, first_name: firstNameRaw };
+  const submitStartedAt = Date.now();
   setSubmitting(true);
 
   try {
@@ -216,6 +215,7 @@ form.addEventListener("submit", async (event) => {
     });
 
     const data = await response.json().catch(() => ({}));
+    await waitForSubmitFeedback(submitStartedAt);
 
     if (!response.ok) {
       setError(
@@ -228,7 +228,7 @@ form.addEventListener("submit", async (event) => {
     }
 
     if (data.duplicate || data.status === "exists") {
-      showSplash(data.token);
+      showDuplicateModal(domain, data.token, Boolean(data.ready));
       return;
     }
 
@@ -239,6 +239,7 @@ form.addEventListener("submit", async (event) => {
 
     setError("Something went wrong. Please try again.");
   } catch (error) {
+    await waitForSubmitFeedback(submitStartedAt);
     setError(normalizeClientError(error.message || ""));
   } finally {
     setSubmitting(false);
@@ -247,7 +248,3 @@ form.addEventListener("submit", async (event) => {
 
 prefillFromQueryParams();
 updateSubmitState();
-
-if (new URLSearchParams(window.location.search).get("variation") === "success") {
-  variationSuccess.hidden = false;
-}

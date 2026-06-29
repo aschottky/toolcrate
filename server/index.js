@@ -914,12 +914,14 @@ app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
           console.warn(`${logPrefix} Could not backfill first name:`, error.message)
         );
       }
-      console.log(`${logPrefix} Duplicate domain — returning existing preview.`);
+      console.log(`${logPrefix} Duplicate domain — already in queue.`);
       return res.json({
         ok: true,
         duplicate: true,
         status: "exists",
         token: existing.preview_token,
+        ready: existing.status === "ready",
+        url: rootDomain,
       });
     }
 
