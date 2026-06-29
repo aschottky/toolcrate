@@ -402,6 +402,43 @@
         opacity: 0;
       }
 
+      /* Skip the line — strategist contact */
+      .skip-line {
+        margin-top: 2.5rem;
+        padding: 1.25rem 1.5rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 1rem;
+        text-align: center;
+      }
+      .skip-line-kicker {
+        margin: 0 0 0.5rem;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: rgba(249, 115, 22, 0.7);
+      }
+      .skip-line-copy {
+        margin: 0;
+        color: #94a3b8;
+        font-size: 0.9375rem;
+        line-height: 1.6;
+        font-style: italic;
+      }
+      .skip-line-copy a {
+        color: #e2e8f0;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-variant-numeric: tabular-nums;
+        font-style: normal;
+        text-decoration: none;
+        letter-spacing: 0.02em;
+        transition: color 0.2s ease;
+      }
+      .skip-line-copy a:hover {
+        color: var(--orange);
+      }
+
       /* ---------- Final preview frame + loading gate (legacy — preview now on /preview-view/) ---------- */
       .preview-frame {
         position: fixed;
@@ -489,6 +526,14 @@
         <div class="question-banner" id="question-banner" hidden>
           Got it. We factored that into your design.
         </div>
+
+        <aside class="skip-line" aria-label="Contact a strategist">
+          <p class="skip-line-kicker">Need to skip the line?</p>
+          <p class="skip-line-copy">
+            Have questions about your redesign? Speak with a strategist at
+            <a href="tel:+18188699928">(818) 869-9928</a>.
+          </p>
+        </aside>
       </div>
     </div>
 
