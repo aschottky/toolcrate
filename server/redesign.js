@@ -12,15 +12,39 @@ function getOpenAI() {
   return openaiClient;
 }
 
+export const LOCAL_SERVICE_CONVERSION_RULES = `LOCAL SERVICE BUSINESS CONVERSION RULES (hard requirements for trades, plumbers, HVAC, roofers, and similar):
+
+COLOR & BRAND ACCURACY:
+- Extract PRIMARY brand colors from the scraped site, logo image, and CSS. If the logo is orange and black, the redesign MUST feature orange and black as primary/accent colors — not as minor accents only.
+- Do NOT default to generic "SaaS navy", cool slate, or blue-gray palettes unless the scraped brand clearly uses those colors.
+- CTA buttons must be high-contrast: if the section background is dark or blue, use the brand's warm accent (e.g. orange) for primary buttons.
+
+VISUAL WEIGHT — WARMTH & AUTHORITY:
+- Local service businesses need warmth and authority — not cold corporate minimalism.
+- Prefer imagery that suggests real people, crews, trucks, jobs in progress, or active service scenarios. Use scraped site photos when they show real work.
+- Avoid cold, empty, ultra-minimalist layouts and generic clinical stock-photo aesthetics.
+
+CONVERSION COPY:
+- Headlines must be PUNCHY and BENEFIT-DRIVEN (e.g. "Same-Day Plumbing in Springfield") — not poetic, vague, or clever for its own sake.
+- Subheads must state a concrete offer, speed, or proof point — not filler.
+- The phone number is the #1 conversion action for trades: display it prominently in the header/nav as a bold, clickable tel: link — never footer-only.
+
+TONE & STYLE:
+- Target: "Modern Industrial" or "High-Performance Professional" — full, energetic layouts with bold typography and strong section breaks.
+- AVOID: Ultra-minimalist, clinical, sparse, or "empty" designs with excessive white space and timid type.
+- The page should feel FULL and energetic — every section should have clear visual weight.`;
+
 const REDESIGN_SYSTEM_PROMPT = `You are a world-class web designer and conversion strategist. You will receive scraped data from a local contractor's website including their company name, location, services, phone number, existing copy, colors, and any image URLs found on their site.
 
 Your job is to generate a single, complete HTML file that reimagines this business's online presence as a stunning, high-converting landing page. This preview will be shown to the business owner as a "vision" of what their site could look like - it needs to make their jaw drop.
 
+${LOCAL_SERVICE_CONVERSION_RULES}
+
 CREATIVE DIRECTION:
 
-The user message includes a MANDATORY STYLE DIRECTION — treat every bullet as a hard constraint. Do not fall back to generic dark-overlay split heroes, default orange accents, or serif headlines unless that direction requires them.
+The user message includes a MANDATORY STYLE DIRECTION — treat every bullet as a hard constraint. Do not fall back to generic dark-overlay split heroes, default orange accents, or serif headlines unless that direction requires them. Never substitute SaaS navy for a brand that uses other colors.
 
-HEADLINE: Write a headline freshly conceived for this specific site and style direction. Do not default to the most obvious brand pun or the company name. Match the style direction's voice — short and punchy for bold type-led, clear value statement for light professional, unexpected for editorial.
+HEADLINE: Write a headline freshly conceived for this specific site and style direction. Headlines must be punchy and benefit-driven — not poetic. Do not default to the most obvious brand pun or the company name. Match the style direction's voice — short and punchy for bold type-led, clear value statement for light professional, unexpected for editorial.
 
 CONTENT RULES:
 
@@ -67,11 +91,14 @@ The hero must follow the MANDATORY STYLE DIRECTION in the user message. These ru
 
 5. Trust signal: A small badge or inline text row when it fits the direction.
 
+HEADER / NAV — PHONE FIRST:
+- The business phone number from scraped data MUST appear in the header or top nav bar — bold, visible, and wrapped in a tel: link. This is non-negotiable for local service businesses.
+
 SERVICE CARDS:
 - Use a simple numbered accent (01, 02, 03...) OR a small colored top border on each card as the visual identifier - no emojis
 - Each card should have: a clear service name (bold, 18-20px), a 1-2 sentence description, and a subtle CTA link ("Get a Quote →")
 - Cards should have a slight border or shadow to separate them from the background - they should feel like cards, not floating text blocks
-- On a dark background, use a slightly lighter card surface (e.g. navy #1a2a4a on a #0f1e36 background) for depth
+- On a dark background, use a slightly lighter card surface tinted with the brand palette — not generic navy unless the brand is navy
 
 TECHNICAL RULES:
 
@@ -459,7 +486,24 @@ export async function filterLoadableImageUrls(urls) {
     .filter(Boolean);
 }
 
+/** Site-specific creative overrides (e.g. known test / flagship clients). */
+export function getSiteSpecificDesignOverride(websiteUrl, textForAudit) {
+  const haystack = `${websiteUrl || ""} ${textForAudit || ""}`.toLowerCase();
+  if (/franco[\s-]?american|francoamerican/.test(haystack)) {
+    return {
+      forceStyleSlug: "high_energy_local",
+      brief: `SITE-SPECIFIC CREATIVE BRIEF — FRANCO AMERICAN (hard override on colors and tone):
+Keep the vibrant Orange and Black branding from their logo and site. Frame them as the elite, high-energy plumbing authority in Springfield. Use bold sans-serif fonts and high-contrast buttons (orange CTAs on dark/black sections). Do NOT substitute navy, slate, or generic SaaS blue.
+Headlines must be punchy and benefit-driven. Phone number must be front and center in the header. Layout should feel full and energetic — modern industrial, not minimalist or clinical.`,
+    };
+  }
+  return null;
+}
+
 export function buildUserMessage(scraped, imageUrls, generationContext = {}) {
+  const websiteUrl = extractWebsiteUrlFromScraped(scraped);
+  const siteOverride = getSiteSpecificDesignOverride(websiteUrl, scraped.textForAudit);
+
   const parts = [
     "Here is the scraped data from the business's current website. Output the complete redesigned landing page HTML:",
     "",
@@ -476,12 +520,18 @@ export function buildUserMessage(scraped, imageUrls, generationContext = {}) {
     );
   }
 
-  const styleDirection =
+  let styleDirection =
     generationContext.styleDirection ??
     pickStyleDirectionForGeneration({
       imageUrls,
       usedStyleDirections: generationContext.usedStyleDirections ?? [],
     });
+
+  if (siteOverride?.forceStyleSlug) {
+    styleDirection =
+      STYLE_DIRECTION_SPECS.find((spec) => spec.slug === siteOverride.forceStyleSlug) ??
+      styleDirection;
+  }
 
   const previousHeadlines = generationContext.previousHeadlines ?? [];
   const previousAccentColors = generationContext.previousAccentColors ?? [];
@@ -499,12 +549,16 @@ export function buildUserMessage(scraped, imageUrls, generationContext = {}) {
         "Find a completely different angle from the scraped content. If previous designs focused on one theme (sustainability, energy, family, etc.), this one must lead with a different value: speed, craftsmanship, local trust, storm damage expertise, warranty, etc."
       );
     }
-    if (previousAccentColors.length) {
+    if (previousAccentColors.length && !siteOverride) {
       parts.push(
         `Previously used accent colors for this site: ${previousAccentColors.join(", ")}`
       );
       parts.push("Use a different primary accent color for this design.");
     }
+  }
+
+  if (siteOverride?.brief) {
+    parts.push("", siteOverride.brief);
   }
 
   parts.push(
