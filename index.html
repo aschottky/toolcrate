@@ -111,43 +111,81 @@
             gap: 28px;
         }
 
-        .nav-strategy-line {
+        .nav-actions {
             display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            text-decoration: none;
-            line-height: 1.2;
+            align-items: center;
+            gap: 10px;
             flex-shrink: 0;
-            transition: opacity 0.2s ease;
         }
 
-        .nav-strategy-line:hover {
-            opacity: 0.88;
-        }
-
-        .nav-strategy-label {
-            font-size: 10px;
-            font-weight: 600;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: #52525b;
-        }
-
-        .nav-strategy-number {
-            font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
-            font-size: 14px;
+        .nav-cta-strategy {
+            display: inline-flex;
+            align-items: center;
+            padding: 9px 16px;
+            font-size: 13px;
             font-weight: 500;
-            font-variant-numeric: tabular-nums;
             color: #d4d4d8;
-            letter-spacing: 0.02em;
-            transition: color 0.2s ease;
+            text-decoration: none;
+            white-space: nowrap;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(8px);
+            transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
         }
 
-        .nav-strategy-line:hover .nav-strategy-number {
-            color: #c4b5fd;
+        .nav-cta-strategy:hover {
+            color: #f4f4f5;
+            border-color: rgba(255, 255, 255, 0.22);
+            background: rgba(255, 255, 255, 0.06);
         }
 
-        .nav-links .nav-phone-item {
+        .nav-cta-primary {
+            display: inline-flex;
+            align-items: center;
+            padding: 9px 18px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #ffffff;
+            text-decoration: none;
+            white-space: nowrap;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.25);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .nav-cta-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(59, 130, 246, 0.35);
+        }
+
+        .nav-call-icon {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.04);
+            color: #a1a1aa;
+            text-decoration: none;
+            transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+        }
+
+        .nav-call-icon:hover {
+            color: #e4e4e7;
+            border-color: rgba(255, 255, 255, 0.22);
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        .nav-call-icon svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .nav-links .nav-mobile-cta {
             display: none;
         }
         
@@ -272,6 +310,24 @@
             margin-top: 24px;
             font-size: 14px;
             color: #52525b;
+        }
+
+        .hero-strategy-line {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #52525b;
+            font-weight: 400;
+        }
+
+        .hero-strategy-line a {
+            color: #71717a;
+            text-decoration: none;
+            font-variant-numeric: tabular-nums;
+            transition: color 0.2s ease;
+        }
+
+        .hero-strategy-line a:hover {
+            color: #a1a1aa;
         }
 
         .hero-founder {
@@ -770,18 +826,33 @@
                 display: flex;
             }
 
-            .nav-strategy-line--desktop {
+            .nav-cta-strategy,
+            .nav-cta-primary {
                 display: none;
             }
 
-            .nav-links .nav-phone-item {
+            .nav-call-icon {
+                display: flex;
+            }
+
+            .nav-links .nav-mobile-cta {
                 display: list-item;
                 width: 100%;
             }
 
-            .nav-links .nav-strategy-line--mobile {
-                align-items: center;
-                padding: 4px 0 8px;
+            .nav-links .nav-mobile-cta a {
+                display: inline-block;
+                padding: 12px 20px;
+                width: 100%;
+                text-align: center;
+                color: #ffffff;
+                background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+                border-radius: 10px;
+                font-weight: 600;
+            }
+
+            .nav-links .nav-mobile-cta a:hover {
+                color: #ffffff;
             }
             
             .hero {
@@ -886,27 +957,26 @@
                 <span class="logo-tagline">The Conversion Specialist.</span>
             </div>
             <div class="nav-right">
-                <a href="tel:+18188699928" class="nav-strategy-line nav-strategy-line--desktop" aria-label="Strategy Line (818) 869-9928">
-                    <span class="nav-strategy-label">Strategy Line</span>
-                    <span class="nav-strategy-number">(818) 869-9928</span>
-                </a>
                 <ul class="nav-links" id="navLinks">
-                    <li class="nav-phone-item">
-                        <a href="tel:+18188699928" class="nav-strategy-line nav-strategy-line--mobile" aria-label="Strategy Line (818) 869-9928">
-                            <span class="nav-strategy-label">Strategy Line</span>
-                            <span class="nav-strategy-number">(818) 869-9928</span>
-                        </a>
-                    </li>
                     <li><a href="#problem">The Problem</a></li>
                     <li><a href="#about">Who Built This</a></li>
                     <li><a href="#products">Pricing</a></li>
                     <li><a href="/blog/">Blog</a></li>
-                    <li><a href="#cta">Get Started</a></li>
+                    <li class="nav-mobile-cta"><a href="#cta">Get Started</a></li>
                 </ul>
-                <div class="hamburger" id="hamburger">
-                    <span></span>
-                    <span></span>
-                    <span></span>
+                <div class="nav-actions">
+                    <a href="tel:8188699928" class="nav-cta-strategy">Speak with a Strategist</a>
+                    <a href="#cta" class="nav-cta-primary">Get Started</a>
+                    <a href="tel:8188699928" class="nav-call-icon" aria-label="Call strategy line (818) 869-9928">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.07 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 5 5l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+                        </svg>
+                    </a>
+                    <div class="hamburger" id="hamburger">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
                 </div>
             </div>
         </nav>
@@ -923,6 +993,10 @@
                 </div>
                 <a href="/try/" class="cta-primary">Request My Custom Redesign</a>
                 <a href="#products" class="cta-secondary">See pricing</a>
+                <p class="hero-strategy-line">
+                    Prefer to talk? Strategy line:
+                    <a href="tel:8188699928">(818) 869-9928</a>
+                </p>
                 <p class="hero-note">No discovery call. No proposal. Get a custom redesign of your site—free.</p>
                 <p class="hero-note">No dashboard. No drag and drop. Just results.</p>
             </div>
