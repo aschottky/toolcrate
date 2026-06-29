@@ -512,6 +512,9 @@ body.try-page .hero {
   max-width: 640px;
   text-align: center;
   position: relative;
+  background: transparent;
+  padding: 0;
+  color: #e4e4e7;
 }
 
 body.try-page .hero::before {
