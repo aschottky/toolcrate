@@ -353,14 +353,15 @@ const PREVIEW_NOTIFY_TO =
  */
 export async function sendNewLeadReviewNotification({ businessUrl, userEmail, userName, reviewUrl }) {
   if (!process.env.RESEND_API_KEY) {
-    console.warn("[email] RESEND_API_KEY not set — skipping new-lead review notification.");
+    console.warn(
+      `[email] RESEND_API_KEY not set — skipping new-lead review notification to ${PREVIEW_NOTIFY_TO}.`
+    );
     return null;
   }
 
   const resend = getResend();
   const from = getBrandedFrom("ToolCrate");
-  const notifyTo =
-    process.env.PREVIEW_NOTIFY_EMAIL?.trim() || "alexander@usetoolcrate.com";
+  const notifyTo = PREVIEW_NOTIFY_TO;
 
   const emailLabel = userEmail?.trim() || "None provided";
   const nameLabel = userName?.trim() || "Not provided";
@@ -394,6 +395,7 @@ Review Redesign Here: ${reviewUrl}`;
     throw new Error(error.message || "Failed to send new-lead review notification via Resend.");
   }
 
+  console.log(`[email] New-lead review notification sent to ${notifyTo} (${businessUrl}).`);
   return data;
 }
 
