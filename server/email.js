@@ -351,7 +351,13 @@ const PREVIEW_NOTIFY_TO =
  * @param {string} options.reviewUrl — internal preview link for Alexander
  * @returns {Promise<{ id: string }|null>}
  */
-export async function sendNewLeadReviewNotification({ businessUrl, userEmail, userName, reviewUrl }) {
+export async function sendNewLeadReviewNotification({
+  businessUrl,
+  userEmail,
+  userName,
+  userPhone,
+  reviewUrl,
+}) {
   if (!process.env.RESEND_API_KEY) {
     console.warn(
       `[email] RESEND_API_KEY not set — skipping new-lead review notification to ${PREVIEW_NOTIFY_TO}.`
@@ -365,13 +371,15 @@ export async function sendNewLeadReviewNotification({ businessUrl, userEmail, us
 
   const emailLabel = userEmail?.trim() || "None provided";
   const nameLabel = userName?.trim() || "Not provided";
+  const phoneLabel = userPhone?.trim() || "Not provided";
   const subject = `New Lead: ${businessUrl} - Review Redesign Here`;
 
   const html = `
     <p>A new site was submitted for expert-curated review.</p>
     <p><strong>Name:</strong> ${nameLabel}<br>
     <strong>URL:</strong> ${businessUrl}<br>
-    <strong>Lead email:</strong> ${emailLabel}</p>
+    <strong>Lead email:</strong> ${emailLabel}<br>
+    <strong>Phone:</strong> ${phoneLabel}</p>
     <p><a href="${reviewUrl}">Review Redesign Here</a></p>
     <p>The redesign is generating in the background. Refresh the preview link in a few minutes if it is not ready yet.</p>
   `.trim();
@@ -380,6 +388,7 @@ export async function sendNewLeadReviewNotification({ businessUrl, userEmail, us
 
 Name: ${nameLabel}
 Lead email: ${emailLabel}
+Phone: ${phoneLabel}
 
 Review Redesign Here: ${reviewUrl}`;
 

@@ -58,6 +58,10 @@ let statsActive = false;
 let pendingBullets = null;
 let revealTimer = null;
 let delayNoticeTimer = null;
+let redesignUnavailable = false;
+
+const REDESIGN_UNAVAILABLE_FOOTER =
+  "Your site analysis above is still accurate. The visual redesign could not be generated this time.";
 
 const LOG_PREFIX = "[ToolCrate Preview]";
 let lastTracked = {
@@ -149,14 +153,18 @@ function handleStatusUpdate(status, source) {
     } else if (redesign === "ready") {
       previewLog(`redesign ready (${elapsedLabel()})`);
     } else if (redesign === "failed") {
-      previewError(`redesign failed (${elapsedLabel()})`);
+      previewError(`redesign failed — unavailable (${elapsedLabel()})`);
     } else {
       previewLog(`redesign status → ${redesign} (${elapsedLabel()})`);
     }
   }
 
   if (session !== lastTracked.session && lastTracked.session !== null) {
-    previewLog(`session status → ${session} (${elapsedLabel()})`, describePhase(status));
+    if (session === "redesign_failed") {
+      previewError(`session: redesign unavailable (${elapsedLabel()})`, describePhase(status));
+    } else {
+      previewLog(`session status → ${session} (${elapsedLabel()})`, describePhase(status));
+    }
   }
 
   lastTracked = { session, roast, redesign };
@@ -291,12 +299,15 @@ function appendFindingRow(number, text) {
 
 function showFindingsFooter() {
   const footer = document.getElementById("findings-footer");
+  if (redesignUnavailable) {
+    footer.textContent = REDESIGN_UNAVAILABLE_FOOTER;
+  }
   footer.hidden = false;
   requestAnimationFrame(() => footer.classList.add("is-visible"));
 }
 
 function beginFindingsReveal() {
-  if (revealStarted || finished) return;
+  if (revealStarted || (finished && !redesignUnavailable)) return;
 
   const texts = sanitizeRoastBulletList(pendingBullets, 6);
   if (!texts.length) {
@@ -345,7 +356,7 @@ function beginFindingsReveal() {
 }
 
 function queueRoastReveal(bullets) {
-  if (revealStarted || finished || !bullets?.length) return;
+  if (revealStarted || (finished && !redesignUnavailable) || !bullets?.length) return;
 
   pendingBullets = bullets;
   if (revealTimer) return;
@@ -456,20 +467,36 @@ async function finish() {
   window.location.href = `../roast/?t=${encodeURIComponent(token)}`;
 }
 
-function showGenerationFailed() {
+function showRedesignUnavailable(status = {}) {
   if (finished) return;
-  previewError(`generation failed — preview unavailable (${elapsedLabel()})`);
-  finished = true;
+
+  redesignUnavailable = true;
+  previewError(`redesign unavailable (${elapsedLabel()})`, describePhase(status));
   clearProgressTimers();
   stopStats();
+
+  if (status.roast_bullets?.length && !revealStarted) {
+    queueRoastReveal(status.roast_bullets);
+  }
+
+  finished = true;
+
+  const footer = document.getElementById("findings-footer");
+  if (footer && !footer.hidden) {
+    footer.textContent = REDESIGN_UNAVAILABLE_FOOTER;
+  }
 
   const container = document.getElementById("stage-main");
   container.classList.remove("is-fading");
   container.innerHTML = `
-    <h1 class="stage-title">Preview unavailable</h1>
-    <p class="stage-subtitle">We hit a snag building your redesign. Your site analysis above is still accurate.</p>
-    <p class="stage-subtitle">Please try this link again in a few minutes, or submit your URL again on /try.</p>
+    <h1 class="stage-title">Redesign Unavailable</h1>
+    <p class="stage-subtitle">We hit a snag building your visual redesign. Your site analysis above is still accurate.</p>
+    <p class="stage-subtitle">Please try this link again in a few minutes, or submit your URL again on <a href="/try/">/try</a>.</p>
   `;
+}
+
+function showGenerationFailed(status = {}) {
+  showRedesignUnavailable(status);
 }
 
 async function pollPreviewStatus() {
@@ -487,8 +514,8 @@ async function pollPreviewStatus() {
 
     if (status.status === "ready") {
       finish();
-    } else if (status.status === "failed") {
-      showGenerationFailed();
+    } else if (status.status === "redesign_failed" || status.status === "failed") {
+      showRedesignUnavailable(status);
     }
   } catch (error) {
     previewWarn(`poll network error (${elapsedLabel()})`, error?.message || error);
@@ -544,12 +571,15 @@ async function loadPreview() {
     }
 
     if (result.pending) {
-      if (result.info?.status === "failed") {
-        previewError("initial fetch: generation failed", result.info);
-        showError(
-          "Preview not ready",
-          "We hit a snag preparing your preview. Please try this link again in a few minutes."
-        );
+      if (
+        result.info?.status === "failed" ||
+        result.info?.status === "redesign_failed"
+      ) {
+        previewError("initial fetch: redesign unavailable", result.info);
+        mountTime = Date.now();
+        document.getElementById("loader").hidden = true;
+        document.getElementById("wait").hidden = false;
+        showRedesignUnavailable(result.info);
         return;
       }
       startWaitScreen(result.info, "initial fetch");

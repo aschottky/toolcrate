@@ -1,5 +1,6 @@
 import { buildAuditPdf } from "./audit-pipeline.js";
 import { sendDesignReadyEmail, sendFreeAuditEmail } from "./email.js";
+import { logRedesignFailure } from "./errors.js";
 import { generateCallScript } from "./call-script.js";
 import { evaluateLeadSuitability, preflightLogCode } from "./preflight.js";
 import { generateSiteRoast } from "./roast.js";
@@ -772,7 +773,11 @@ async function executeRedesignGeneration({
     console.log(`${logPrefix} Preview is live.`);
     await sendDesignReadyNotification(redesignId, logPrefix);
   } catch (error) {
-    console.error(`${logPrefix} Background generation failed:`, error.message);
+    logRedesignFailure(`${logPrefix} [redesign]`, error, {
+      redesignId,
+      url: normalizedUrl,
+      phase: "background-generation",
+    });
     try {
       await markRedesignFailed(redesignId);
     } catch (updateError) {

@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { CLAUDE_SONNET_REDESIGN_MODEL } from "./anthropic-models.js";
+import { enrichRedesignError, logRedesignFailure } from "./errors.js";
 import {
   buildUserMessage,
   buildRedesignGenerationResult,
@@ -90,23 +91,36 @@ export async function generateRedesignHtml(scraped, options = {}) {
       });
       message = await stream.finalMessage();
     } catch (error) {
-      lastError = error;
-      console.error(
-        `[redesign] Attempt ${attempt}/${MAX_ATTEMPTS} API error (model=${model}):`,
-        error.message
-      );
+      lastError = enrichRedesignError(error);
+      logRedesignFailure("[redesign]", lastError, {
+        attempt,
+        maxAttempts: MAX_ATTEMPTS,
+        model,
+        phase: "anthropic-api",
+      });
       continue;
     }
 
     if (message.stop_reason === "max_tokens") {
-      lastError = new Error("Claude redesign output was truncated (max_tokens).");
-      console.warn(`[redesign] Attempt ${attempt}/${MAX_ATTEMPTS}: truncated output.`);
+      lastError = enrichRedesignError(
+        new Error("Claude redesign output was truncated (max_tokens).")
+      );
+      lastError.code = "REDESIGN_TRUNCATED";
+      console.warn(
+        `[redesign] Attempt ${attempt}/${MAX_ATTEMPTS}: truncated output (code=REDESIGN_TRUNCATED).`
+      );
       continue;
     }
 
     const raw = message.content?.[0]?.text;
     if (!raw) {
-      lastError = new Error("Claude returned an empty redesign response.");
+      lastError = enrichRedesignError(
+        new Error("Claude returned an empty redesign response.")
+      );
+      lastError.code = "REDESIGN_EMPTY_RESPONSE";
+      console.warn(
+        `[redesign] Attempt ${attempt}/${MAX_ATTEMPTS}: empty response (code=REDESIGN_EMPTY_RESPONSE).`
+      );
       continue;
     }
 
@@ -120,14 +134,19 @@ export async function generateRedesignHtml(scraped, options = {}) {
       );
       return buildRedesignGenerationResult(html, styleDirection.slug);
     } catch (error) {
-      lastError = error;
+      lastError = enrichRedesignError(error);
+      lastError.code = lastError.code || "REDESIGN_VALIDATION_FAILED";
       console.warn(
-        `[redesign] Attempt ${attempt}/${MAX_ATTEMPTS} failed validation: ${error.message}`
+        `[redesign] Attempt ${attempt}/${MAX_ATTEMPTS} failed validation [code=${lastError.code}]:`,
+        lastError.message
       );
     }
   }
 
-  throw lastError ?? new Error("Redesign generation failed.");
+  throw enrichRedesignError(
+    lastError ?? new Error("Redesign generation failed."),
+    "Redesign generation failed."
+  );
 }
 
 /** @deprecated Use generateRedesignHtml — kept for existing imports. */

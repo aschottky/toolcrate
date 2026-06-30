@@ -365,6 +365,183 @@
             font-size: 0.9375rem;
             color: #a1a1aa;
             font-weight: 500;
+            max-width: 420px;
+            line-height: 1.55;
+        }
+
+        .hero-panel[hidden] {
+            display: none !important;
+        }
+
+        .hero-audit-form {
+            max-width: 720px;
+            margin: 0 auto 1.25rem;
+        }
+
+        .hero-audit-row {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            padding: 6px;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(12px);
+        }
+
+        .hero-audit-input {
+            flex: 1;
+            min-width: 0;
+            border: none;
+            background: transparent;
+            color: #f4f4f5;
+            font-size: 17px;
+            padding: 16px 18px;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .hero-audit-input::placeholder {
+            color: #71717a;
+        }
+
+        .hero-audit-submit {
+            flex-shrink: 0;
+            border: none;
+            border-radius: 10px;
+            padding: 16px 22px;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+            color: #fff;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            box-shadow: 0 10px 32px rgba(59, 130, 246, 0.35);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+
+        .hero-audit-submit:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 40px rgba(59, 130, 246, 0.45);
+        }
+
+        .hero-audit-submit:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        .hero-audit-submit.is-loading {
+            opacity: 0.85;
+        }
+
+        .hero-form-error {
+            margin: 0.75rem 0 0;
+            font-size: 14px;
+            color: #f87171;
+        }
+
+        .hero-form-error[hidden] {
+            display: none;
+        }
+
+        .hero-progress-track {
+            width: 100%;
+            max-width: 520px;
+            height: 6px;
+            margin: 0 auto 2rem;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .hero-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            box-shadow: 0 0 16px rgba(139, 92, 246, 0.65);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-progress-fill::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35) 50%, transparent);
+            transform: translateX(-100%);
+            animation: hero-progress-shimmer 2s linear infinite;
+        }
+
+        .hero-progress-fill.is-running {
+            animation: hero-progress-crawl 240s linear forwards;
+        }
+
+        @keyframes hero-progress-shimmer {
+            to { transform: translateX(100%); }
+        }
+
+        @keyframes hero-progress-crawl {
+            from { width: 0%; }
+            to { width: 92%; }
+        }
+
+        .hero-processing-title {
+            font-size: clamp(1.5rem, 3.5vw, 2rem);
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: #f4f4f5;
+        }
+
+        .hero-processing-title strong {
+            color: #c4b5fd;
+            font-weight: 700;
+        }
+
+        .hero-processing-sub,
+        .hero-contact-lead {
+            font-size: 1.125rem;
+            color: #a1a1aa;
+            max-width: 560px;
+            margin: 0 auto 1.75rem;
+            line-height: 1.6;
+        }
+
+        .hero-contact-title {
+            font-size: clamp(1.35rem, 3vw, 1.75rem);
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            max-width: 640px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.35;
+        }
+
+        .hero-contact-form {
+            max-width: 520px;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            text-align: left;
+        }
+
+        .hero-contact-form .hero-audit-input {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+        }
+
+        .hero-contact-form .hero-audit-submit {
+            width: 100%;
+            padding: 17px 22px;
+        }
+
+        .hero-founder--compact {
+            margin-top: 0.5rem;
+            margin-bottom: 0;
         }
         
         /* Problem Section */
@@ -888,6 +1065,16 @@
                 font-size: 16px;
             }
             
+            .hero-audit-row {
+                flex-direction: column;
+                padding: 8px;
+            }
+
+            .hero-audit-submit {
+                width: 100%;
+                white-space: normal;
+            }
+            
             .cta-primary, .cta-secondary {
                 display: block;
                 width: 100%;
@@ -1004,23 +1191,82 @@
         </nav>
     </header>
 
-    <section class="hero">
+    <section class="hero" id="hero">
         <div class="container">
             <div class="hero-content">
-                <h1>Your website isn't broken.<br>It's just... not doing anything.</h1>
-                <p class="subheadline">I've been fixing abandoned, low-performing contractor sites since 2008. Submit your URL and I'll personally show you exactly how yours should look to actually make your phone ring.</p>
-                <div class="hero-founder">
-                    <img src="/alexander.jpg" alt="Alexander Schottky" class="hero-founder-photo" width="88" height="88" />
-                    <p class="hero-founder-caption">Alexander Schottky — personally reviews every redesign request</p>
+                <div class="hero-panel hero-panel--intro" id="hero-intro">
+                    <h1>Your website isn't broken.<br>It's just... not doing anything.</h1>
+                    <p class="subheadline">I've been fixing under-performing contractor sites since 2008. Drop your URL below, and I'll personally show you exactly how yours should look to actually make your phone ring.</p>
+                    <div class="hero-founder">
+                        <img src="/alexander.jpg" alt="Alexander Schottky" class="hero-founder-photo" width="88" height="88" />
+                        <p class="hero-founder-caption">Every request is reviewed by a human strategist. No bots. No instant junk previews.</p>
+                    </div>
+                    <form id="hero-url-form" class="hero-audit-form" novalidate>
+                        <div class="hero-audit-row">
+                            <input
+                                type="text"
+                                id="hero-url-input"
+                                class="hero-audit-input"
+                                name="url"
+                                placeholder="Enter your website URL (e.g., smithplumbing.com)..."
+                                autocomplete="url"
+                                inputmode="url"
+                                required
+                            />
+                            <button type="submit" class="hero-audit-submit" id="hero-url-submit">
+                                Get My Personal Audit &amp; Redesign
+                            </button>
+                        </div>
+                        <p class="hero-form-error" id="hero-form-error" hidden></p>
+                    </form>
+                    <p class="hero-strategy-line">
+                        Prefer to talk? Strategy line:
+                        <a href="tel:+18188699928">(818) 869-9928</a>
+                    </p>
                 </div>
-                <a href="/try/" class="cta-primary">Request My Custom Redesign</a>
-                <a href="#products" class="cta-secondary">See pricing</a>
-                <p class="hero-strategy-line">
-                    Prefer to talk? Strategy line:
-                    <a href="tel:8188699928">(818) 869-9928</a>
-                </p>
-                <p class="hero-note">No discovery call. No proposal. Get a custom redesign of your site—free.</p>
-                <p class="hero-note">No dashboard. No drag and drop. Just results.</p>
+
+                <div class="hero-panel hero-panel--processing" id="hero-processing" hidden>
+                    <div class="hero-progress-track" aria-hidden="true">
+                        <div class="hero-progress-fill is-running"></div>
+                    </div>
+                    <h2 class="hero-processing-title" id="hero-processing-title">Analyzing your site…</h2>
+                    <p class="hero-processing-sub">Alexander is reviewing your site structure now.</p>
+                </div>
+
+                <div class="hero-panel hero-panel--contact" id="hero-contact" hidden>
+                    <div class="hero-progress-track" aria-hidden="true">
+                        <div class="hero-progress-fill is-running"></div>
+                    </div>
+                    <h2 class="hero-contact-title">Where should I send your full audit and the 4K redesign preview once it's ready?</h2>
+                    <p class="hero-contact-lead">Your redesign is generating in the background. Add your details below so Alexander can deliver it personally.</p>
+                    <form id="hero-contact-form" class="hero-contact-form" novalidate>
+                        <input
+                            type="email"
+                            id="hero-email-input"
+                            class="hero-audit-input"
+                            name="email"
+                            placeholder="Your email address"
+                            autocomplete="email"
+                            required
+                        />
+                        <input
+                            type="tel"
+                            id="hero-phone-input"
+                            class="hero-audit-input"
+                            name="phone"
+                            placeholder="Phone (optional)"
+                            autocomplete="tel"
+                        />
+                        <button type="submit" class="hero-audit-submit" id="hero-contact-submit">
+                            Send My Audit &amp; Preview
+                        </button>
+                        <p class="hero-form-error" id="hero-contact-error" hidden></p>
+                    </form>
+                    <div class="hero-founder hero-founder--compact">
+                        <img src="/alexander.jpg" alt="Alexander Schottky" class="hero-founder-photo" width="72" height="72" />
+                        <p class="hero-founder-caption">Every request is reviewed by a human strategist. No bots. No instant junk previews.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -1251,6 +1497,7 @@
 
     <div class="nav-copy-toast" id="nav-copy-toast" role="status" aria-live="polite" hidden></div>
 
+    <script type="module" src="./scripts/hero-flow.js"></script>
     <script>
         const hamburger = document.getElementById('hamburger');
         const navLinks = document.getElementById('navLinks');

@@ -6,7 +6,7 @@ import { runSiteAudit } from "./audit.js";
 import { buildAuditPdf } from "./audit-pipeline.js";
 import { sendAuditReportEmail, sendNewLeadReviewNotification, sendWelcomeEmail, normalizeProspectFirstName, getResend } from "./email.js";
 import { generateAuditPDF } from "./pdf.js";
-import { sendAuditError } from "./errors.js";
+import { sendAuditError, sendRedesignError } from "./errors.js";
 import { handleInstantlyWebhook } from "./instantly-webhook.js";
 import { normalizeWebsiteUrl, scrapeWebsiteText } from "./scrape.js";
 import { evaluateLeadSuitability, preflightLogCode } from "./preflight.js";
@@ -655,7 +655,16 @@ async function handleRedesign(req, res, { websiteUrl, asHtml, generate, logPrefi
       primaryAccentColor: result.primaryAccentColor,
     });
   } catch (error) {
-    return sendAuditError(res, error, logPrefix);
+    if (error?.code === "PREFLIGHT_REJECTED") {
+      return res.status(422).json({
+        ok: false,
+        error: "This site is not eligible for an automated redesign preview.",
+        code: "PREFLIGHT_REJECTED",
+        reason: error.preflight?.reason ?? error.message,
+        pageCount: error.preflight?.pageCount ?? null,
+      });
+    }
+    return sendRedesignError(res, error, logPrefix);
   }
 }
 
@@ -729,12 +738,19 @@ function roastBulletTexts(raw) {
 }
 
 function previewSessionStatus(redesign) {
-  if (redesign.status === "failed") return "failed";
-  if (redesign.html) return "ready";
-
   const texts = roastBulletTexts(redesign.roast_bullets);
   const roastDone =
     redesign.roast_status === "roast_ready" || redesign.roast_status === "ready";
+
+  if (redesign.status === "failed") {
+    if (texts?.length && roastDone) {
+      return "redesign_failed";
+    }
+    return "failed";
+  }
+
+  if (redesign.html) return "ready";
+
   if (texts?.length && roastDone) {
     return "roast_ready";
   }
@@ -869,14 +885,7 @@ app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
     });
   }
 
-  if (!email) {
-    return res.status(400).json({
-      ok: false,
-      error: "Please enter your email so we can send your redesign.",
-    });
-  }
-
-  if (!firstName) {
+  if (email && !firstName) {
     return res.status(400).json({
       ok: false,
       error: "Please enter your first name.",
@@ -948,28 +957,38 @@ app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
       logPrefix: `${logPrefix}:${pending.id}`,
     });
 
-    const reviewUrl = `https://usetoolcrate.com/preview-view/?t=${encodeURIComponent(pending.preview_token)}`;
+    if (email) {
+      const reviewUrl = `https://usetoolcrate.com/preview-view/?t=${encodeURIComponent(pending.preview_token)}`;
 
-    insertPendingReview({
-      redesignId: pending.id,
-      websiteUrl,
-      leadEmail: email,
-      previewToken: pending.preview_token,
-    }).catch((error) =>
-      console.warn(`${logPrefix} Pending review insert failed:`, error.message)
-    );
+      insertPendingReview({
+        redesignId: pending.id,
+        websiteUrl,
+        leadEmail: email,
+        previewToken: pending.preview_token,
+      }).catch((error) =>
+        console.warn(`${logPrefix} Pending review insert failed:`, error.message)
+      );
 
-    sendNewLeadReviewNotification({
-      businessUrl: websiteUrl,
-      userEmail: email,
-      userName: firstName,
-      reviewUrl,
-    }).catch((error) =>
-      console.warn(`${logPrefix} New-lead notification failed:`, error.message)
-    );
+      sendNewLeadReviewNotification({
+        businessUrl: websiteUrl,
+        userEmail: email,
+        userName: firstName,
+        reviewUrl,
+      }).catch((error) =>
+        console.warn(`${logPrefix} New-lead notification failed:`, error.message)
+      );
 
-    console.log(`${logPrefix} Queued expert-curated review (${engine.id}).`);
-    return res.json({ ok: true, status: "received" });
+      console.log(`${logPrefix} Queued expert-curated review (${engine.id}).`);
+      return res.json({ ok: true, status: "received", token: pending.preview_token });
+    }
+
+    console.log(`${logPrefix} Queued redesign (contact pending) (${engine.id}).`);
+    return res.json({
+      ok: true,
+      status: "processing",
+      token: pending.preview_token,
+      url: rootDomain,
+    });
   } catch (error) {
     console.error(`${logPrefix} Failed:`, error.message);
     const status = error.statusCode ?? 500;
@@ -979,6 +998,79 @@ app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
         status < 500
           ? error.message
           : "Could not start your preview. Please try again in a minute.",
+    });
+  }
+});
+
+app.post("/api/public-redesign/contact", publicRedesignLimiter, async (req, res) => {
+  const token = String(req.body?.token ?? "").trim();
+  const emailRaw = String(req.body?.email ?? "").trim().toLowerCase();
+  const phoneRaw = String(req.body?.phone ?? "").trim();
+  const firstName = normalizeProspectFirstName(req.body?.first_name);
+
+  if (!PREVIEW_TOKEN_RE.test(token)) {
+    return res.status(400).json({ ok: false, error: "Invalid preview session." });
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailRaw)) {
+    return res.status(400).json({
+      ok: false,
+      error: "Please enter a valid email address.",
+    });
+  }
+
+  if (!isSupabaseConfigured()) {
+    return res.status(503).json({
+      ok: false,
+      error: "Previews are temporarily unavailable. Please try again later.",
+    });
+  }
+
+  try {
+    const redesign = await fetchRedesignByToken(token);
+    if (!redesign) {
+      return res.status(404).json({ ok: false, error: "Preview session not found." });
+    }
+
+    const logPrefix = `[public-redesign-contact:${token.slice(0, 8)}]`;
+
+    if (!redesign.email) {
+      await setRedesignEmail(redesign.id, emailRaw);
+    }
+    if (firstName) {
+      await setRedesignFirstName(redesign.id, firstName).catch((error) =>
+        console.warn(`${logPrefix} Could not set first name:`, error.message)
+      );
+    }
+
+    const reviewUrl = `https://usetoolcrate.com/preview-view/?t=${encodeURIComponent(token)}`;
+
+    insertPendingReview({
+      redesignId: redesign.id,
+      websiteUrl: redesign.website_url,
+      leadEmail: emailRaw,
+      previewToken: token,
+    }).catch((error) =>
+      console.warn(`${logPrefix} Pending review insert failed:`, error.message)
+    );
+
+    sendNewLeadReviewNotification({
+      businessUrl: redesign.website_url,
+      userEmail: emailRaw,
+      userName: firstName,
+      userPhone: phoneRaw || null,
+      reviewUrl,
+    }).catch((error) =>
+      console.warn(`${logPrefix} New-lead notification failed:`, error.message)
+    );
+
+    console.log(`${logPrefix} Contact captured for ${redesign.website_url}.`);
+    return res.json({ ok: true, status: "received", token });
+  } catch (error) {
+    console.error("[public-redesign/contact] Failed:", error.message);
+    return res.status(500).json({
+      ok: false,
+      error: "Could not save your contact details. Please try again.",
     });
   }
 });
