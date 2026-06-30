@@ -18,6 +18,7 @@ const MPA_ROUTES = [
   "intake",
   "privacy",
   "terms",
+  "blueprint",
 ];
 
 function mpaPathRewrite() {
@@ -90,6 +91,7 @@ export default defineConfig(({ mode }) => {
         intake: resolve(__dirname, "intake/index.html"),
         privacy: resolve(__dirname, "privacy/index.html"),
         terms: resolve(__dirname, "terms/index.html"),
+        blueprint: resolve(__dirname, "blueprint/index.html"),
       },
     },
   },

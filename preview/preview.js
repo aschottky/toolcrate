@@ -3,8 +3,19 @@ import { apiUrl } from "../scripts/api-config.js";
 const token = new URLSearchParams(window.location.search).get("t")?.trim();
 const params = new URLSearchParams(window.location.search);
 
+const isBlueprintFlow =
+  params.get("blueprint") === "1" ||
+  (() => {
+    try {
+      return sessionStorage.getItem("toolcrate_blueprint_mode") === "1";
+    } catch {
+      return false;
+    }
+  })();
+
 const isSubmissionConfirmed =
   params.get("confirmed") === "1" ||
+  isBlueprintFlow ||
   Boolean(
     (() => {
       try {
@@ -14,17 +25,17 @@ const isSubmissionConfirmed =
       }
     })()
   );
+
 const STRATEGY_PHONE_E164 = "+18188699928";
 const LOG_PREFIX = "[ToolCrate Preview]";
 
 const loader = document.getElementById("loader");
 const confirmed = document.getElementById("confirmed");
 const confirmedTitle = document.getElementById("confirmed-title");
-const confirmedEmail = document.getElementById("confirmed-email");
+const confirmedCopy = document.getElementById("confirmed-copy");
 const queueBadge = document.getElementById("queue-badge");
 const queueBadgeText = document.getElementById("queue-badge-text");
-const textAlexanderBtn = document.getElementById("text-alexander-btn");
-const addContactBtn = document.getElementById("add-contact-btn");
+const saveStrategyBtn = document.getElementById("save-strategy-btn");
 
 /** Stable 2–5 queue depth from token (social proof, not live data). */
 function queueSitesAhead(previewToken) {
@@ -35,6 +46,41 @@ function queueSitesAhead(previewToken) {
   return 2 + (sum % 4);
 }
 
+function resolveCompanyName(apiCompany) {
+  const fromQuery = params.get("company")?.trim() || "";
+  const fromStorage = (() => {
+    try {
+      return sessionStorage.getItem("toolcrate_blueprint_company")?.trim() || "";
+    } catch {
+      return "";
+    }
+  })();
+  return apiCompany || fromStorage || fromQuery || "your business";
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function applyStandardConfirmationCopy(email) {
+  confirmedTitle.textContent = "URL Received. I'm on it.";
+  confirmedTitle.classList.remove("unavailable-title");
+  if (confirmedCopy) {
+    confirmedCopy.innerHTML = `I've received your site details and I'm personally reviewing your conversion structure now. I'll have your custom redesign preview and audit sent to <strong class="confirmed-email" id="confirmed-email">${escapeHtml(email)}</strong> within the next 2 hours.`;
+  }
+}
+
+function applyBlueprintConfirmationCopy(email, companyName) {
+  confirmedTitle.textContent = "Blueprint Initiated.";
+  confirmedTitle.classList.remove("unavailable-title");
+  if (confirmedCopy) {
+    confirmedCopy.innerHTML = `I'm sketching out a custom conversion structure for <strong class="confirmed-company">${escapeHtml(companyName)}</strong> now. I'll send your brand-new site concept and strategy to <strong class="confirmed-email" id="confirmed-email">${escapeHtml(email)}</strong> within 2 hours.`;
+  }
+}
 function resolveEmail(apiEmail) {
   const fromStorage = (() => {
     try {
@@ -76,11 +122,23 @@ function downloadAlexanderVCard() {
   URL.revokeObjectURL(url);
 }
 
-function showSubmissionConfirmed({ email, websiteUrl, showQueue = true }) {
+function showSubmissionConfirmed({
+  email,
+  showQueue = true,
+  buildMode,
+  companyName,
+}) {
   loader.hidden = true;
   confirmed.hidden = false;
 
-  confirmedEmail.textContent = email;
+  const resolvedEmail = resolveEmail(email);
+  const isBlueprint = buildMode === "NEW_SITE_BUILD" || isBlueprintFlow;
+
+  if (isBlueprint) {
+    applyBlueprintConfirmationCopy(resolvedEmail, resolveCompanyName(companyName));
+  } else {
+    applyStandardConfirmationCopy(resolvedEmail);
+  }
 
   if (showQueue && token) {
     const ahead = queueSitesAhead(token);
@@ -88,14 +146,13 @@ function showSubmissionConfirmed({ email, websiteUrl, showQueue = true }) {
     queueBadge.hidden = false;
   }
 
-  const smsBody = websiteUrl
-    ? `Hi Alexander — I just submitted ${websiteUrl} for a ToolCrate redesign.`
-    : "Hi Alexander — I just submitted my site for a ToolCrate redesign.";
-  textAlexanderBtn.href = `sms:${STRATEGY_PHONE_E164}?body=${encodeURIComponent(smsBody)}`;
+  saveStrategyBtn?.addEventListener("click", downloadAlexanderVCard);
 
-  addContactBtn?.addEventListener("click", downloadAlexanderVCard);
-
-  console.log(`${LOG_PREFIX} submission confirmed`, { token: token?.slice(0, 8), email });
+  console.log(`${LOG_PREFIX} submission confirmed`, {
+    token: token?.slice(0, 8),
+    email: resolvedEmail,
+    blueprint: isBlueprint,
+  });
 }
 
 function showRedesignUnavailable() {
@@ -113,7 +170,7 @@ function showRedesignUnavailable() {
   }
   if (copyBlocks[1]) {
     copyBlocks[1].textContent =
-      "If you're in a rush, reach out on the strategy line below — Alexander can help directly.";
+      "If you're in a rush, call my strategy line below. My assistant Rachel can prioritize your audit or get you on my calendar for a deep dive.";
   }
 }
 
@@ -147,9 +204,10 @@ async function loadPreview() {
     // Post-submit flow: always confirm receipt — redesign runs in the background.
     if (isSubmissionConfirmed) {
       showSubmissionConfirmed({
-        email: resolveEmail(status.email),
-        websiteUrl: status.website_url,
+        email: status.email,
         showQueue: status.status !== "failed" && status.status !== "redesign_failed",
+        buildMode: status.build_mode,
+        companyName: status.company_name,
       });
       return;
     }
@@ -160,9 +218,10 @@ async function loadPreview() {
     }
 
     showSubmissionConfirmed({
-      email: resolveEmail(status.email),
-      websiteUrl: status.website_url,
+      email: status.email,
       showQueue: true,
+      buildMode: status.build_mode,
+      companyName: status.company_name,
     });
   } catch (error) {
     console.error(`${LOG_PREFIX} load failed`, error?.message || error);

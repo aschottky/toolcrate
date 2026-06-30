@@ -5,6 +5,11 @@ import { generateCallScript } from "./call-script.js";
 import { evaluateLeadSuitability, preflightLogCode } from "./preflight.js";
 import { generateSiteRoast } from "./roast.js";
 import { normalizeWebsiteUrl, scrapeWebsiteText } from "./scrape.js";
+import {
+  buildBlueprintScrapedData,
+  isBlueprintBuild,
+  parseBlueprintWebsiteUrl,
+} from "./blueprint.js";
 import { normalizeRootDomain } from "./url-utils.js";
 import {
   DEFAULT_REDESIGN_MAX_TOKENS,
@@ -787,6 +792,56 @@ async function executeRedesignGeneration({
 }
 
 /**
+ * Blueprint pipeline — no scrape, no preflight; synthetic data only.
+ */
+async function executeBlueprintPreviewPipeline({
+  redesignId,
+  normalizedUrl,
+  engine,
+  maxTokens,
+  logPrefix,
+  runRoast = true,
+  runRedesign = true,
+}) {
+  const blueprint = parseBlueprintWebsiteUrl(normalizedUrl);
+  if (!blueprint) {
+    console.error(`${logPrefix} Invalid blueprint URL — cannot continue.`);
+    if (runRedesign) {
+      await markRedesignFailed(redesignId).catch((markError) =>
+        console.error(`${logPrefix} Could not mark redesign failed:`, markError.message)
+      );
+    }
+    return;
+  }
+
+  const scraped = buildBlueprintScrapedData(blueprint);
+  console.log(
+    `${logPrefix} Blueprint NEW_SITE_BUILD for "${blueprint.companyName}" (${blueprint.serviceType}, ${blueprint.location})`
+  );
+
+  if (runRoast) {
+    await executeRoastGeneration({
+      redesignId,
+      normalizedUrl,
+      logPrefix,
+      scraped,
+    });
+  }
+
+  if (runRedesign) {
+    await executeRedesignGeneration({
+      redesignId,
+      normalizedUrl,
+      engine,
+      maxTokens,
+      logPrefix,
+      scraped,
+      preflightComplete: true,
+    });
+  }
+}
+
+/**
  * One scrape, then roast, then redesign — never two Opus streams at once.
  * Redesign still runs if roast fails (roast is best-effort for the wait screen).
  */
@@ -869,8 +924,12 @@ export function runPreviewGeneration({
   maxTokens,
   logPrefix,
 }) {
+  const runner = isBlueprintBuild(normalizedUrl)
+    ? executeBlueprintPreviewPipeline
+    : executePreviewPipeline;
+
   setImmediate(() =>
-    executePreviewPipeline({
+    runner({
       redesignId,
       normalizedUrl,
       engine,
@@ -891,8 +950,12 @@ export function runPreviewPipelineRetry({
   roastStatus,
 }) {
   const runRoast = roastStatus === "failed" || roastStatus === "pending";
+  const runner = isBlueprintBuild(normalizedUrl)
+    ? executeBlueprintPreviewPipeline
+    : executePreviewPipeline;
+
   setImmediate(() =>
-    executePreviewPipeline({
+    runner({
       redesignId,
       normalizedUrl,
       engine,

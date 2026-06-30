@@ -176,6 +176,9 @@
         color: #c4b5fd;
         word-break: break-word;
       }
+      .confirmed-company {
+        color: #c4b5fd;
+      }
 
       .strategy-card {
         margin-top: 2rem;
@@ -245,6 +248,9 @@
       .strategy-btn--secondary:hover {
         background: rgba(255, 255, 255, 0.09);
       }
+      .strategy-btn--call-mobile {
+        display: none;
+      }
 
       .confirmed-footer {
         margin-top: 2rem;
@@ -269,12 +275,27 @@
         display: none !important;
       }
 
+      .confirmed-back {
+        display: inline-block;
+        margin-top: 1.5rem;
+        font-size: 0.9375rem;
+        font-weight: 500;
+        color: #a1a1aa;
+        text-decoration: none;
+      }
+      .confirmed-back:hover {
+        color: #e4e4e7;
+      }
+
       @media (max-width: 480px) {
         .strategy-actions {
           flex-direction: column;
         }
         .strategy-btn {
           width: 100%;
+        }
+        .strategy-btn--call-mobile {
+          display: inline-flex;
         }
       }
     </style>
@@ -306,22 +327,22 @@
           within the next 2 hours.
         </p>
         <p class="confirmed-copy">
-          If you're in a rush or want to skip the queue, you can reach me directly on the strategy line below.
+          If you're in a rush, call my strategy line below. My assistant Rachel can prioritize your audit or get you on my calendar for a deep dive.
         </p>
 
         <aside class="strategy-card" aria-label="Strategy line">
           <p class="strategy-kicker">Strategy line</p>
           <a class="strategy-phone" id="strategy-phone-link" href="tel:+18188699928">(818) 869-9928</a>
           <div class="strategy-actions">
-            <a class="strategy-btn strategy-btn--primary" id="text-alexander-btn" href="sms:+18188699928">Text Alexander</a>
-            <button type="button" class="strategy-btn strategy-btn--secondary" id="add-contact-btn">Add to Contacts</button>
+            <a class="strategy-btn strategy-btn--primary strategy-btn--call-mobile" id="call-strategy-btn" href="tel:+18188699928">Call the Strategy Line</a>
+            <button type="button" class="strategy-btn strategy-btn--secondary" id="save-strategy-btn">Save Strategy Line</button>
           </div>
         </aside>
 
         <p class="confirmed-footer">
-          You can close this tab — we'll email you when your preview is ready.<br />
-          <a href="/">← Back to ToolCrate</a>
+          You can close this tab — we'll email you when your preview is ready.
         </p>
+        <a class="confirmed-back" href="/">← Back to ToolCrate</a>
       </div>
     </main>
 

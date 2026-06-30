@@ -8,7 +8,7 @@ Use their REAL company name, phone, city, services, taglines, and verified image
 
 1. **ARCHETYPE: "THE DARK LUXURY" (High-End, Modern, Industrial)**
 
-   - Background: Deep Ink (#020617) or Charcoal (#0f172a).
+   - Background: Industrial Slate (#1e293b) or Midnight Navy (#0f172a) — not pure black. It should feel like high-end tools, not a luxury hotel.
    - Accents: Vibrant brand color used as neon-style "glows" or sharp borders.
    - Hero: Full-viewport (100vh) with layered gradient, subtle SVG grid or noise texture (opacity 0.04), asymmetric layout.
    - Best for: Emergency services, high-tech HVAC, modern builders.
@@ -17,6 +17,7 @@ Use their REAL company name, phone, city, services, taglines, and verified image
 
    - Background: Off-White (#f8fafc) or Warm Gray (#f1f5f9).
    - Text: Deep Charcoal (#0f172a) for high-contrast readability.
+   - Typography: Headlines should use a mix of Serif (for brand/authority) and Heavy Sans-Serif (for action/utility). Avoid excessive italics.
    - Accents: Large-scale high-quality photography and wide-letter-spaced serif typography.
    - Hero: Asymmetric editorial grid — never a centered text box on a flat color block.
    - Best for: Landscapers, interior designers, high-end residential remodelers.
@@ -38,6 +39,7 @@ Before generating, choose ONE archetype based on the scraped trade, brand colors
 - **Layout:** Avoid the standard SaaS "Alternating Feature Block" pattern (Image Left / Text Right). Use asymmetric grids and intentional white space.
 - **Cards & nav:** Glassmorphism is allowed on dark archetypes (rgba(255, 255, 255, 0.03) with 12px backdrop-filter: blur).
 - **TRUST BAR:** Low-profile bar under the hero — "Proudly Serving [City]" and "Established [Year]" in muted text with high letter-spacing.
+- **UTILITY BAR:** Always include a high-contrast "Utility Bar" with a bold phone number and "24/7 Emergency" label to ground the high-end design in real-world service.
 - **CTA BUTTONS:** Large, sharp-edged buttons. No borders. Subtle glow: box-shadow: 0 0 20px rgba(brand-color, 0.3).
 - **NAVIGATION:** Minimalist. The phone number should be the primary focus in the top right (bold, tel: link).
 
@@ -447,12 +449,21 @@ Use THE BOLD TRADESMAN archetype. Keep vibrant orange and black from their logo/
 export function buildUserMessage(scraped, imageUrls, generationContext = {}) {
   const websiteUrl = extractWebsiteUrlFromScraped(scraped);
   const siteOverride = getSiteSpecificDesignOverride(websiteUrl, scraped.textForAudit);
+  const isNewSiteBuild = scraped?.buildMode === "NEW_SITE_BUILD";
 
-  const parts = [
-    "Here is the scraped data from the business's current website. Output the complete redesigned landing page HTML:",
-    "",
-    scraped.textForAudit,
-  ];
+  const parts = isNewSiteBuild
+    ? [
+        "BUILD_MODE: NEW_SITE_BUILD — this business has NO existing website.",
+        "Generate a complete landing page from scratch using ONLY the business details below.",
+        "Invent the hero, services, trust signals, utility bar, and conversion copy — do not reference scraping or an old site.",
+        "",
+        scraped.textForAudit,
+      ]
+    : [
+        "Here is the scraped data from the business's current website. Output the complete redesigned landing page HTML:",
+        "",
+        scraped.textForAudit,
+      ];
 
   if (imageUrls.length) {
     parts.push(
@@ -503,6 +514,11 @@ export function buildUserMessage(scraped, imageUrls, generationContext = {}) {
     "",
     "No emoji icons anywhere. Use real scraped company data throughout."
   );
+
+  if (isNewSiteBuild) {
+    parts[parts.length - 1] =
+      "No emoji icons anywhere. Use the provided company name, service type, and location throughout — invent all other copy.";
+  }
 
   return { message: parts.join("\n"), styleDirection };
 }

@@ -29,6 +29,12 @@ import {
 import { DEFAULT_PUBLIC_REDESIGN_ENGINE } from "./anthropic-models.js";
 import { sanitizeRoastBulletList } from "../scripts/roast-bullet-sanitize.js";
 import { normalizeRootDomain } from "./url-utils.js";
+import {
+  buildBlueprintWebsiteUrl,
+  isBlueprintBuild,
+  normalizeBlueprintRequest,
+  parseBlueprintWebsiteUrl,
+} from "./blueprint.js";
 import { processNurtureEmails } from "./nurture.js";
 import { processWarmLeadNurture } from "./warm-lead-nurture.js";
 import {
@@ -776,6 +782,16 @@ function previewStatusPayload(redesign) {
     payload.website_url = redesign.website_url;
   }
 
+  if (isBlueprintBuild(redesign.website_url)) {
+    const blueprint = parseBlueprintWebsiteUrl(redesign.website_url);
+    if (blueprint) {
+      payload.build_mode = blueprint.buildMode;
+      payload.company_name = blueprint.companyName;
+      payload.service_type = blueprint.serviceType;
+      payload.location = blueprint.location;
+    }
+  }
+
   if (status === "roast_ready" || status === "ready") {
     const roast_bullets = roastBulletTexts(redesign.roast_bullets);
     if (roast_bullets?.length) {
@@ -871,6 +887,71 @@ app.post("/api/admin/reset-rate-limit", (req, res) => {
 });
 
 app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
+  const blueprintRequest = normalizeBlueprintRequest(req.body ?? {});
+
+  if (blueprintRequest.isBlueprint) {
+    if (blueprintRequest.error) {
+      return res.status(400).json({ ok: false, error: blueprintRequest.error });
+    }
+
+    if (!isSupabaseConfigured()) {
+      return res.status(503).json({
+        ok: false,
+        error: "Previews are temporarily unavailable. Please try again later.",
+      });
+    }
+
+    const { companyName, serviceType, location } = blueprintRequest.blueprint;
+    const websiteUrl = buildBlueprintWebsiteUrl(blueprintRequest.blueprint);
+    const logPrefix = `[public-redesign:blueprint:${companyName.slice(0, 24)}]`;
+
+    try {
+      const engine = resolveRedesignEngine(
+        process.env.PUBLIC_REDESIGN_ENGINE || DEFAULT_PUBLIC_REDESIGN_ENGINE
+      );
+
+      const pending = await insertPendingRedesign({
+        websiteUrl,
+        email: null,
+        firstName: null,
+        sourceType: "manual",
+        sourceId: null,
+        engine: engine.id,
+        model: engine.model,
+        maxTokens: DEFAULT_REDESIGN_MAX_TOKENS,
+      });
+
+      runPreviewGeneration({
+        redesignId: pending.id,
+        normalizedUrl: websiteUrl,
+        engine,
+        maxTokens: DEFAULT_REDESIGN_MAX_TOKENS,
+        logPrefix: `${logPrefix}:${pending.id}`,
+      });
+
+      console.log(`${logPrefix} Queued NEW_SITE_BUILD blueprint (${engine.id}).`);
+      return res.json({
+        ok: true,
+        status: "processing",
+        token: pending.preview_token,
+        build_mode: "NEW_SITE_BUILD",
+        company_name: companyName,
+        service_type: serviceType,
+        location,
+      });
+    } catch (error) {
+      console.error(`${logPrefix} Failed:`, error.message);
+      const status = error.statusCode ?? 500;
+      return res.status(status).json({
+        ok: false,
+        error:
+          status < 500
+            ? error.message
+            : "Could not start your blueprint. Please try again in a minute.",
+      });
+    }
+  }
+
   const rootDomain = normalizeRootDomain(req.body?.url);
   const emailRaw = String(req.body?.email ?? "").trim().toLowerCase();
   const firstName = normalizeProspectFirstName(req.body?.first_name);
