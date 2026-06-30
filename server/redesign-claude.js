@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { CLAUDE_OPUS_MODEL } from "./anthropic-models.js";
+import { CLAUDE_SONNET_REDESIGN_MODEL } from "./anthropic-models.js";
 import {
   buildUserMessage,
   buildRedesignGenerationResult,
@@ -52,13 +52,13 @@ function buildRetryNote(attempt, lastError, stopReason) {
 }
 
 /**
- * Claude-powered copy of generateRedesignHtml() — same scrape input, same
- * sanitize/validate pipeline, Anthropic instead of OpenAI.
+ * Generate a single-file landing page redesign via Claude (primary redesign engine).
+ * Runs sanitize → prepareRedesignHtml → validateRedesignHtml before returning.
  *
  * @param {{ textForAudit: string, imageUrls?: string[] }} scraped — output of scrapeWebsiteText()
- * @returns {Promise<string>} complete HTML document
+ * @returns {Promise<{ html: string, styleDirection: string, heroHeadline: string|null, primaryAccentColor: string|null }>}
  */
-export async function generateRedesignHtmlClaude(scraped, options = {}) {
+export async function generateRedesignHtml(scraped, options = {}) {
   const anthropic = getAnthropic();
   const imageUrls = await filterLoadableImageUrls(scraped.imageUrls);
   const exclusions = options.generationExclusions ?? {};
@@ -68,8 +68,8 @@ export async function generateRedesignHtmlClaude(scraped, options = {}) {
     previousHeadlines: exclusions.heroHeadlines ?? [],
     previousAccentColors: exclusions.primaryAccentColors ?? [],
   });
-  const model = CLAUDE_OPUS_MODEL;
-  console.log(`[Redesign] Using model: ${model}, style: ${styleDirection.slug}`);
+  const model = options.model || CLAUDE_SONNET_REDESIGN_MODEL;
+  console.log(`[redesign] Using model: ${model}, style: ${styleDirection.slug}`);
   const maxTokens = Number(options.maxTokens) || 32000;
   let lastError;
 
@@ -91,7 +91,7 @@ export async function generateRedesignHtmlClaude(scraped, options = {}) {
 
     if (message.stop_reason === "max_tokens") {
       lastError = new Error("Claude redesign output was truncated (max_tokens).");
-      console.warn(`[redesign-claude] Attempt ${attempt}/${MAX_ATTEMPTS}: truncated output.`);
+      console.warn(`[redesign] Attempt ${attempt}/${MAX_ATTEMPTS}: truncated output.`);
       continue;
     }
 
@@ -107,16 +107,19 @@ export async function generateRedesignHtmlClaude(scraped, options = {}) {
       const html = prepareRedesignHtml(raw, websiteUrl);
       validateRedesignHtml(html);
       console.log(
-        `[redesign-claude] Attempt ${attempt}/${MAX_ATTEMPTS} succeeded (${html.length} chars, style=${styleDirection.slug}).`
+        `[redesign] Attempt ${attempt}/${MAX_ATTEMPTS} succeeded (${html.length} chars, style=${styleDirection.slug}).`
       );
       return buildRedesignGenerationResult(html, styleDirection.slug);
     } catch (error) {
       lastError = error;
       console.warn(
-        `[redesign-claude] Attempt ${attempt}/${MAX_ATTEMPTS} failed validation: ${error.message}`
+        `[redesign] Attempt ${attempt}/${MAX_ATTEMPTS} failed validation: ${error.message}`
       );
     }
   }
 
-  throw lastError ?? new Error("Claude redesign generation failed.");
+  throw lastError ?? new Error("Redesign generation failed.");
 }
+
+/** @deprecated Use generateRedesignHtml — kept for existing imports. */
+export const generateRedesignHtmlClaude = generateRedesignHtml;

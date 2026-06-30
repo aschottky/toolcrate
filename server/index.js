@@ -10,8 +10,7 @@ import { sendAuditError } from "./errors.js";
 import { handleInstantlyWebhook } from "./instantly-webhook.js";
 import { normalizeWebsiteUrl, scrapeWebsiteText } from "./scrape.js";
 import { evaluateLeadSuitability, preflightLogCode } from "./preflight.js";
-import { generateRedesignHtml } from "./redesign.js";
-import { generateRedesignHtmlClaude } from "./redesign-claude.js";
+import { generateRedesignHtml } from "./redesign-claude.js";
 import { registerAdminRoutes, runPreviewGeneration } from "./admin.js";
 import { registerCheckoutRoutes } from "./checkout.js";
 import {
@@ -688,10 +687,11 @@ function registerRedesignRoutes(path, generate, logPrefix) {
 }
 
 registerRedesignRoutes("/api/redesign", generateRedesignHtml, "[redesign]");
+// Legacy alias — same Claude Sonnet engine as /api/redesign
 registerRedesignRoutes(
   "/api/redesign-claude",
-  generateRedesignHtmlClaude,
-  "[redesign-claude]"
+  generateRedesignHtml,
+  "[redesign]"
 );
 
 const PREVIEW_TOKEN_RE = /^[a-z0-9-]{16,}$/i;

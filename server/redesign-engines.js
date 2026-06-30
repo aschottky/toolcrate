@@ -1,41 +1,41 @@
-import { generateRedesignHtml } from "./redesign.js";
-import { generateRedesignHtmlClaude } from "./redesign-claude.js";
-import { CLAUDE_OPUS_MODEL } from "./anthropic-models.js";
+import { generateRedesignHtml } from "./redesign-claude.js";
+import {
+  CLAUDE_SONNET_REDESIGN_MODEL,
+  DEFAULT_PUBLIC_REDESIGN_ENGINE,
+} from "./anthropic-models.js";
 
 export const DEFAULT_REDESIGN_MAX_TOKENS = 32000;
 
+/** Legacy engine ids stored in Supabase map to the single Claude Sonnet engine. */
+const LEGACY_ENGINE_ALIASES = {
+  "claude-opus": DEFAULT_PUBLIC_REDESIGN_ENGINE,
+  "gpt-4o": DEFAULT_PUBLIC_REDESIGN_ENGINE,
+};
+
 /**
- * Engines selectable from the admin dashboard when ordering a redesign.
- * Key = stable id stored in Supabase; model = exact slug sent to the API.
+ * Single redesign engine — Claude Sonnet 3.5 with shared validation pipeline.
+ * Key = stable id stored in Supabase; model = exact slug sent to the Anthropic API.
  */
 export const REDESIGN_ENGINES = {
-  "claude-opus": {
-    label: "Claude Opus 4.5 (best quality, ~2 min)",
-    model: CLAUDE_OPUS_MODEL,
-    generate: generateRedesignHtmlClaude,
-  },
   "claude-sonnet": {
-    label: "Claude Sonnet 4.5 (fast, strong quality)",
-    model: "claude-sonnet-4-5",
-    generate: generateRedesignHtmlClaude,
-  },
-  "gpt-4o": {
-    label: "GPT-4o (fastest, cheapest)",
-    model: "gpt-4o",
+    label: "Claude Sonnet 3.5",
+    model: CLAUDE_SONNET_REDESIGN_MODEL,
     generate: generateRedesignHtml,
   },
 };
 
 export function resolveRedesignEngine(engineId) {
-  const engine = REDESIGN_ENGINES[engineId];
+  const raw = String(engineId ?? "").trim();
+  const id = LEGACY_ENGINE_ALIASES[raw] ?? (raw || DEFAULT_PUBLIC_REDESIGN_ENGINE);
+  const engine = REDESIGN_ENGINES[id];
   if (!engine) {
     const err = new Error(
-      `Unknown engine "${engineId}". Use one of: ${Object.keys(REDESIGN_ENGINES).join(", ")}.`
+      `Unknown engine "${raw || id}". Use: ${Object.keys(REDESIGN_ENGINES).join(", ")}.`
     );
     err.statusCode = 400;
     throw err;
   }
-  return { id: engineId, ...engine };
+  return { id, ...engine };
 }
 
 export function listRedesignEngines() {

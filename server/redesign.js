@@ -1,17 +1,3 @@
-import OpenAI from "openai";
-
-let openaiClient;
-
-function getOpenAI() {
-  if (!process.env.OPENAI_API_KEY) {
-    throw new Error("OPENAI_API_KEY is not configured on the server.");
-  }
-  if (!openaiClient) {
-    openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-  }
-  return openaiClient;
-}
-
 export const CINEMATIC_AUTHORITY_REDESIGN_PROMPT = `You are a world-class web designer and conversion strategist for high-end service businesses. You will receive scraped data from a local contractor's website including their company name, location, services, phone number, existing copy, colors, and any image URLs found on their site.
 
 Generate a SINGLE complete HTML file that looks like it was built by a $15,000/mo boutique agency for a luxury client. The goal is "Cinematic Authority"—it should feel heavy, expert-led, and expensive.
@@ -266,15 +252,6 @@ export function validateRedesignHtml(html) {
   }
 }
 
-/**
- * Scraped site data → single-file landing page redesign (raw HTML string).
- * Standalone module — used as a separate follow-up step after the teardown audit.
- *
- * @param {{ textForAudit: string }} scraped — output of scrapeWebsiteText()
- * @returns {Promise<string>} complete HTML document
- */
-const MAX_ATTEMPTS = 2;
-
 const STYLE_DIRECTION_SPECS = [
   {
     slug: "bold_type_led",
@@ -511,73 +488,4 @@ export function buildUserMessage(scraped, imageUrls, generationContext = {}) {
   );
 
   return { message: parts.join("\n"), styleDirection };
-}
-
-// gpt-4o caps completion output at 16384 tokens.
-const OPENAI_MAX_OUTPUT_TOKENS = 16384;
-
-export async function generateRedesignHtml(scraped, options = {}) {
-  const openai = getOpenAI();
-  const imageUrls = await filterLoadableImageUrls(scraped.imageUrls);
-  const exclusions = options.generationExclusions ?? {};
-  const { message: userMessage, styleDirection } = buildUserMessage(scraped, imageUrls, {
-    styleDirection: options.styleDirection,
-    usedStyleDirections: exclusions.styleDirections ?? [],
-    previousHeadlines: exclusions.heroHeadlines ?? [],
-    previousAccentColors: exclusions.primaryAccentColors ?? [],
-  });
-  const model =
-    options.model ||
-    process.env.OPENAI_REDESIGN_MODEL ||
-    process.env.OPENAI_MODEL ||
-    "gpt-4o-mini";
-  const maxTokens = Math.min(
-    Number(options.maxTokens) || 8000,
-    OPENAI_MAX_OUTPUT_TOKENS
-  );
-  let lastError;
-
-  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-    const completion = await openai.chat.completions.create({
-      model,
-      temperature: 0.85,
-      max_tokens: maxTokens,
-      messages: [
-        { role: "system", content: REDESIGN_SYSTEM_PROMPT },
-        {
-          role: "user",
-          // Attach the actual images (low detail) so a vision-capable model
-          // can tell photos from logos and pick brand colors from imagery.
-          content: [
-            { type: "text", text: userMessage },
-            ...imageUrls.map((url) => ({
-              type: "image_url",
-              image_url: { url, detail: "low" },
-            })),
-          ],
-        },
-      ],
-    });
-
-    const raw = completion.choices[0]?.message?.content;
-    if (!raw) {
-      lastError = new Error("OpenAI returned an empty redesign response.");
-      continue;
-    }
-
-    try {
-      const websiteUrl =
-        options.websiteUrl || extractWebsiteUrlFromScraped(scraped);
-      const html = prepareRedesignHtml(raw, websiteUrl);
-      validateRedesignHtml(html);
-      return buildRedesignGenerationResult(html, styleDirection.slug);
-    } catch (error) {
-      lastError = error;
-      console.warn(
-        `[redesign] Attempt ${attempt}/${MAX_ATTEMPTS} failed validation: ${error.message}`
-      );
-    }
-  }
-
-  throw lastError ?? new Error("Redesign generation failed.");
 }

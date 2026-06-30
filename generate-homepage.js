@@ -2,7 +2,7 @@ import "dotenv/config";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { generateRedesignHtmlClaude } from "./server/redesign-claude.js";
+import { generateRedesignHtml } from "./server/redesign-claude.js";
 import {
   DEFAULT_REDESIGN_MAX_TOKENS,
   resolveRedesignEngine,
@@ -57,7 +57,7 @@ async function main() {
     process.env.PUBLIC_REDESIGN_ENGINE || DEFAULT_PUBLIC_REDESIGN_ENGINE
   );
 
-  const result = await generateRedesignHtmlClaude(
+  const result = await generateRedesignHtml(
     { textForAudit, imageUrls: [] },
     { model: engine.model, maxTokens: DEFAULT_REDESIGN_MAX_TOKENS }
   );

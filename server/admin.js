@@ -10,6 +10,7 @@ import {
   listRedesignEngines,
   resolveRedesignEngine,
 } from "./redesign-engines.js";
+import { DEFAULT_PUBLIC_REDESIGN_ENGINE } from "./anthropic-models.js";
 import {
   completeRedesign,
   deleteRedesignById,
@@ -444,7 +445,7 @@ export async function retryRedesign(req) {
   const normalizedUrl = normalizeWebsiteUrl(
     normalizeRootDomain(existing.website_url) ?? existing.website_url
   );
-  const engine = resolveRedesignEngine(existing.engine || "claude-opus");
+  const engine = resolveRedesignEngine(existing.engine || DEFAULT_PUBLIC_REDESIGN_ENGINE);
   const maxTokens = existing.max_tokens || DEFAULT_REDESIGN_MAX_TOKENS;
   const logPrefix = `[admin-retry:${redesignId}]`;
 
