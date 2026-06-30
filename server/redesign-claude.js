@@ -75,19 +75,28 @@ export async function generateRedesignHtml(scraped, options = {}) {
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     const retryNote = buildRetryNote(attempt, lastError, null);
-    const stream = anthropic.messages.stream({
-      model,
-      max_tokens: maxTokens,
-      system: CLAUDE_REDESIGN_SYSTEM_PROMPT,
-      messages: [
-        {
-          role: "user",
-          content: baseUserMessage + retryNote,
-        },
-      ],
-    });
-
-    const message = await stream.finalMessage();
+    let message;
+    try {
+      const stream = anthropic.messages.stream({
+        model,
+        max_tokens: maxTokens,
+        system: CLAUDE_REDESIGN_SYSTEM_PROMPT,
+        messages: [
+          {
+            role: "user",
+            content: baseUserMessage + retryNote,
+          },
+        ],
+      });
+      message = await stream.finalMessage();
+    } catch (error) {
+      lastError = error;
+      console.error(
+        `[redesign] Attempt ${attempt}/${MAX_ATTEMPTS} API error (model=${model}):`,
+        error.message
+      );
+      continue;
+    }
 
     if (message.stop_reason === "max_tokens") {
       lastError = new Error("Claude redesign output was truncated (max_tokens).");

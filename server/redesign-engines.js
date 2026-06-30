@@ -13,12 +13,12 @@ const LEGACY_ENGINE_ALIASES = {
 };
 
 /**
- * Single redesign engine — Claude Sonnet 3.5 with shared validation pipeline.
+ * Single redesign engine — Claude Sonnet with shared validation pipeline.
  * Key = stable id stored in Supabase; model = exact slug sent to the Anthropic API.
  */
 export const REDESIGN_ENGINES = {
   "claude-sonnet": {
-    label: "Claude Sonnet 3.5",
+    label: "Claude Sonnet 4.6",
     model: CLAUDE_SONNET_REDESIGN_MODEL,
     generate: generateRedesignHtml,
   },
