@@ -3,7 +3,17 @@ import { apiUrl } from "../scripts/api-config.js";
 const token = new URLSearchParams(window.location.search).get("t")?.trim();
 const params = new URLSearchParams(window.location.search);
 
-const STRATEGY_PHONE_DISPLAY = "(818) 869-9928";
+const isSubmissionConfirmed =
+  params.get("confirmed") === "1" ||
+  Boolean(
+    (() => {
+      try {
+        return sessionStorage.getItem("toolcrate_submit_email")?.trim();
+      } catch {
+        return "";
+      }
+    })()
+  );
 const STRATEGY_PHONE_E164 = "+18188699928";
 const LOG_PREFIX = "[ToolCrate Preview]";
 
@@ -131,6 +141,16 @@ async function loadPreview() {
 
     if (status.status === "ready") {
       window.location.href = `../roast/?t=${encodeURIComponent(token)}`;
+      return;
+    }
+
+    // Post-submit flow: always confirm receipt — redesign runs in the background.
+    if (isSubmissionConfirmed) {
+      showSubmissionConfirmed({
+        email: resolveEmail(status.email),
+        websiteUrl: status.website_url,
+        showQueue: status.status !== "failed" && status.status !== "redesign_failed",
+      });
       return;
     }
 

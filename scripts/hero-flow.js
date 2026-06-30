@@ -215,7 +215,7 @@ contactForm?.addEventListener("submit", async (event) => {
       /* private browsing */
     }
 
-    window.location.href = `${previewPathFor(previewToken)}&confirmed=1`;
+    window.location.href = `${previewPathFor(previewToken)}&confirmed=1&email=${encodeURIComponent(email)}`;
   } catch (error) {
     setContactError(normalizeClientError(error.message || ""));
   } finally {
