@@ -12,129 +12,82 @@ function getOpenAI() {
   return openaiClient;
 }
 
-export const LOCAL_SERVICE_CONVERSION_RULES = `LOCAL SERVICE BUSINESS CONVERSION RULES (hard requirements for trades, plumbers, HVAC, roofers, and similar):
+export const CINEMATIC_AUTHORITY_REDESIGN_PROMPT = `You are a world-class web designer and conversion strategist for high-end service businesses. You will receive scraped data from a local contractor's website including their company name, location, services, phone number, existing copy, colors, and any image URLs found on their site.
 
-COLOR & BRAND ACCURACY:
-- Extract PRIMARY brand colors from the scraped site, logo image, and CSS. If the logo is orange and black, the redesign MUST feature orange and black as primary/accent colors — not as minor accents only.
-- Do NOT default to generic "SaaS navy", cool slate, or blue-gray palettes unless the scraped brand clearly uses those colors.
-- CTA buttons must be high-contrast: if the section background is dark or blue, use the brand's warm accent (e.g. orange) for primary buttons.
+Generate a SINGLE complete HTML file that looks like it was built by a $15,000/mo boutique agency for a luxury client. The goal is "Cinematic Authority"—it should feel heavy, expert-led, and expensive.
 
-VISUAL WEIGHT — WARMTH & AUTHORITY:
-- Local service businesses need warmth and authority — not cold corporate minimalism.
-- Prefer imagery that suggests real people, crews, trucks, jobs in progress, or active service scenarios. Use scraped site photos when they show real work.
-- Avoid cold, empty, ultra-minimalist layouts and generic clinical stock-photo aesthetics.
+### VISUAL DESIGN SYSTEM (THE "CINEMATIC AUTHORITY" SPEC)
 
-CONVERSION COPY:
-- Headlines must be PUNCHY and BENEFIT-DRIVEN (e.g. "Same-Day Plumbing in Springfield") — not poetic, vague, or clever for its own sake.
-- Subheads must state a concrete offer, speed, or proof point — not filler.
-- The phone number is the #1 conversion action for trades: display it prominently in the header/nav as a bold, clickable tel: link — never footer-only.
+1. ARCHITECTURE & HIERARCHY:
 
-TONE & STYLE:
-- Target: "Modern Industrial" or "High-Performance Professional" — full, energetic layouts with bold typography and strong section breaks.
-- AVOID: Ultra-minimalist, clinical, sparse, or "empty" designs with excessive white space and timid type.
-- The page should feel FULL and energetic — every section should have clear visual weight.`;
+   - Use an "Editorial" layout. Avoid the standard SaaS "Alternating Feature Block" pattern (Image Left / Text Right).
+   - Use asymmetric grids and intentional white space to break the "template" feel.
+   - HERO: Full-viewport height (100vh). Use sophisticated layering:
+     - Background: Deep navy or charcoal gradient (e.g., linear-gradient(135deg, #0f172a 0%, #020617 100%)).
+     - Overlay: A very subtle SVG grid or noise texture (opacity 0.04).
+     - Typography Layer: Headlines must be large and commanding.
+   - TYPOGRAPHY:
+     - Headlines: Use a bold, high-contrast Serif font (e.g., @import 'Playfair Display') for a premium, established feel.
+     - Body: Use a clean, widely-spaced Sans-Serif (e.g., @import 'Inter') at 18px+ for readability.
+     - Hierarchy: Drastic size differences. H1 (72px+) vs H2 (36px). Use letter-spacing (0.15em) on small-caps labels.
 
-const REDESIGN_SYSTEM_PROMPT = `You are a world-class web designer and conversion strategist. You will receive scraped data from a local contractor's website including their company name, location, services, phone number, existing copy, colors, and any image URLs found on their site.
+2. COLOR & TEXTURE:
 
-Your job is to generate a single, complete HTML file that reimagines this business's online presence as a stunning, high-converting landing page. This preview will be shown to the business owner as a "vision" of what their site could look like - it needs to make their jaw drop.
+   - Primary: If the client has a brand color (like orange), do NOT use it for large backgrounds. Use it as a "glow," a thin border, or a high-impact CTA color.
+   - Contrast: Use "Pure Black" (#000000) for section backgrounds to create a "Cinematic" depth.
+   - Accents: Use glassmorphism (rgba(255, 255, 255, 0.03) with 12px backdrop-filter: blur) for navigation and cards.
 
-${LOCAL_SERVICE_CONVERSION_RULES}
+3. CONVERSION ELEMENTS:
 
-CREATIVE DIRECTION:
+   - TRUST BAR: A low-profile bar under the hero. Use "Proudly Serving [City]" and "Established [Year]" in muted gray text with high letter-spacing.
+   - CTA BUTTONS: Large, sharp-edged buttons. No borders. Use a subtle glow shadow: box-shadow: 0 0 20px rgba(brand-color, 0.3).
+   - NAVIGATION: Minimalist. The phone number should be the primary focus in the top right.
 
-The user message includes a MANDATORY STYLE DIRECTION — treat every bullet as a hard constraint. Do not fall back to generic dark-overlay split heroes, default orange accents, or serif headlines unless that direction requires them. Never substitute SaaS navy for a brand that uses other colors.
+### TECHNICAL RULES
 
-HEADLINE: Write a headline freshly conceived for this specific site and style direction. Headlines must be punchy and benefit-driven — not poetic. Do not default to the most obvious brand pun or the company name. Match the style direction's voice — short and punchy for bold type-led, clear value statement for light professional, unexpected for editorial.
+- Output a SINGLE complete HTML file.
+- CSS in <style> tag.
+- Google Fonts imported via @import.
+- NO external JS/frameworks.
+- NO horizontal scroll.
+- Responsive with breakpoints at 768px.
+- Use the REAL company data everywhere.
 
-CONTENT RULES:
+### THE TONE
 
-- Use their REAL company name, phone, city, services, and any taglines found in the scraped data
-- If image URLs were found on their site, embed them directly using those URLs (use them as hero backgrounds, section images, or card imagery)
-- Write sharp, conversion-focused copy using their actual service names and city - not generic filler
-- Generate realistic-sounding Google reviews using their actual city name
-- Trust signals should feel earned (pull from their data: years in business, service area, licensing info if present)
+The copy must be authoritative. Instead of "We do plumbing," use "Precision Engineering for [City] Homes."
 
-ICONS - CRITICAL RULE:
-Never use emoji characters as icons anywhere in the design. Not in feature grids, not in service cards, not in bullet points, not anywhere.
+Output ONLY raw HTML. No explanation, no markdown.`;
 
-Instead, use ONE of these approaches:
-- Inline SVG icons (simple, clean line icons - use heroicons or similar vocabulary)
-- A single stylized letter or number in a styled box (e.g. a bold "01", "02" in a colored circle)
-- A minimal geometric shape (a small colored line, dot, or bracket as a visual accent)
-- Pure typography with strong hierarchy - no icon at all
+export const REDESIGN_PIPELINE_REQUIREMENTS = `### REQUIRED SECTIONS & OUTPUT QUALITY (non-negotiable)
 
-The design must look like it was built by a professional agency, not assembled from emoji shortcuts.
+- Include: hero (100vh), trust bar, services, testimonials, inline estimate/CTA form section, footer.
+- CTA section MUST include an inline HTML form with name, phone, email, optional message, and submit button (action="#"). Do NOT link to external form pages or the scraped site's domain.
+- Use ONLY verified image URLs provided in the user message — never invent paths, stock photos, or reviewer avatars. Logos: nav/header at 48–72px height (width: auto), never as hero backgrounds.
+- Contrast is mandatory: light text on dark backgrounds, dark text on light — never illegible combinations.
+- Footer copyright: use placeholder CURRENT_YEAR (not a hardcoded year). Example: © CURRENT_YEAR [Company Name]. All rights reserved.
+- Immediately after <body>, include: <!-- toolcrate-accent: #RRGGBB -->
+- Never use emoji as icons — use inline SVG, typography, or numbered accents instead.
+- Must render beautifully at 1280px (screenshotted by Puppeteer). Add @media queries at 768px and 480px for mobile.
+- Use the company NAME for logo/headings, not the full meta title string.`;
 
-SECTION CONTRAST - REQUIRED:
-The page must alternate between light and dark sections to create visual rhythm. Do not use the same background color for more than two consecutive sections. The hero's light/dark treatment is defined by the MANDATORY STYLE DIRECTION in the user message.
+export const CLAUDE_REDESIGN_APPENDIX = `### MOBILE & RENDERING (Claude path)
 
-Suggested pattern for sections AFTER the hero:
-- Stats / Trust bar: Light or white - clean, credible
-- Services: Dark or medium tone - structured
-- About / Why Us: Light with a strong image - warm, human
-- Testimonials: Light or subtle texture - trustworthy
-- CTA: Dark or strong brand color - urgent, action-oriented
-- Footer: Dark - grounding
+- If the design includes a hamburger menu, it MUST work with vanilla JS only: a <script> at the bottom toggles the mobile nav; stacked links, semi-transparent overlay; CSS-drawn bars animating to X — never emoji menu icons.
+- Add to CSS: *, *::before, *::after { box-sizing: border-box; } and html, body { overflow-x: hidden; max-width: 100%; }
+- Every container: max-width with width: 100%. Images: max-width: 100%; height: auto. No element wider than 100vw.
+- The document MUST end with a closing </html> tag. Do not truncate mid-file.`;
 
-Use the brand's accent color (extracted from their site) as a punchy highlight, not as the entire palette. White space is not the enemy - it makes the dark sections hit harder.
+export const CINEMATIC_STYLE_DIRECTION = {
+  slug: "cinematic_authority",
+  prompt: "",
+};
 
-HERO SECTION - WOW FACTOR:
-The hero must follow the MANDATORY STYLE DIRECTION in the user message. These rules apply when the direction does not specify otherwise:
+const REDESIGN_SYSTEM_PROMPT = `${CINEMATIC_AUTHORITY_REDESIGN_PROMPT}
 
-1. Headline typography: Match the direction's scale and weight — do not use 56-72px serif on every design.
+${REDESIGN_PIPELINE_REQUIREMENTS}`;
 
-2. Subheading: Smaller (18-20px), lighter weight, gives context. Not more than 2 lines unless the direction says otherwise.
-
-3. CTAs: Two buttons - primary (filled, brand accent color) and secondary (ghost/outline). Both must be clearly visible against the hero background.
-
-4. Visual treatment: Only use full-bleed photo + dark overlay when the assigned style direction requires it.
-
-5. Trust signal: A small badge or inline text row when it fits the direction.
-
-HEADER / NAV — PHONE FIRST:
-- The business phone number from scraped data MUST appear in the header or top nav bar — bold, visible, and wrapped in a tel: link. This is non-negotiable for local service businesses.
-
-SERVICE CARDS:
-- Use a simple numbered accent (01, 02, 03...) OR a small colored top border on each card as the visual identifier - no emojis
-- Each card should have: a clear service name (bold, 18-20px), a 1-2 sentence description, and a subtle CTA link ("Get a Quote →")
-- Cards should have a slight border or shadow to separate them from the background - they should feel like cards, not floating text blocks
-- On a dark background, use a slightly lighter card surface tinted with the brand palette — not generic navy unless the brand is navy
-
-TECHNICAL RULES:
-
-- Single HTML file, all CSS in a <style> tag
-- Google Fonts via @import - pick a font pairing that fits the style you chose
-- No JavaScript frameworks, no external CSS. Vanilla CSS only.
-- Animations are encouraged (CSS only): scroll-in effects via @keyframes, hover lifts, glowing CTAs
-- Must render beautifully at 1280px wide - it will be screenshotted by Puppeteer
-- Fully responsive at all screen sizes. Use CSS media queries with breakpoints at 768px and 480px. On mobile: single column layout, stacked navigation, full-width buttons, font sizes scaled down. The site must look as good on a phone as it does at 1280px.
-- The page must have: hero section, trust/stats bar, services section, testimonials, final CTA, footer
-- Output ONLY raw HTML. No explanations. No markdown. No code fences.
-
-RENDERING CORRECTNESS (hard requirements, regardless of style chosen):
-
-- Contrast is non-negotiable: text on dark backgrounds must be light, text on light backgrounds must be dark. Never set a global light text color on body/html. No white-on-white or dark-on-dark anywhere, including stat numbers and phone numbers.
-- If you use gradient text (background-clip: text; color: transparent), apply it ONLY to a small accent span - never to a whole headline.
-- When layering a pattern or texture over a gradient background, combine them in ONE background-image declaration so the later rule doesn't overwrite the gradient.
-- All hero content must sit inside a padded max-width container - text must never touch the viewport edge.
-- Text over photos: any text placed on a photo background needs a gradient overlay darker at the bottom where text sits and lighter/transparent at the top - never a flat uniform overlay, and never put text directly on a busy or light image without overlay.
-- Logos and mascot images are NOT backgrounds: if a scraped image is clearly a logo/mascot/badge, use it in the nav/header at min-height 48px, max-height 72px, width: auto — or as a small trust-bar/footer mark. If the logo cannot load, fall back to bold company-name text. Never stretch a logo as a background or render it tiny/broken.
-- Every embedded photo must be size-constrained: fixed height (300-450px) with object-fit: cover, or aspect-ratio + overflow hidden - never let an image render at its natural full size.
-- Use the company NAME for headings/logo text, not the site's full meta title string (e.g. "Liberty Roofing", not "Liberty Roofing | Mid-Michigan Roofing | Exterior Upgrades").
-- ONLY embed image URLs that were explicitly provided as verified - never invent image paths, reviewer avatars, placeholder images, or stock photo URLs. A broken image icon ruins the whole preview. Testimonials need no photos - stars and text are enough.
-- Every required section must be fully designed in the chosen style - services as styled cards with numbered accents, SVG icons, or colored borders - never emoji icons, never bare centered text lists.
-
-CTA / ESTIMATE SECTION - REQUIRED:
-The CTA or estimate section MUST include a visible inline HTML form with name, phone, email, and an optional message field. Do NOT render a button that links to an external form page - that is the exact conversion problem this redesign is solving. The form does not need a real backend - use action="#". Style it to look polished and intentional (styled inputs, spacing, on-brand colors) - not default browser form styling. Required fields at minimum:
-- <input type="text" placeholder="Your Name">
-- <input type="tel" placeholder="Phone Number">
-- <input type="email" placeholder="Email Address">
-- <textarea placeholder="Tell us about your project (optional)"></textarea>
-- <button type="submit">Get My Free Estimate</button> (or equivalent)
-Hero CTAs may scroll to this form or use tel: links. Never include links or hrefs pointing to the original scraped website's domain anywhere in the page.
-
-FOOTER COPYRIGHT:
-In the footer copyright line, use the placeholder CURRENT_YEAR - do not hardcode a year. Example: © CURRENT_YEAR [Company Name]. All rights reserved.`;
+export { REDESIGN_SYSTEM_PROMPT };
 
 /**
  * Strip markdown fences / preamble the model sometimes adds despite instructions.
@@ -491,10 +444,8 @@ export function getSiteSpecificDesignOverride(websiteUrl, textForAudit) {
   const haystack = `${websiteUrl || ""} ${textForAudit || ""}`.toLowerCase();
   if (/franco[\s-]?american|francoamerican/.test(haystack)) {
     return {
-      forceStyleSlug: "high_energy_local",
-      brief: `SITE-SPECIFIC CREATIVE BRIEF — FRANCO AMERICAN (hard override on colors and tone):
-Keep the vibrant Orange and Black branding from their logo and site. Frame them as the elite, high-energy plumbing authority in Springfield. Use bold sans-serif fonts and high-contrast buttons (orange CTAs on dark/black sections). Do NOT substitute navy, slate, or generic SaaS blue.
-Headlines must be punchy and benefit-driven. Phone number must be front and center in the header. Layout should feel full and energetic — modern industrial, not minimalist or clinical.`,
+      brief: `SITE-SPECIFIC CREATIVE BRIEF — FRANCO AMERICAN:
+Keep vibrant orange and black from their logo and site. Per Cinematic Authority: use orange ONLY as glow, thin borders, and high-impact CTA color — NOT large orange backgrounds. Frame them as the elite plumbing authority in Springfield. Playfair Display headlines, phone as primary nav focus top-right, authoritative copy (e.g. "Precision Engineering for Springfield Homes").`,
     };
   }
   return null;
@@ -521,17 +472,7 @@ export function buildUserMessage(scraped, imageUrls, generationContext = {}) {
   }
 
   let styleDirection =
-    generationContext.styleDirection ??
-    pickStyleDirectionForGeneration({
-      imageUrls,
-      usedStyleDirections: generationContext.usedStyleDirections ?? [],
-    });
-
-  if (siteOverride?.forceStyleSlug) {
-    styleDirection =
-      STYLE_DIRECTION_SPECS.find((spec) => spec.slug === siteOverride.forceStyleSlug) ??
-      styleDirection;
-  }
+    generationContext.styleDirection ?? CINEMATIC_STYLE_DIRECTION;
 
   const previousHeadlines = generationContext.previousHeadlines ?? [];
   const previousAccentColors = generationContext.previousAccentColors ?? [];
@@ -546,14 +487,14 @@ export function buildUserMessage(scraped, imageUrls, generationContext = {}) {
         parts.push(`- "${headline}"`);
       }
       parts.push(
-        "Find a completely different angle from the scraped content. If previous designs focused on one theme (sustainability, energy, family, etc.), this one must lead with a different value: speed, craftsmanship, local trust, storm damage expertise, warranty, etc."
+        "Find a completely different authoritative angle from the scraped content — craftsmanship, legacy, precision, local trust, warranty, etc."
       );
     }
     if (previousAccentColors.length && !siteOverride) {
       parts.push(
         `Previously used accent colors for this site: ${previousAccentColors.join(", ")}`
       );
-      parts.push("Use a different primary accent color for this design.");
+      parts.push("Use a different primary accent glow/CTA color for this design.");
     }
   }
 
@@ -563,13 +504,10 @@ export function buildUserMessage(scraped, imageUrls, generationContext = {}) {
 
   parts.push(
     "",
-    "MANDATORY STYLE DIRECTION — treat every bullet below as a hard constraint, not a loose suggestion. Do not fall back to generic dark-overlay split heroes, default orange accents, or serif headlines unless this direction requires them:",
-    "",
-    styleDirection.prompt,
-    "",
+    "Follow the Cinematic Authority design system from your system instructions exactly.",
     "Immediately after the opening <body> tag, include an HTML comment with your primary accent color: <!-- toolcrate-accent: #RRGGBB -->",
     "",
-    "Alternate light and dark sections for visual rhythm in the rest of the page. No emoji icons anywhere. Follow this direction's hero scale and layout rules — not a generic template."
+    "No emoji icons anywhere. Use real scraped company data throughout."
   );
 
   return { message: parts.join("\n"), styleDirection };
