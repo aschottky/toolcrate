@@ -73,10 +73,12 @@ export async function generateRedesignHtml(scraped, options = {}) {
   console.log(`[redesign] Using model: ${model}, style: ${styleDirection.slug}`);
   const maxTokens = Number(options.maxTokens) || 32000;
   let lastError;
+  let lastStopReason = null;
 
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-    const retryNote = buildRetryNote(attempt, lastError, null);
+    const retryNote = buildRetryNote(attempt, lastError, lastStopReason);
     let message;
+    let stopReason = null;
     try {
       const stream = anthropic.messages.stream({
         model,
@@ -90,7 +92,9 @@ export async function generateRedesignHtml(scraped, options = {}) {
         ],
       });
       message = await stream.finalMessage();
+      stopReason = message.stop_reason;
     } catch (error) {
+      lastStopReason = null;
       lastError = enrichRedesignError(error);
       logRedesignFailure("[redesign]", lastError, {
         attempt,
@@ -102,6 +106,7 @@ export async function generateRedesignHtml(scraped, options = {}) {
     }
 
     if (message.stop_reason === "max_tokens") {
+      lastStopReason = "max_tokens";
       lastError = enrichRedesignError(
         new Error("Claude redesign output was truncated (max_tokens).")
       );
@@ -134,8 +139,8 @@ export async function generateRedesignHtml(scraped, options = {}) {
       );
       return buildRedesignGenerationResult(html, styleDirection.slug);
     } catch (error) {
+      lastStopReason = stopReason;
       lastError = enrichRedesignError(error);
-      lastError.code = lastError.code || "REDESIGN_VALIDATION_FAILED";
       console.warn(
         `[redesign] Attempt ${attempt}/${MAX_ATTEMPTS} failed validation [code=${lastError.code}]:`,
         lastError.message

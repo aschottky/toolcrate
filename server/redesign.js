@@ -159,11 +159,15 @@ export function normalizeCopyrightYear(html) {
   let result = String(html);
 
   result = result.replace(/CURRENT_YEAR/g, String(currentYear));
-  result = result.replace(/(&copy;|©)\s*\d{4}/g, `© ${currentYear}`);
+  result = result.replace(/(&copy;|©)\s*\d{4}/g, `&copy; ${currentYear}`);
   result = result.replace(/Copyright\s+\d{4}/gi, `Copyright ${currentYear}`);
 
   return result;
 }
+
+/** True emoji glyphs (not ©, ✔, ☎, etc. that Extended_Pictographic wrongly includes). */
+const EMOJI_ICON_RE = /\p{Emoji_Presentation}/u;
+const EMOJI_ICON_RE_GLOBAL = /\p{Emoji_Presentation}/gu;
 
 /** Remove pictographic emoji from visible HTML — keeps ★ • → in copy. */
 export function stripEmojiFromHtmlBody(html) {
@@ -174,7 +178,7 @@ export function stripEmojiFromHtmlBody(html) {
   return parts
     .map((part) => {
       if (/^<(style|script)/i.test(part)) return part;
-      return part.replace(/\p{Extended_Pictographic}/gu, "");
+      return part.replace(EMOJI_ICON_RE_GLOBAL, "");
     })
     .join("");
 }
@@ -240,7 +244,7 @@ export function htmlContainsEmojiIcons(html) {
   const stripped = String(html || "")
     .replace(/<style[\s\S]*?<\/style>/gi, "")
     .replace(/<script[\s\S]*?<\/script>/gi, "");
-  return /\p{Extended_Pictographic}/u.test(stripped);
+  return EMOJI_ICON_RE.test(stripped);
 }
 
 export function validateRedesignHtml(html) {
