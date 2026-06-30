@@ -1,3 +1,5 @@
+import { FOUNDING_DESIGNER_BLUEPRINT_PREFIX } from "./blueprint.js";
+
 export const CINEMATIC_AUTHORITY_REDESIGN_PROMPT = `You are a world-class web designer and conversion strategist for high-end service businesses. You will receive scraped data (Company Name, Location, Services, Brand Colors, Scraped Images).
 
 Generate a SINGLE complete HTML file that looks like it was built by a $15,000/mo boutique agency. The goal is "Cinematic Authority"—heavy, expert-led, and industrial.
@@ -65,9 +67,14 @@ export const CINEMATIC_STYLE_DIRECTION = {
   prompt: "",
 };
 
-const REDESIGN_SYSTEM_PROMPT = `${CINEMATIC_AUTHORITY_REDESIGN_PROMPT}
+export function buildRedesignSystemPrompt({ isBlueprint = false } = {}) {
+  const prefix = isBlueprint ? FOUNDING_DESIGNER_BLUEPRINT_PREFIX : "";
+  return `${prefix}${CINEMATIC_AUTHORITY_REDESIGN_PROMPT}
 
 ${REDESIGN_PIPELINE_REQUIREMENTS}`;
+}
+
+const REDESIGN_SYSTEM_PROMPT = buildRedesignSystemPrompt({ isBlueprint: false });
 
 export { REDESIGN_SYSTEM_PROMPT };
 
@@ -431,13 +438,18 @@ Use THE BOLD TRADESMAN archetype. Keep vibrant orange and black from their logo/
 export function buildUserMessage(scraped, imageUrls, generationContext = {}) {
   const websiteUrl = extractWebsiteUrlFromScraped(scraped);
   const siteOverride = getSiteSpecificDesignOverride(websiteUrl, scraped.textForAudit);
-  const isNewSiteBuild = scraped?.buildMode === "NEW_SITE_BUILD";
+  const isNewSiteBuild = scraped?.isBlueprint || scraped?.buildMode === "NEW_SITE_BUILD";
 
   const parts = isNewSiteBuild
     ? [
         "BUILD_MODE: NEW_SITE_BUILD — this business has NO existing website.",
         "Generate a complete landing page from scratch using ONLY the business details below.",
         "Invent the hero, services, trust signals, utility bar, and conversion copy — do not reference scraping or an old site.",
+        "",
+        `Company Name: ${scraped.companyName ?? "(unknown)"}`,
+        `Location: ${scraped.location ?? "(unknown)"}`,
+        `Services: ${scraped.services ?? "(unknown)"}`,
+        `Brand Colors: ${(scraped.brandColors ?? ["#1e293b"]).join(", ")}`,
         "",
         scraped.textForAudit,
       ]

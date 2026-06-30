@@ -30,6 +30,7 @@ import { DEFAULT_PUBLIC_REDESIGN_ENGINE } from "./anthropic-models.js";
 import { sanitizeRoastBulletList } from "../scripts/roast-bullet-sanitize.js";
 import { normalizeRootDomain } from "./url-utils.js";
 import {
+  buildBlueprintScrapedData,
   buildBlueprintWebsiteUrl,
   isBlueprintBuild,
   normalizeBlueprintRequest,
@@ -617,7 +618,60 @@ app.post("/api/audit", async (req, res) => {
 });
 
 // Standalone redesign mockup — separate follow-up step after the teardown audit.
-async function handleRedesign(req, res, { websiteUrl, asHtml, generate, logPrefix }) {
+async function handleRedesign(req, res, { websiteUrl, asHtml, generate, logPrefix, body }) {
+  const blueprintRequest = normalizeBlueprintRequest(body ?? {});
+
+  if (blueprintRequest.isBlueprint) {
+    if (blueprintRequest.error) {
+      return res.status(400).json({
+        ok: false,
+        error: blueprintRequest.error,
+        code: "INVALID_REQUEST",
+      });
+    }
+
+    try {
+      const { companyName, serviceType, location } = blueprintRequest.blueprint;
+      const scraped = buildBlueprintScrapedData(blueprintRequest.blueprint);
+
+      console.log(
+        `${logPrefix} Blueprint mode (isBlueprint=true) — skipping scrape for "${companyName}"`
+      );
+
+      const result = await generate(scraped, { isBlueprint: true });
+      console.log(`${logPrefix} Blueprint redesign ready (${result.html.length} chars)`);
+
+      if (asHtml) {
+        res.setHeader("Content-Type", "text/html; charset=utf-8");
+        return res.send(result.html);
+      }
+
+      return res.json({
+        ok: true,
+        isBlueprint: true,
+        build_mode: "NEW_SITE_BUILD",
+        companyName,
+        serviceType,
+        location,
+        html: result.html,
+        styleDirection: result.styleDirection,
+        heroHeadline: result.heroHeadline,
+        primaryAccentColor: result.primaryAccentColor,
+      });
+    } catch (error) {
+      return sendRedesignError(res, error, logPrefix);
+    }
+  }
+
+  if (!websiteUrl) {
+    return res.status(400).json({
+      ok: false,
+      error:
+        "Pass websiteUrl, or blueprint fields: companyName, serviceType, and location (no url).",
+      code: "INVALID_REQUEST",
+    });
+  }
+
   try {
     const normalizedUrl = normalizeWebsiteUrl(websiteUrl);
 
@@ -676,11 +730,18 @@ async function handleRedesign(req, res, { websiteUrl, asHtml, generate, logPrefi
 
 function registerRedesignRoutes(path, generate, logPrefix) {
   // Pipeline use: POST JSON { websiteUrl } → { ok, websiteUrl, html }
+  // Blueprint: POST JSON { companyName, serviceType, location } (no url) → same engine, skip scrape.
   // (or raw text/html with format=html for Puppeteer's page.goto).
   app.post(path, (req, res) => {
     const { websiteUrl, format } = req.body ?? {};
     const asHtml = format === "html" || req.query.format === "html";
-    return handleRedesign(req, res, { websiteUrl, asHtml, generate, logPrefix });
+    return handleRedesign(req, res, {
+      websiteUrl,
+      asHtml,
+      generate,
+      logPrefix,
+      body: req.body ?? {},
+    });
   });
 
   // Browser testing: http://localhost:4000{path}?url=example.com renders the

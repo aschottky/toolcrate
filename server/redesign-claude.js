@@ -4,13 +4,14 @@ import { enrichRedesignError, logRedesignFailure } from "./errors.js";
 import {
   buildUserMessage,
   buildRedesignGenerationResult,
+  buildRedesignSystemPrompt,
   CLAUDE_REDESIGN_APPENDIX,
   extractWebsiteUrlFromScraped,
   filterLoadableImageUrls,
   prepareRedesignHtml,
-  REDESIGN_SYSTEM_PROMPT,
   validateRedesignHtml,
 } from "./redesign.js";
+import { NEW_SITE_BUILD } from "./blueprint.js";
 
 let anthropicClient;
 
@@ -24,9 +25,13 @@ function getAnthropic() {
   return anthropicClient;
 }
 
-const CLAUDE_REDESIGN_SYSTEM_PROMPT = `${REDESIGN_SYSTEM_PROMPT}
+const CLAUDE_REDESIGN_APPENDIX_BLOCK = CLAUDE_REDESIGN_APPENDIX;
 
-${CLAUDE_REDESIGN_APPENDIX}`;
+function claudeSystemPrompt(isBlueprint) {
+  return `${buildRedesignSystemPrompt({ isBlueprint })}
+
+${CLAUDE_REDESIGN_APPENDIX_BLOCK}`;
+}
 
 const MAX_ATTEMPTS = 3;
 
@@ -61,7 +66,11 @@ function buildRetryNote(attempt, lastError, stopReason) {
  */
 export async function generateRedesignHtml(scraped, options = {}) {
   const anthropic = getAnthropic();
-  const imageUrls = await filterLoadableImageUrls(scraped.imageUrls);
+  const rawImages = scraped.scrapedImages ?? scraped.imageUrls;
+  const imageUrls = await filterLoadableImageUrls(rawImages);
+  const isBlueprint = Boolean(
+    options.isBlueprint ?? scraped?.isBlueprint ?? scraped?.buildMode === NEW_SITE_BUILD
+  );
   const exclusions = options.generationExclusions ?? {};
   const { message: baseUserMessage, styleDirection } = buildUserMessage(scraped, imageUrls, {
     styleDirection: options.styleDirection,
@@ -70,7 +79,10 @@ export async function generateRedesignHtml(scraped, options = {}) {
     previousAccentColors: exclusions.primaryAccentColors ?? [],
   });
   const model = options.model || CLAUDE_SONNET_REDESIGN_MODEL;
-  console.log(`[redesign] Using model: ${model}, style: ${styleDirection.slug}`);
+  console.log(
+    `[redesign] Using model: ${model}, style: ${styleDirection.slug}${isBlueprint ? ", blueprint" : ""}`
+  );
+  const systemPrompt = claudeSystemPrompt(isBlueprint);
   const maxTokens = Number(options.maxTokens) || 32000;
   let lastError;
   let lastStopReason = null;
@@ -83,7 +95,7 @@ export async function generateRedesignHtml(scraped, options = {}) {
       const stream = anthropic.messages.stream({
         model,
         max_tokens: maxTokens,
-        system: CLAUDE_REDESIGN_SYSTEM_PROMPT,
+        system: systemPrompt,
         messages: [
           {
             role: "user",

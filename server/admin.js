@@ -675,6 +675,7 @@ async function generateRedesignFromUrl({
     maxTokens,
     websiteUrl: normalizedUrl,
     generationExclusions,
+    isBlueprint: Boolean(scraped?.isBlueprint ?? scraped?.buildMode === "NEW_SITE_BUILD"),
   });
   console.log(
     `${logPrefix} Generated ${result.html.length} chars (${result.styleDirection}) in ${Math.round((Date.now() - started) / 1000)}s`
