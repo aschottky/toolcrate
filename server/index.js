@@ -769,6 +769,13 @@ function previewStatusPayload(redesign) {
     redesign_status,
   };
 
+  if (redesign.email) {
+    payload.email = redesign.email;
+  }
+  if (redesign.website_url) {
+    payload.website_url = redesign.website_url;
+  }
+
   if (status === "roast_ready" || status === "ready") {
     const roast_bullets = roastBulletTexts(redesign.roast_bullets);
     if (roast_bullets?.length) {

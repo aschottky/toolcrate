@@ -1129,24 +1129,24 @@ export async function fetchRedesignByToken(previewToken) {
   // business_name / company_name are optional columns (used to personalize the
   // wait screen); older tables also lack status — fall back progressively.
   let { data, error } = await query(
-    "id, website_url, html, status, business_name, company_name, roast_bullets, roast_status"
+    "id, website_url, html, status, email, business_name, company_name, roast_bullets, roast_status"
   );
 
   if (error && /business_name|company_name/i.test(error.message)) {
     ({ data, error } = await query(
-      "id, website_url, html, status, roast_bullets, roast_status"
+      "id, website_url, html, status, email, roast_bullets, roast_status"
     ));
   }
 
   if (error && isMissingRoastColumns(error.message)) {
-    ({ data, error } = await query("id, website_url, html, status, business_name, company_name"));
+    ({ data, error } = await query("id, website_url, html, status, email, business_name, company_name"));
     if (error && /business_name|company_name/i.test(error.message)) {
-      ({ data, error } = await query("id, website_url, html, status"));
+      ({ data, error } = await query("id, website_url, html, status, email"));
     }
   }
 
   if (error && isMissingPreviewWaitColumns(error.message)) {
-    ({ data, error } = await query("id, website_url, html"));
+    ({ data, error } = await query("id, website_url, html, email"));
   }
 
   if (error) {

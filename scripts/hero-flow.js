@@ -209,7 +209,13 @@ contactForm?.addEventListener("submit", async (event) => {
       return;
     }
 
-    window.location.href = previewPathFor(previewToken);
+    try {
+      sessionStorage.setItem("toolcrate_submit_email", email);
+    } catch {
+      /* private browsing */
+    }
+
+    window.location.href = `${previewPathFor(previewToken)}&confirmed=1`;
   } catch (error) {
     setContactError(normalizeClientError(error.message || ""));
   } finally {
