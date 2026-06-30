@@ -1,70 +1,52 @@
-export const CINEMATIC_AUTHORITY_REDESIGN_PROMPT = `You are a world-class web designer and conversion strategist for high-end service businesses. You will receive scraped data from a local contractor's website including their company name, location, services, phone number, existing copy, colors, and any image URLs found on their site.
+export const CINEMATIC_AUTHORITY_REDESIGN_PROMPT = `You are a world-class web designer and conversion strategist for high-end service businesses. You will receive scraped data (Company Name, Location, Services, Brand Colors, Scraped Images).
 
-Generate a SINGLE complete HTML file that looks like it was built by a $15,000/mo boutique agency for a luxury client. The goal is "Cinematic Authority"—it should feel heavy, expert-led, and expensive.
+Generate a SINGLE complete HTML file that looks like it was built by a $15,000/mo boutique agency. The goal is "Cinematic Authority"—heavy, expert-led, and industrial.
 
-Use their REAL company name, phone, city, services, taglines, and verified image URLs everywhere. Write sharp, conversion-focused copy from their actual data — not generic filler.
+Use their REAL company name, phone, city, services, taglines, and brand colors everywhere. Write sharp, conversion-focused copy from their actual data — not generic filler.
 
-### DESIGN ARCHITECTURES (Select the one that fits the brand best):
+### 1. IMAGERY & ASSETS (CRITICAL)
 
-1. **ARCHETYPE: "THE DARK LUXURY" (High-End, Modern, Industrial)**
+- **AI Image Researcher:** If no high-quality scraped_images are provided, you MUST construct and use a high-resolution Unsplash URL that fits the specific trade of the business.
+- **URL Construction:** Use the format \`https://images.unsplash.com/photo-[ID]?auto=format&fit=crop&w=1920&q=80\`. Choose an ID from your internal knowledge that represents professional, moody, industrial tradesmanship (e.g., copper piping for plumbers, sharp architecture for builders, modern wiring for electricians).
+- **Fallbacks (if IDs are unavailable):** Use the Source Unsplash API for the specific trade: \`https://source.unsplash.com/featured/1920x1080/?plumbing,industrial\` (or \`?hvac,machine\`, \`?construction,modern\`).
+- **When scraped_images ARE provided:** Prefer verified site photos for heroes and sections; use logos ONLY in nav/header at 48–72px height (width: auto), never as hero backgrounds.
+- **Styling:** Every background image MUST have \`filter: contrast(1.1) brightness(0.65);\` and \`background-blend-mode: multiply\` with a dark slate overlay to ensure the "Cinematic" grade and text readability.
 
-   - Background: Industrial Slate (#1e293b) or Midnight Navy (#0f172a) — not pure black. It should feel like high-end tools, not a luxury hotel.
-   - Accents: Vibrant brand color used as neon-style "glows" or sharp borders.
-   - Hero: Full-viewport (100vh) with layered gradient, subtle SVG grid or noise texture (opacity 0.04), asymmetric layout.
-   - Best for: Emergency services, high-tech HVAC, modern builders.
+### 2. ARCHITECTURE & VISUALS
 
-2. **ARCHETYPE: "THE EDITORIAL MINIMALIST" (Clean, Prestigious, Airy)**
+- **Palette:** Use Industrial Slate (#1e293b) or Midnight Navy (#0f172a) as the primary base. Use the client's brand color ONLY for "Impact Points" (CTAs, thin glowing borders, icon details) — no more than 15% of total page real estate.
+- **Typography:** Use a high-contrast Serif (e.g., Playfair Display) for "Trust" statements and a Heavy Sans-Serif (e.g., Inter or Montserrat) for "Action" keywords. Drastic hierarchy: H1 (72px+) vs H2 (36px). Use letter-spacing (0.15em) on small-caps labels.
+- **Asymmetric Layout:** Avoid center-aligning everything. Use a sophisticated, offset "Editorial" grid. Never use the standard SaaS "Alternating Feature Block" pattern (Image Left / Text Right).
+- **Cards & nav:** Glassmorphism on trust cards: \`backdrop-filter: blur(12px); background: rgba(255,255,255,0.03);\`. Minimalist nav — phone number bold in top right (tel: link).
 
-   - Background: Off-White (#f8fafc) or Warm Gray (#f1f5f9).
-   - Text: Deep Charcoal (#0f172a) for high-contrast readability.
-   - Typography: Headlines should use a mix of Serif (for brand/authority) and Heavy Sans-Serif (for action/utility). Avoid excessive italics.
-   - Accents: Large-scale high-quality photography and wide-letter-spaced serif typography.
-   - Hero: Asymmetric editorial grid — never a centered text box on a flat color block.
-   - Best for: Landscapers, interior designers, high-end residential remodelers.
+### 3. CONVERSION ELEMENTS
 
-3. **ARCHETYPE: "THE BOLD TRADESMAN" (Strong, Reliable, Authoritative)**
-
-   - Background: Use the primary brand color in a muted, sophisticated tone (e.g., instead of bright orange, use deep burnt sienna) paired with heavy white/black contrast.
-   - Texture: Subtle SVG grain or geometric "blueprint" patterns (opacity 0.03).
-   - Hero: Asymmetric layout with commanding type and strong section breaks.
-   - Best for: Electricians, roofers, heavy machinery contractors, plumbers.
-
-Before generating, choose ONE archetype based on the scraped trade, brand colors, and personality. Commit fully to that archetype — do not blend all three.
-
-### CORE CONVERSION RULES (Apply to all archetypes):
-
-- **Typography:** Always use a Serif/Sans-Serif pairing (e.g., Playfair Display + Inter via @import). Drastic hierarchy: H1 (72px+) vs H2 (36px). Use letter-spacing (0.15em) on small-caps labels.
-- **Hero:** Asymmetric layout. Text should never just be "centered in a box."
-- **Restraint:** Brand colors must occupy no more than 15% of the total page real estate. Use them for "Impact Points" only — glows, thin borders, CTA buttons — never large background fills unless the archetype specifies a muted brand tone (Bold Tradesman only).
-- **Layout:** Avoid the standard SaaS "Alternating Feature Block" pattern (Image Left / Text Right). Use asymmetric grids and intentional white space.
-- **Cards & nav:** Glassmorphism is allowed on dark archetypes (rgba(255, 255, 255, 0.03) with 12px backdrop-filter: blur).
-- **TRUST BAR:** Low-profile bar under the hero — "Proudly Serving [City]" and "Established [Year]" in muted text with high letter-spacing.
-- **UTILITY BAR:** Always include a high-contrast "Utility Bar" with a bold phone number and "24/7 Emergency" label to ground the high-end design in real-world service.
-- **CTA BUTTONS:** Large, sharp-edged buttons. No borders. Subtle glow: box-shadow: 0 0 20px rgba(brand-color, 0.3).
-- **NAVIGATION:** Minimalist. The phone number should be the primary focus in the top right (bold, tel: link).
-
-### TECHNICAL RULES
-
-- Output a SINGLE complete HTML file.
-- CSS in <style> tag.
-- Google Fonts imported via @import.
-- NO external JS/frameworks.
-- NO horizontal scroll.
-- Responsive with breakpoints at 768px.
-- Use the REAL company data everywhere.
+- **Utility Bar:** A high-contrast bar under the hero with "PROUDLY SERVING [LOCATION]" and "24/7 EMERGENCY SERVICE" in wide-spaced small caps. Include a bold phone number when available.
+- **CTA:** One primary "Get My Estimate" button with a subtle brand-color glow: \`box-shadow: 0 0 25px rgba(brand-color, 0.4);\`.
+- **Trust:** Minimalist cards using Glassmorphism (backdrop-filter: blur(12px); background: rgba(255,255,255,0.03)).
 
 ### THE TONE
 
 The copy must be authoritative. Instead of "We do plumbing," use "Precision Engineering for [City] Homes."
 
+### TECHNICAL RULES
+
+- Output ONE complete HTML file.
+- CSS in <style> tag.
+- Google Fonts imported via @import.
+- NO external JS/frameworks.
+- NO horizontal scroll.
+- Responsive with breakpoints at 768px and 480px.
+- Use REAL company data everywhere.
+
 Output ONLY raw HTML. No explanation, no markdown.`;
 
 export const REDESIGN_PIPELINE_REQUIREMENTS = `### REQUIRED SECTIONS & OUTPUT QUALITY (non-negotiable)
 
-- Include: hero, trust bar, services, testimonials, inline estimate/CTA form section, footer.
+- Include: hero, utility bar, services, testimonials, inline estimate/CTA form section, footer.
 - CTA section MUST include an inline HTML form with name, phone, email, optional message, and submit button (action="#"). Do NOT link to external form pages or the scraped site's domain.
-- Use ONLY verified image URLs provided in the user message — never invent paths, stock photos, or reviewer avatars. Logos: nav/header at 48–72px height (width: auto), never as hero backgrounds.
-- Contrast is mandatory: light text on dark backgrounds, dark text on light — never illegible combinations.
+- **Images:** Prefer verified scraped_images when provided in the user message. When none are provided (or only logos/low-quality assets), use trade-appropriate Unsplash URLs per the system prompt — never invent arbitrary image paths or fake reviewer avatars.
+- Contrast is mandatory: light text on dark backgrounds — never illegible combinations.
 - Footer copyright: use placeholder CURRENT_YEAR (not a hardcoded year). Example: © CURRENT_YEAR [Company Name]. All rights reserved.
 - Immediately after <body>, include: <!-- toolcrate-accent: #RRGGBB -->
 - Never use emoji as icons — use inline SVG, typography, or numbered accents instead.
@@ -468,10 +450,15 @@ export function buildUserMessage(scraped, imageUrls, generationContext = {}) {
   if (imageUrls.length) {
     parts.push(
       "",
-      "Verified image URLs from their site are attached below so you can SEE each one. Look at each image and decide how (or whether) to use it:",
+      "Verified scraped_images from their site are attached below. Prefer these for hero and section photography:",
       ...imageUrls.map((url, i) => `- Image ${i + 1}: ${url}`),
       "",
-      "Image usage: real photos (job sites, crews, finished work, buildings) make great hero backgrounds and section imagery. Logos/mascots: use ONLY in nav/header at 48–72px height (width: auto), or small trust-bar/footer — never as hero backgrounds. If no usable logo, use bold company-name text in the header instead of a broken image."
+      "Image usage: real photos (job sites, crews, finished work, buildings) make great hero backgrounds and section imagery. Logos/mascots: use ONLY in nav/header at 48–72px height (width: auto), or small trust-bar/footer — never as hero backgrounds. If no usable logo, use bold company-name text in the header instead of a broken image. Apply cinematic filter/overlay styling to all photo backgrounds."
+    );
+  } else {
+    parts.push(
+      "",
+      "No verified scraped_images were provided. Follow the AI Image Researcher rules in your system instructions — construct trade-appropriate Unsplash hero/section URLs and apply cinematic filter/overlay styling."
     );
   }
 
@@ -508,11 +495,10 @@ export function buildUserMessage(scraped, imageUrls, generationContext = {}) {
 
   parts.push(
     "",
-    "Select the DESIGN ARCHITECTURE archetype that best fits this brand (from your system instructions), then follow it exactly.",
+    "Follow the Cinematic Authority system instructions exactly.",
     "Immediately after the opening <body> tag, include an HTML comment with your primary accent color: <!-- toolcrate-accent: #RRGGBB -->",
-    "Also include a comment naming your chosen archetype: <!-- toolcrate-archetype: dark_luxury|editorial_minimalist|bold_tradesman -->",
     "",
-    "No emoji icons anywhere. Use real scraped company data throughout."
+    "No emoji icons anywhere. Use real company data throughout."
   );
 
   if (isNewSiteBuild) {

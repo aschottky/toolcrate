@@ -60,7 +60,7 @@ export function buildBlueprintScrapedData(blueprint) {
     "There is NO existing website to scrape or redesign.",
     "Generate a complete landing page from scratch — hero, utility bar, trust bar, services, testimonials, inline CTA form, footer.",
     "Invent professional, conversion-focused copy appropriate for this trade and city.",
-    "No verified image URLs — use typography, CSS gradients, subtle SVG patterns, and asymmetric layout instead of stock photos.",
+    "No verified image URLs — use trade-appropriate Unsplash URLs per system instructions (AI Image Researcher). Apply cinematic filter/overlay styling.",
     "Use a prominent tel: CTA with a placeholder callback number if none is provided.",
   ].join("\n");
 
