@@ -2,32 +2,44 @@ export const CINEMATIC_AUTHORITY_REDESIGN_PROMPT = `You are a world-class web de
 
 Generate a SINGLE complete HTML file that looks like it was built by a $15,000/mo boutique agency for a luxury client. The goal is "Cinematic Authority"—it should feel heavy, expert-led, and expensive.
 
-### VISUAL DESIGN SYSTEM (THE "CINEMATIC AUTHORITY" SPEC)
+Use their REAL company name, phone, city, services, taglines, and verified image URLs everywhere. Write sharp, conversion-focused copy from their actual data — not generic filler.
 
-1. ARCHITECTURE & HIERARCHY:
+### DESIGN ARCHITECTURES (Select the one that fits the brand best):
 
-   - Use an "Editorial" layout. Avoid the standard SaaS "Alternating Feature Block" pattern (Image Left / Text Right).
-   - Use asymmetric grids and intentional white space to break the "template" feel.
-   - HERO: Full-viewport height (100vh). Use sophisticated layering:
-     - Background: Deep navy or charcoal gradient (e.g., linear-gradient(135deg, #0f172a 0%, #020617 100%)).
-     - Overlay: A very subtle SVG grid or noise texture (opacity 0.04).
-     - Typography Layer: Headlines must be large and commanding.
-   - TYPOGRAPHY:
-     - Headlines: Use a bold, high-contrast Serif font (e.g., @import 'Playfair Display') for a premium, established feel.
-     - Body: Use a clean, widely-spaced Sans-Serif (e.g., @import 'Inter') at 18px+ for readability.
-     - Hierarchy: Drastic size differences. H1 (72px+) vs H2 (36px). Use letter-spacing (0.15em) on small-caps labels.
+1. **ARCHETYPE: "THE DARK LUXURY" (High-End, Modern, Industrial)**
 
-2. COLOR & TEXTURE:
+   - Background: Deep Ink (#020617) or Charcoal (#0f172a).
+   - Accents: Vibrant brand color used as neon-style "glows" or sharp borders.
+   - Hero: Full-viewport (100vh) with layered gradient, subtle SVG grid or noise texture (opacity 0.04), asymmetric layout.
+   - Best for: Emergency services, high-tech HVAC, modern builders.
 
-   - Primary: If the client has a brand color (like orange), do NOT use it for large backgrounds. Use it as a "glow," a thin border, or a high-impact CTA color.
-   - Contrast: Use "Pure Black" (#000000) for section backgrounds to create a "Cinematic" depth.
-   - Accents: Use glassmorphism (rgba(255, 255, 255, 0.03) with 12px backdrop-filter: blur) for navigation and cards.
+2. **ARCHETYPE: "THE EDITORIAL MINIMALIST" (Clean, Prestigious, Airy)**
 
-3. CONVERSION ELEMENTS:
+   - Background: Off-White (#f8fafc) or Warm Gray (#f1f5f9).
+   - Text: Deep Charcoal (#0f172a) for high-contrast readability.
+   - Accents: Large-scale high-quality photography and wide-letter-spaced serif typography.
+   - Hero: Asymmetric editorial grid — never a centered text box on a flat color block.
+   - Best for: Landscapers, interior designers, high-end residential remodelers.
 
-   - TRUST BAR: A low-profile bar under the hero. Use "Proudly Serving [City]" and "Established [Year]" in muted gray text with high letter-spacing.
-   - CTA BUTTONS: Large, sharp-edged buttons. No borders. Use a subtle glow shadow: box-shadow: 0 0 20px rgba(brand-color, 0.3).
-   - NAVIGATION: Minimalist. The phone number should be the primary focus in the top right.
+3. **ARCHETYPE: "THE BOLD TRADESMAN" (Strong, Reliable, Authoritative)**
+
+   - Background: Use the primary brand color in a muted, sophisticated tone (e.g., instead of bright orange, use deep burnt sienna) paired with heavy white/black contrast.
+   - Texture: Subtle SVG grain or geometric "blueprint" patterns (opacity 0.03).
+   - Hero: Asymmetric layout with commanding type and strong section breaks.
+   - Best for: Electricians, roofers, heavy machinery contractors, plumbers.
+
+Before generating, choose ONE archetype based on the scraped trade, brand colors, and personality. Commit fully to that archetype — do not blend all three.
+
+### CORE CONVERSION RULES (Apply to all archetypes):
+
+- **Typography:** Always use a Serif/Sans-Serif pairing (e.g., Playfair Display + Inter via @import). Drastic hierarchy: H1 (72px+) vs H2 (36px). Use letter-spacing (0.15em) on small-caps labels.
+- **Hero:** Asymmetric layout. Text should never just be "centered in a box."
+- **Restraint:** Brand colors must occupy no more than 15% of the total page real estate. Use them for "Impact Points" only — glows, thin borders, CTA buttons — never large background fills unless the archetype specifies a muted brand tone (Bold Tradesman only).
+- **Layout:** Avoid the standard SaaS "Alternating Feature Block" pattern (Image Left / Text Right). Use asymmetric grids and intentional white space.
+- **Cards & nav:** Glassmorphism is allowed on dark archetypes (rgba(255, 255, 255, 0.03) with 12px backdrop-filter: blur).
+- **TRUST BAR:** Low-profile bar under the hero — "Proudly Serving [City]" and "Established [Year]" in muted text with high letter-spacing.
+- **CTA BUTTONS:** Large, sharp-edged buttons. No borders. Subtle glow: box-shadow: 0 0 20px rgba(brand-color, 0.3).
+- **NAVIGATION:** Minimalist. The phone number should be the primary focus in the top right (bold, tel: link).
 
 ### TECHNICAL RULES
 
@@ -47,7 +59,7 @@ Output ONLY raw HTML. No explanation, no markdown.`;
 
 export const REDESIGN_PIPELINE_REQUIREMENTS = `### REQUIRED SECTIONS & OUTPUT QUALITY (non-negotiable)
 
-- Include: hero (100vh), trust bar, services, testimonials, inline estimate/CTA form section, footer.
+- Include: hero, trust bar, services, testimonials, inline estimate/CTA form section, footer.
 - CTA section MUST include an inline HTML form with name, phone, email, optional message, and submit button (action="#"). Do NOT link to external form pages or the scraped site's domain.
 - Use ONLY verified image URLs provided in the user message — never invent paths, stock photos, or reviewer avatars. Logos: nav/header at 48–72px height (width: auto), never as hero backgrounds.
 - Contrast is mandatory: light text on dark backgrounds, dark text on light — never illegible combinations.
@@ -422,7 +434,7 @@ export function getSiteSpecificDesignOverride(websiteUrl, textForAudit) {
   if (/franco[\s-]?american|francoamerican/.test(haystack)) {
     return {
       brief: `SITE-SPECIFIC CREATIVE BRIEF — FRANCO AMERICAN:
-Keep vibrant orange and black from their logo and site. Per Cinematic Authority: use orange ONLY as glow, thin borders, and high-impact CTA color — NOT large orange backgrounds. Frame them as the elite plumbing authority in Springfield. Playfair Display headlines, phone as primary nav focus top-right, authoritative copy (e.g. "Precision Engineering for Springfield Homes").`,
+Use THE BOLD TRADESMAN archetype. Keep vibrant orange and black from their logo/site — orange ONLY on impact points (CTAs, glows, borders), max 15% of page real estate; use deep burnt sienna or charcoal for backgrounds, not bright orange fills. Frame them as the elite plumbing authority in Springfield. Playfair Display + Inter, asymmetric hero, phone as primary nav focus top-right.`,
     };
   }
   return null;
@@ -481,8 +493,9 @@ export function buildUserMessage(scraped, imageUrls, generationContext = {}) {
 
   parts.push(
     "",
-    "Follow the Cinematic Authority design system from your system instructions exactly.",
+    "Select the DESIGN ARCHITECTURE archetype that best fits this brand (from your system instructions), then follow it exactly.",
     "Immediately after the opening <body> tag, include an HTML comment with your primary accent color: <!-- toolcrate-accent: #RRGGBB -->",
+    "Also include a comment naming your chosen archetype: <!-- toolcrate-archetype: dark_luxury|editorial_minimalist|bold_tradesman -->",
     "",
     "No emoji icons anywhere. Use real scraped company data throughout."
   );
