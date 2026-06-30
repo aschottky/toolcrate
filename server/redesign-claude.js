@@ -35,6 +35,16 @@ ${CLAUDE_REDESIGN_APPENDIX_BLOCK}`;
 
 const MAX_ATTEMPTS = 3;
 
+/** Sonnet 5+ may return thinking blocks before the text block — never read content[0] blindly. */
+function extractMessageText(message) {
+  const parts = message?.content ?? [];
+  return parts
+    .filter((block) => block.type === "text")
+    .map((block) => block.text)
+    .join("")
+    .trim();
+}
+
 function buildRetryNote(attempt, lastError, stopReason) {
   if (attempt === 1) return "";
 
@@ -129,10 +139,11 @@ export async function generateRedesignHtml(scraped, options = {}) {
       continue;
     }
 
-    const raw = message.content?.[0]?.text;
+    const raw = extractMessageText(message);
     if (!raw) {
+      const blockTypes = (message.content ?? []).map((b) => b.type).join(", ") || "none";
       lastError = enrichRedesignError(
-        new Error("Claude returned an empty redesign response.")
+        new Error(`Claude returned an empty redesign response (blocks: ${blockTypes}).`)
       );
       lastError.code = "REDESIGN_EMPTY_RESPONSE";
       console.warn(

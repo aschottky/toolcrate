@@ -18,7 +18,7 @@ const LEGACY_ENGINE_ALIASES = {
  */
 export const REDESIGN_ENGINES = {
   "claude-sonnet": {
-    label: "Claude Sonnet 4.6",
+    label: "Claude Sonnet 5",
     model: CLAUDE_SONNET_REDESIGN_MODEL,
     generate: generateRedesignHtml,
   },

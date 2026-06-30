@@ -402,9 +402,9 @@ function previewLinkFor(redesign) {
 }
 
 const ENGINE_LABELS = {
-  "claude-sonnet": "Claude Sonnet 4.6",
-  "claude-opus": "Claude Sonnet 4.6",
-  "gpt-4o": "Claude Sonnet 4.6",
+  "claude-sonnet": "Claude Sonnet 5",
+  "claude-opus": "Claude Sonnet 5",
+  "gpt-4o": "Claude Sonnet 5",
 };
 
 function renderRedesigns(redesigns) {

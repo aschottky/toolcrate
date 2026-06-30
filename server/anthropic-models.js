@@ -10,7 +10,7 @@ export const CLAUDE_OPUS_MODEL = "claude-opus-4-5";
  * Override on Render via CLAUDE_REDESIGN_MODEL if needed.
  */
 export const CLAUDE_SONNET_REDESIGN_MODEL =
-  process.env.CLAUDE_REDESIGN_MODEL?.trim() || "claude-sonnet-4-6";
+  process.env.CLAUDE_REDESIGN_MODEL?.trim() || "claude-sonnet-5";
 
 /** Default engine id for public /try preview orders and admin when unspecified. */
 export const DEFAULT_PUBLIC_REDESIGN_ENGINE = "claude-sonnet";
