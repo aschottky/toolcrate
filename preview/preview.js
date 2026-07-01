@@ -70,7 +70,11 @@ function applyStandardConfirmationCopy(email) {
   confirmedTitle.textContent = "URL Received. I'm on it.";
   confirmedTitle.classList.remove("unavailable-title");
   if (confirmedCopy) {
-    confirmedCopy.innerHTML = `I've received your site details and I'm personally reviewing your conversion structure now. I'll have your custom redesign preview and audit sent to <strong class="confirmed-email" id="confirmed-email">${escapeHtml(email)}</strong> within the next 2 hours.`;
+    const emailBit =
+      email && email !== "your email"
+        ? ` at <strong class="confirmed-email" id="confirmed-email">${escapeHtml(email)}</strong>`
+        : "";
+    confirmedCopy.innerHTML = `I've received your site details and I'm personally reviewing your conversion structure now. You'll receive your custom redesign blueprint and audit${emailBit} in the next 24-48 hours.`;
   }
 }
 
@@ -78,7 +82,11 @@ function applyBlueprintConfirmationCopy(email, companyName) {
   confirmedTitle.textContent = "Blueprint Initiated.";
   confirmedTitle.classList.remove("unavailable-title");
   if (confirmedCopy) {
-    confirmedCopy.innerHTML = `I'm sketching out a custom conversion structure for <strong class="confirmed-company">${escapeHtml(companyName)}</strong> now. I'll send your brand-new site concept and strategy to <strong class="confirmed-email" id="confirmed-email">${escapeHtml(email)}</strong> within 2 hours.`;
+    const emailBit =
+      email && email !== "your email"
+        ? ` to <strong class="confirmed-email" id="confirmed-email">${escapeHtml(email)}</strong>`
+        : "";
+    confirmedCopy.innerHTML = `I'm sketching out a custom conversion structure for <strong class="confirmed-company">${escapeHtml(companyName)}</strong> now. You'll receive your brand-new site concept and strategy${emailBit} within the next 24-48 hours.`;
   }
 }
 function resolveEmail(apiEmail) {
@@ -168,9 +176,10 @@ function showRedesignUnavailable() {
     copyBlocks[0].textContent =
       "We hit a snag building your visual redesign. Your site analysis is still accurate, and Alexander has been notified.";
   }
-  if (copyBlocks[1]) {
-    copyBlocks[1].textContent =
-      "If you're in a rush, call my strategy line below. My assistant Rachel can prioritize your audit or get you on my calendar for a deep dive.";
+  const bridge = document.getElementById("confirmed-bridge");
+  if (bridge) {
+    bridge.textContent =
+      "If you're in a rush or want to discuss a specific project deadline, call my strategy line below.";
   }
 }
 

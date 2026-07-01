@@ -135,12 +135,13 @@
         margin-bottom: 1.75rem;
       }
       .confirmed-founder img {
-        width: 88px;
-        height: 88px;
+        width: 96px;
+        height: 96px;
         border-radius: 50%;
         object-fit: cover;
-        border: 3px solid rgba(139, 92, 246, 0.45);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+        object-position: center 20%;
+        border: 3px solid rgba(249, 115, 22, 0.35);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 0 24px rgba(249, 115, 22, 0.12);
       }
       .confirmed-founder-caption {
         margin: 0;
@@ -166,7 +167,7 @@
         color: var(--muted);
         font-size: 1.05rem;
         line-height: 1.65;
-        text-align: left;
+        text-align: center;
       }
       .confirmed-copy strong {
         color: #e4e4e7;
@@ -189,6 +190,19 @@
         border-radius: 1rem;
         backdrop-filter: blur(8px);
       }
+      .strategy-bridge {
+        margin: 0 0 0.5rem;
+        color: var(--muted);
+        font-size: 0.9875rem;
+        line-height: 1.6;
+        text-align: center;
+      }
+      .strategy-note {
+        margin: 0 0 1.125rem;
+        font-size: 0.875rem;
+        color: #71717a;
+        line-height: 1.5;
+      }
       .strategy-kicker {
         margin: 0 0 0.35rem;
         font-size: 0.6875rem;
@@ -199,7 +213,7 @@
       }
       .strategy-phone {
         display: block;
-        margin: 0 0 1.125rem;
+        margin: 0 0 0.5rem;
         font-size: 1.35rem;
         font-weight: 700;
         font-variant-numeric: tabular-nums;
@@ -315,24 +329,23 @@
         </div>
 
         <div class="confirmed-founder">
-          <img src="/alexander.jpg" alt="Alexander Schottky" width="88" height="88" />
+          <img src="/alexander.jpg" alt="Alexander Schottky" width="96" height="96" />
           <p class="confirmed-founder-caption">Every request is reviewed by Alexander personally — no bots, no instant junk previews.</p>
         </div>
 
         <h1 class="confirmed-title" id="confirmed-title">URL Received. I'm on it.</h1>
 
         <p class="confirmed-copy" id="confirmed-copy">
-          I've received your site details and I'm personally reviewing your conversion structure now. I'll have your custom redesign preview and audit sent to
-          <strong class="confirmed-email" id="confirmed-email">your email</strong>
-          within the next 2 hours.
+          I've received your site details and I'm personally reviewing your conversion structure now. You'll receive your custom redesign blueprint and audit in the next 24-48 hours.
         </p>
-        <p class="confirmed-copy">
-          If you're in a rush, call my strategy line below. My assistant Rachel can prioritize your audit or get you on my calendar for a deep dive.
+        <p class="confirmed-copy strategy-bridge" id="confirmed-bridge">
+          If you're in a rush or want to discuss a specific project deadline, call my strategy line below.
         </p>
 
         <aside class="strategy-card" aria-label="Strategy line">
           <p class="strategy-kicker">Strategy line</p>
           <a class="strategy-phone" id="strategy-phone-link" href="tel:+18188699928">(818) 869-9928</a>
+          <p class="strategy-note">You can reach my office directly at the number below if you have immediate questions.</p>
           <div class="strategy-actions">
             <a class="strategy-btn strategy-btn--primary strategy-btn--call-mobile" id="call-strategy-btn" href="tel:+18188699928">Call the Strategy Line</a>
             <button type="button" class="strategy-btn strategy-btn--secondary" id="save-strategy-btn">Save Strategy Line</button>
@@ -340,7 +353,7 @@
         </aside>
 
         <p class="confirmed-footer">
-          You can close this tab — we'll email you when your preview is ready.
+          You can close this tab — we'll email you when your audit is ready.
         </p>
         <a class="confirmed-back" href="/">← Back to ToolCrate</a>
       </div>
