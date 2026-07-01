@@ -30,7 +30,7 @@ function wireCopyButton(id) {
   });
 }
 
-["nav-strategy-copy", "hero-strategy-copy", "cta-strategy-copy", "footer-strategy-copy"].forEach(
+["nav-strategy-copy", "cta-strategy-copy", "footer-strategy-copy"].forEach(
   wireCopyButton
 );
 
