@@ -12,7 +12,8 @@ Use their REAL company name, phone, city, services, taglines, and brand colors e
 - **URL Construction:** Use the format \`https://images.unsplash.com/photo-[ID]?auto=format&fit=crop&w=1920&q=80\`. Choose an ID from your internal knowledge that represents professional, moody, industrial tradesmanship (e.g., copper piping for plumbers, sharp architecture for builders, modern wiring for electricians).
 - **Fallbacks (if IDs are unavailable):** Use the Source Unsplash API for the specific trade: \`https://source.unsplash.com/featured/1920x1080/?plumbing,industrial\` (or \`?hvac,machine\`, \`?construction,modern\`).
 - **When scraped_images ARE provided:** Prefer verified site photos for heroes and sections; use logos ONLY in nav/header at 48–72px height (width: auto), never as hero backgrounds.
-- **Styling:** Every background image MUST have \`filter: contrast(1.1) brightness(0.65);\` and \`background-blend-mode: multiply\` with a dark slate overlay to ensure the "Cinematic" grade and text readability.
+- **Styling:** Every background image MUST have \`filter: contrast(1.1) brightness(0.65);\` and \`background-blend-mode: multiply\` with a dark slate overlay to ensure the "Cinematic" grade and text readability. The photo must still be visibly present — do not cover the hero with a flat color block; use gradient overlays at most 70–85% opacity so trade photography reads clearly.
+- **Minimum coverage:** Every page MUST include at least two trade-relevant photos (hero + one services/trust section). A text-only or gradient-only hero is not acceptable.
 
 ### 2. ARCHITECTURE & VISUALS
 
@@ -47,7 +48,7 @@ export const REDESIGN_PIPELINE_REQUIREMENTS = `### REQUIRED SECTIONS & OUTPUT QU
 
 - Include: hero, utility bar, services, testimonials, inline estimate/CTA form section, footer.
 - CTA section MUST include an inline HTML form with name, phone, email, optional message, and submit button (action="#"). Do NOT link to external form pages or the scraped site's domain.
-- **Images:** Prefer verified scraped_images when provided in the user message. When none are provided (or only logos/low-quality assets), use trade-appropriate Unsplash URLs per the system prompt — never invent arbitrary image paths or fake reviewer avatars.
+- **Images:** Prefer verified scraped_images when provided in the user message. When none are provided (or only logos/low-quality assets), use trade-appropriate Unsplash URLs per the system prompt — never invent arbitrary image paths or fake reviewer avatars. NEW_SITE_BUILD / blueprint requests MUST include at least two Unsplash photos (hero + one section).
 - Contrast is mandatory: light text on dark backgrounds — never illegible combinations.
 - Footer copyright: use placeholder CURRENT_YEAR (not a hardcoded year). Example: © CURRENT_YEAR [Company Name]. All rights reserved.
 - Immediately after <body>, include: <!-- toolcrate-accent: #RRGGBB -->
@@ -256,6 +257,20 @@ export function validateRedesignHtml(html) {
   }
   if (htmlContainsEmojiIcons(html)) {
     throw new Error("AI redesign output uses emoji characters as icons.");
+  }
+}
+
+/** Blueprint / NEW_SITE_BUILD pages must ship real trade photography. */
+export function validateTradeImagery(html) {
+  if (!/images\.unsplash\.com|source\.unsplash\.com/i.test(html)) {
+    throw new Error(
+      "Blueprint redesign must include trade-appropriate Unsplash photography (images.unsplash.com URLs)."
+    );
+  }
+  if (!/background-image:\s*url\(|<img[\s>]/i.test(html)) {
+    throw new Error(
+      "Blueprint redesign must use hero or section photography (background-image or img tag)."
+    );
   }
 }
 
@@ -470,7 +485,11 @@ export function buildUserMessage(scraped, imageUrls, generationContext = {}) {
   } else {
     parts.push(
       "",
-      "No verified scraped_images were provided. Follow the AI Image Researcher rules in your system instructions — construct trade-appropriate Unsplash hero/section URLs and apply cinematic filter/overlay styling."
+      "IMAGERY REQUIRED (non-negotiable): No verified scraped_images were provided.",
+      "You MUST follow the AI Image Researcher rules in your system instructions — construct at least TWO trade-appropriate Unsplash URLs:",
+      "- One full-viewport hero background (background-image on .hero or equivalent)",
+      "- One additional photo in services, trust, or testimonials (img or background-image)",
+      "Apply cinematic filter/overlay styling. Do NOT output a text-only or gradient-only hero."
     );
   }
 

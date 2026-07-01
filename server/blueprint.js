@@ -4,7 +4,7 @@ export const NEW_SITE_BUILD = "NEW_SITE_BUILD";
 export const BLUEPRINT_URL_PREFIX = "blueprint://new-site/";
 export const DEFAULT_BLUEPRINT_BRAND_COLORS = ["#1e293b"];
 
-export const FOUNDING_DESIGNER_BLUEPRINT_PREFIX = `The client does not have an existing website. Act as a Founding Designer building their flagship digital identity from scratch. Use the provided Company Name, Service, and Location to create a high-authority brand "Blueprint" that dominates their local market.
+export const FOUNDING_DESIGNER_BLUEPRINT_PREFIX = `The client does not have an existing website. Act as a Founding Designer building their flagship digital identity from scratch. Use the provided Company Name, Service, and Location to create a high-authority brand "Blueprint" that dominates their local market. You MUST include at least two trade-relevant Unsplash photographs (hero + one section) — never ship a text-only layout.
 
 `;
 

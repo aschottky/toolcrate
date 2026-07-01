@@ -10,6 +10,7 @@ import {
   filterLoadableImageUrls,
   prepareRedesignHtml,
   validateRedesignHtml,
+  validateTradeImagery,
 } from "./redesign.js";
 import { NEW_SITE_BUILD } from "./blueprint.js";
 
@@ -157,6 +158,9 @@ export async function generateRedesignHtml(scraped, options = {}) {
         options.websiteUrl || extractWebsiteUrlFromScraped(scraped);
       const html = prepareRedesignHtml(raw, websiteUrl);
       validateRedesignHtml(html);
+      if (isBlueprint) {
+        validateTradeImagery(html);
+      }
       console.log(
         `[redesign] Attempt ${attempt}/${MAX_ATTEMPTS} succeeded (${html.length} chars, style=${styleDirection.slug}).`
       );
