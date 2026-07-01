@@ -167,6 +167,22 @@
     @media (max-width: 768px) {
       .pricing-grid { grid-template-columns: 1fr !important; }
     }
+    .problem-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;
+    }
+    .problem-card {
+      background: #fafafa; border-radius: 1.5rem; padding: 2rem; border: 1px solid #f4f4f5;
+    }
+    .problem-index {
+      font-family: 'Archivo Black', 'Inter', sans-serif;
+      font-size: 2.75rem; line-height: 1; letter-spacing: -0.04em;
+      color: rgba(24, 24, 27, 0.12); margin-bottom: 1.25rem;
+    }
+    .problem-index--accent { color: #f97316; opacity: 0.85; }
+    .problem-card h3 {
+      font-size: 1.25rem; font-weight: 700; color: #18181b; margin: 0 0 0.75rem; line-height: 1.25;
+    }
+    .problem-card p { color: #71717a; line-height: 1.7; margin: 0; }
   </style>
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-1JPM7QNHFN"></script>
@@ -263,21 +279,21 @@
         </h2>
         <p style="font-size:1.25rem;color:#71717a;margin-top:1.5rem;max-width:42rem;margin-left:auto;margin-right:auto;">"Fine" doesn't generate leads. "Fine" doesn't make the phone ring. Here's what's actually happening with your site right now.</p>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:2rem;">
-        <div style="background:#fafafa;border-radius:1.5rem;padding:2rem;border:1px solid #f4f4f5;">
-          <div style="font-size:2.25rem;margin-bottom:1.25rem;">🚪</div>
-          <h3 style="font-size:1.25rem;font-weight:700;color:#18181b;margin-bottom:0.75rem;">Visitors Leave in 8 Seconds</h3>
-          <p style="color:#71717a;line-height:1.7;">They land, glance around, and bounce. No call, no form, no sale. Your site is a digital ghost town — and you're paying for traffic that vanishes.</p>
+      <div class="problem-grid">
+        <div class="problem-card">
+          <div class="problem-index display" aria-hidden="true">01</div>
+          <h3>Visitors Leave in 8 Seconds</h3>
+          <p>They land, glance around, and bounce. No call, no form, no sale. Your site is a digital ghost town — and you're paying for traffic that vanishes.</p>
         </div>
-        <div style="background:#fafafa;border-radius:1.5rem;padding:2rem;border:1px solid #f4f4f5;">
-          <div style="font-size:2.25rem;margin-bottom:1.25rem;">💸</div>
-          <h3 style="font-size:1.25rem;font-weight:700;color:#18181b;margin-bottom:0.75rem;">You Paid $5K for a Business Card</h3>
-          <p style="color:#71717a;line-height:1.7;">That 'professional' agency site looks nice. But it doesn't convert. It's an expensive brochure nobody reads — meanwhile your competitor is getting all the calls.</p>
+        <div class="problem-card">
+          <div class="problem-index display" aria-hidden="true">02</div>
+          <h3>You Paid $5K for a Business Card</h3>
+          <p>That 'professional' agency site looks nice. But it doesn't convert. It's an expensive brochure nobody reads — meanwhile your competitor is getting all the calls.</p>
         </div>
-        <div style="background:#fafafa;border-radius:1.5rem;padding:2rem;border:1px solid #f4f4f5;">
-          <div style="font-size:2.25rem;margin-bottom:1.25rem;">⏰</div>
-          <h3 style="font-size:1.25rem;font-weight:700;color:#18181b;margin-bottom:0.75rem;">DIY is Killing Your Business</h3>
-          <p style="color:#71717a;line-height:1.7;">Every hour you spend tweaking Wix is an hour you're not making money. Your competitor hired someone who knows what they're doing. Three months ago.</p>
+        <div class="problem-card">
+          <div class="problem-index problem-index--accent display" aria-hidden="true">03</div>
+          <h3>DIY is Killing Your Business</h3>
+          <p>Every hour you spend tweaking Wix is an hour you're not making money. Your competitor hired someone who knows what they're doing. Three months ago.</p>
         </div>
       </div>
     </div>
