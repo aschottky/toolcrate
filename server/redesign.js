@@ -267,7 +267,10 @@ export function validateTradeImagery(html) {
       "Blueprint redesign must include trade-appropriate Unsplash photography (images.unsplash.com URLs)."
     );
   }
-  if (!/background-image:\s*url\(|<img[\s>]/i.test(html)) {
+  const hasImgTag = /<img[\s/>]/i.test(html);
+  // Models often stack gradient + photo on separate lines under background-image:
+  const hasBackgroundUrl = /background(?:-image)?\s*:[\s\S]{0,1200}?url\s*\(/i.test(html);
+  if (!hasImgTag && !hasBackgroundUrl) {
     throw new Error(
       "Blueprint redesign must use hero or section photography (background-image or img tag)."
     );

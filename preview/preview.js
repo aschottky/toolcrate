@@ -213,6 +213,16 @@ async function loadPreview() {
     }
 
     if (status.status === "failed" || status.status === "redesign_failed") {
+      // Blueprint submissions with contact on file — never show a dead-end error page.
+      if (status.build_mode === "NEW_SITE_BUILD" && status.email) {
+        showSubmissionConfirmed({
+          email: status.email,
+          showQueue: false,
+          buildMode: status.build_mode,
+          companyName: status.company_name,
+        });
+        return;
+      }
       showRedesignUnavailable();
       return;
     }
