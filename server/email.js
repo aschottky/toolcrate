@@ -372,25 +372,27 @@ export async function sendNewLeadReviewNotification({
   const emailLabel = userEmail?.trim() || "None provided";
   const nameLabel = userName?.trim() || "Not provided";
   const phoneLabel = userPhone?.trim() || "Not provided";
-  const subject = `New Lead: ${businessUrl} - Review Redesign Here`;
+  const subject = `New submission: ${businessUrl}`;
 
   const html = `
-    <p>A new site was submitted for expert-curated review.</p>
+    <p>A new lead submitted through the ToolCrate funnel.</p>
     <p><strong>Name:</strong> ${nameLabel}<br>
     <strong>URL:</strong> ${businessUrl}<br>
     <strong>Lead email:</strong> ${emailLabel}<br>
     <strong>Phone:</strong> ${phoneLabel}</p>
-    <p><a href="${reviewUrl}">Review Redesign Here</a></p>
-    <p>The redesign is generating in the background. Refresh the preview link in a few minutes if it is not ready yet.</p>
+    <p><a href="${reviewUrl}">Open in admin preview</a></p>
+    <p>No automatic AI generation was triggered. Start roast/redesign from admin when you are ready to work this lead.</p>
   `.trim();
 
-  const text = `New Lead: ${businessUrl}
+  const text = `New submission: ${businessUrl}
 
 Name: ${nameLabel}
 Lead email: ${emailLabel}
 Phone: ${phoneLabel}
 
-Review Redesign Here: ${reviewUrl}`;
+Open in admin preview: ${reviewUrl}
+
+No automatic AI generation was triggered. Start roast/redesign from admin when ready.`;
 
   const { data, error } = await resend.emails.send({
     from,

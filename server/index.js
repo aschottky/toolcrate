@@ -982,15 +982,7 @@ app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
         maxTokens: DEFAULT_REDESIGN_MAX_TOKENS,
       });
 
-      runPreviewGeneration({
-        redesignId: pending.id,
-        normalizedUrl: websiteUrl,
-        engine,
-        maxTokens: DEFAULT_REDESIGN_MAX_TOKENS,
-        logPrefix: `${logPrefix}:${pending.id}`,
-      });
-
-      console.log(`${logPrefix} Queued NEW_SITE_BUILD blueprint (${engine.id}).`);
+      console.log(`${logPrefix} Blueprint lead captured (no auto-generation).`);
       return res.json({
         ok: true,
         status: "processing",
@@ -1061,8 +1053,9 @@ app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
   try {
     const existing = await findLatestRedesignForDomain(rootDomain);
     if (existing) {
+      const emailWasMissing = !existing.email;
       // Someone may have submitted (or the admin ordered) without an email.
-      if (!existing.email && email) {
+      if (emailWasMissing && email) {
         await setRedesignEmail(existing.id, email).catch((error) =>
           console.warn(`${logPrefix} Could not backfill email:`, error.message)
         );
@@ -1070,6 +1063,25 @@ app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
       if (firstName) {
         await setRedesignFirstName(existing.id, firstName).catch((error) =>
           console.warn(`${logPrefix} Could not backfill first name:`, error.message)
+        );
+      }
+      if (emailWasMissing && email) {
+        const reviewUrl = `https://usetoolcrate.com/preview-view/?t=${encodeURIComponent(existing.preview_token)}`;
+        insertPendingReview({
+          redesignId: existing.id,
+          websiteUrl: existing.website_url ?? websiteUrl,
+          leadEmail: email,
+          previewToken: existing.preview_token,
+        }).catch((error) =>
+          console.warn(`${logPrefix} Pending review insert failed:`, error.message)
+        );
+        sendNewLeadReviewNotification({
+          businessUrl: existing.website_url ?? websiteUrl,
+          userEmail: email,
+          userName: firstName,
+          reviewUrl,
+        }).catch((error) =>
+          console.warn(`${logPrefix} New-lead notification failed:`, error.message)
         );
       }
       console.log(`${logPrefix} Duplicate domain — already in queue.`);
@@ -1098,14 +1110,6 @@ app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
       maxTokens: DEFAULT_REDESIGN_MAX_TOKENS,
     });
 
-    runPreviewGeneration({
-      redesignId: pending.id,
-      normalizedUrl: websiteUrl,
-      engine,
-      maxTokens: DEFAULT_REDESIGN_MAX_TOKENS,
-      logPrefix: `${logPrefix}:${pending.id}`,
-    });
-
     if (email) {
       const reviewUrl = `https://usetoolcrate.com/preview-view/?t=${encodeURIComponent(pending.preview_token)}`;
 
@@ -1127,11 +1131,11 @@ app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
         console.warn(`${logPrefix} New-lead notification failed:`, error.message)
       );
 
-      console.log(`${logPrefix} Queued expert-curated review (${engine.id}).`);
+      console.log(`${logPrefix} Lead captured with email (no auto-generation).`);
       return res.json({ ok: true, status: "received", token: pending.preview_token });
     }
 
-    console.log(`${logPrefix} Queued redesign (contact pending) (${engine.id}).`);
+    console.log(`${logPrefix} Lead captured — contact pending (no auto-generation).`);
     return res.json({
       ok: true,
       status: "processing",
