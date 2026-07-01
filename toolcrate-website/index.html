@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ToolCrate — Websites That Make The Phone Ring</title>
   <meta name="description" content="Alexander-led conversion websites for high-stakes service providers — contractors, heavy trades, and specialized professional firms. Strategy line: (818) 869-9928." />
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
@@ -44,88 +45,6 @@
     .hero-shell { text-align: left; max-width: 72rem; margin: 0 auto; padding: 8rem 1.5rem 5rem; }
     .hero-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 3rem; align-items: end; }
     @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; } .hero-shell { text-align: center; } }
-    .hero-panel[hidden] { display: none !important; }
-    .hero-form-row { display: flex; flex-wrap: wrap; gap: 0.75rem; max-width: 36rem; margin-bottom: 0.75rem; }
-    .hero-input {
-      flex: 1; min-width: 200px; padding: 1rem 1.25rem; border-radius: 0.75rem;
-      background: rgba(15,23,42,0.65); backdrop-filter: blur(8px);
-      border: 1px solid rgba(255,255,255,0.15); color: white; font-size: 1rem; outline: none;
-    }
-    .hero-input:focus { border-color: rgba(249,115,22,0.5); }
-    .hero-form-error, .hero-contact-error {
-      font-size: 0.875rem; color: #f87171; margin: 0 0 1rem; max-width: 36rem;
-    }
-    .hero-form-error[hidden], .hero-contact-error[hidden] { display: none; }
-    .hero-blueprint-link { font-size: 0.875rem; color: #a1a1aa; margin-bottom: 1rem; }
-    .hero-blueprint-link a { color: #f97316; text-decoration: none; font-weight: 600; }
-    .hero-blueprint-link a:hover { text-decoration: underline; }
-    .hero-processing-box {
-      max-width: 36rem; padding: 2rem; border-radius: 1rem;
-      background: rgba(15,23,42,0.65); border: 1px solid rgba(255,255,255,0.12);
-    }
-    .hero-processing-title { font-size: 1.125rem; color: #e4e4e7; margin: 0 0 1.25rem; }
-    .hero-processing-title strong { color: #fff; }
-    .hero-spinner {
-      width: 2.5rem; height: 2.5rem; border: 3px solid rgba(255,255,255,0.15);
-      border-top-color: #f97316; border-radius: 50%;
-      animation: hero-spin 0.8s linear infinite;
-    }
-    @keyframes hero-spin { to { transform: rotate(360deg); } }
-    .hero-contact-box { max-width: 36rem; }
-    .hero-contact-box p { font-size: 1rem; color: #d4d4d8; margin: 0 0 1.25rem; line-height: 1.6; }
-    .hero-contact-fields { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem; }
-    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-    .btn-primary.is-loading { opacity: 0.75; pointer-events: none; }
-    .faq-item.open .faq-answer { max-height: 12rem !important; }
-    .faq-item.open .faq-icon { transform: rotate(45deg); }
-    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; align-items: start; }
-    .pricing-card {
-      border-radius: 1.5rem; background: #18181b; border: 1px solid #27272a;
-      padding: 2.5rem; position: relative;
-    }
-    .pricing-card-foundation { background: #18181b; border: 1px solid #3f3f46; }
-    .pricing-card-premium {
-      background: linear-gradient(165deg, rgba(251, 191, 36, 0.12) 0%, rgba(9, 9, 11, 0.95) 45%, #18181b 100%);
-      border: 2px solid rgba(251, 191, 36, 0.45);
-      box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.08), 0 0 48px rgba(251, 191, 36, 0.18), 0 24px 48px rgba(0, 0, 0, 0.35);
-      transform: scale(1.03);
-      z-index: 1;
-    }
-    .pricing-badge {
-      position: absolute; left: 50%; transform: translateX(-50%);
-      font-weight: 700; padding: 0.375rem 1.25rem; border-radius: 9999px; font-size: 0.75rem;
-      letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-    }
-    .pricing-badge-scarcity {
-      top: -1rem; background: #dc2626; color: #fff; border: 1px solid rgba(255,255,255,0.15);
-    }
-    .pricing-badge-recommended {
-      top: 1.75rem; background: linear-gradient(90deg, #f59e0b, #fbbf24); color: #1c1917;
-    }
-    .pricing-card-premium .pricing-tier-label { margin-top: 2.5rem; }
-    .pricing-tier-label { font-size: 0.875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
-    .pricing-tier-muted { color: #71717a; }
-    .pricing-tier-build { color: #60a5fa; }
-    .pricing-tier-partnership { color: #fbbf24; }
-    .pricing-tier-title { font-size: 1.5rem; font-weight: 700; color: white; margin: 0.75rem 0 0; }
-    .pricing-tier-desc { color: #a1a1aa; margin-top: 0.75rem; line-height: 1.65; }
-    .pricing-price-row { margin-top: 2rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem; }
-    .pricing-price { font-size: 3.75rem; font-weight: 900; color: white; line-height: 1; }
-    .pricing-price-sub { color: #71717a; font-size: 1rem; }
-    .pricing-price-note { font-size: 0.875rem; color: #71717a; margin-top: 0.25rem; }
-    .pricing-features { margin-top: 2rem; list-style: none; padding: 0; }
-    .pricing-cta { display: block; margin-top: 2.5rem; text-align: center; width: 100%; box-sizing: border-box; }
-    .pricing-cta-outline { background: transparent; color: white; border: 2px solid #52525b; box-shadow: none; }
-    .pricing-cta-premium {
-      background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1c1917; border-color: #fbbf24;
-      box-shadow: 0 0 32px rgba(251, 191, 36, 0.35);
-    }
-    .pricing-cta-premium:hover { box-shadow: 0 0 40px rgba(251, 191, 36, 0.45); }
-    @media (max-width: 768px) {
-      .pricing-grid { grid-template-columns: 1fr !important; }
-      .pricing-card-premium { transform: none; }
-    }
   </style>
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-1JPM7QNHFN"></script>
@@ -136,7 +55,7 @@
   <!-- ═══════ STICKY NAV ═══════ -->
   <nav style="position:fixed;top:0;width:100%;z-index:50;background:rgba(9,9,11,0.8);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.05);">
     <div style="max-width:80rem;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;">
-      <a href="/" style="text-decoration:none;font-size:1.5rem;font-weight:400;color:white;" class="display">Tool<span style="color:#f97316;">Crate</span></a>
+      <a href="#" style="text-decoration:none;font-size:1.5rem;font-weight:400;color:white;" class="display">Tool<span style="color:#f97316;">Crate</span></a>
       <div style="display:flex;align-items:center;gap:2rem;" class="nav-links">
         <a href="#work" style="font-size:0.875rem;color:#a1a1aa;text-decoration:none;">Our Work</a>
         <a href="#results" style="font-size:0.875rem;color:#a1a1aa;text-decoration:none;">Results</a>
@@ -146,15 +65,15 @@
       <div style="display:flex;align-items:center;gap:1rem;">
         <button type="button" class="strategy-line nav-strategy-desktop" id="nav-strategy-copy" title="Click to copy strategy line" aria-label="Copy (818) 869-9928">Strategy line · (818) 869-9928</button>
         <a href="tel:+18188699928" class="strategy-line nav-strategy-mobile" style="display:none;text-decoration:none;">(818) 869-9928</a>
-        <a href="#hero" data-scroll-hero class="btn-primary" style="font-size:0.875rem;padding:0.625rem 1.25rem;border-radius:9999px;">Get Free Roast →</a>
+        <a href="https://usetoolcrate.com/#hero" class="btn-primary" style="font-size:0.875rem;padding:0.625rem 1.25rem;border-radius:9999px;">Get Free Roast →</a>
       </div>
     </div>
   </nav>
 
   <!-- ═══════ HERO ═══════ -->
-  <section id="hero" style="position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+  <section style="position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;">
     <div style="position:absolute;inset:0;">
-      <img src="/hero-bg.webp" alt="" style="width:100%;height:100%;object-fit:cover;" />
+      <img src="images/hero-bg.webp" alt="" style="width:100%;height:100%;object-fit:cover;" />
       <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(9,9,11,0.7),rgba(9,9,11,0.6),rgb(9,9,11));"></div>
     </div>
     <div style="position:relative;z-index:10;" class="hero-shell">
@@ -172,31 +91,12 @@
       <p style="font-size:1.125rem;color:#a1a1aa;max-width:36rem;margin:0 0 2rem;line-height:1.75;">
         I build conversion machines for contractors and heavy trades first — excavation, HVAC, roofing, plumbing — and for specialized professional services (legal, medical, consulting) when the stakes are just as high. Drop your URL and I'll personally audit what's costing you calls.
       </p>
-      <div id="hero-intro" class="hero-panel">
-        <form id="hero-url-form" class="hero-form-row" novalidate>
-          <input id="hero-url-input" name="url" type="text" class="hero-input" placeholder="yourwebsite.com" autocomplete="url" required />
-          <button type="submit" id="hero-url-submit" class="btn-primary">Get My Free Roast</button>
-        </form>
-        <p id="hero-form-error" class="hero-form-error" hidden role="alert"></p>
-        <p class="hero-blueprint-link">No website yet? <a href="/blueprint/">Start a blueprint instead →</a></p>
-        <p style="font-size:0.875rem;color:#71717a;margin-bottom:1rem;">No credit card · Alexander personally leads every audit and design strategy</p>
-        <button type="button" class="strategy-line" id="hero-strategy-copy" title="Click to copy">Strategy line · (818) 869-9928</button>
+      <div style="display:flex;flex-wrap:wrap;gap:0.75rem;max-width:36rem;margin-bottom:1.25rem;">
+        <input id="hero-url" type="text" placeholder="yourwebsite.com" style="flex:1;min-width:200px;padding:1rem 1.25rem;border-radius:0.75rem;background:rgba(15,23,42,0.65);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.15);color:white;font-size:1rem;outline:none;" />
+        <a id="hero-btn" href="https://usetoolcrate.com/#hero" class="btn-primary">Get My Free Roast</a>
       </div>
-      <div id="hero-processing" class="hero-panel hero-processing-box" hidden>
-        <p id="hero-processing-title" class="hero-processing-title">Analyzing your site…</p>
-        <div class="hero-spinner" aria-hidden="true"></div>
-      </div>
-      <div id="hero-contact" class="hero-panel hero-contact-box" hidden>
-        <p>Almost there — where should Alexander send your audit and redesign concept?</p>
-        <form id="hero-contact-form" novalidate>
-          <div class="hero-contact-fields">
-            <input id="hero-email-input" name="email" type="email" class="hero-input" placeholder="you@company.com" autocomplete="email" required />
-            <input id="hero-phone-input" name="phone" type="tel" class="hero-input" placeholder="Phone (optional)" autocomplete="tel" />
-          </div>
-          <button type="submit" id="hero-contact-submit" class="btn-primary">Send me the audit →</button>
-        </form>
-        <p id="hero-contact-error" class="hero-contact-error" hidden role="alert"></p>
-      </div>
+      <p style="font-size:0.875rem;color:#71717a;margin-bottom:1rem;">No credit card · Alexander personally leads every audit and design strategy</p>
+      <button type="button" class="strategy-line" id="hero-strategy-copy" title="Click to copy">Strategy line · (818) 869-9928</button>
         </div>
       </div>
     </div>
@@ -260,7 +160,7 @@
       </div>
       <div style="position:relative;max-width:56rem;margin:0 auto;">
         <div style="position:absolute;inset:0;background:rgba(59,130,246,0.2);filter:blur(48px);border-radius:50%;transform:scale(0.75);"></div>
-        <img src="/devices.webp" alt="Websites on every device" style="position:relative;width:100%;border-radius:1rem;" />
+        <img src="images/devices.webp" alt="Websites on every device" style="position:relative;width:100%;border-radius:1rem;" />
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;max-width:36rem;margin:4rem auto 0;text-align:center;">
         <div><div style="font-size:1.875rem;font-weight:900;color:white;">2.3%</div><div style="font-size:0.875rem;color:#71717a;margin-top:0.25rem;">→</div></div>
@@ -273,7 +173,7 @@
   <!-- ═══════ RESULTS ═══════ -->
   <section id="results" class="fade-in" style="position:relative;overflow:hidden;">
     <div style="position:absolute;inset:0;">
-      <img src="/results.webp" alt="" style="width:100%;height:100%;object-fit:cover;" />
+      <img src="images/results.webp" alt="" style="width:100%;height:100%;object-fit:cover;" />
       <div style="position:absolute;inset:0;background:rgba(9,9,11,0.8);backdrop-filter:blur(4px);"></div>
     </div>
     <div style="position:relative;z-index:10;max-width:72rem;margin:0 auto;padding:7rem 1.5rem;">
@@ -321,7 +221,7 @@
         <div style="text-align:center;">
           <div style="width:6rem;height:6rem;border-radius:1.5rem;margin:0 auto 2rem;display:flex;align-items:center;justify-content:center;font-size:1.875rem;font-weight:900;background:linear-gradient(to bottom right,#9333ea,#a855f7);color:white;box-shadow:0 10px 30px rgba(139,92,246,0.25);">02</div>
           <h3 style="font-size:1.5rem;font-weight:700;color:white;margin-bottom:1rem;">See the Difference</h3>
-          <p style="color:#a1a1aa;line-height:1.7;">Within 48 hours, Alexander delivers an expert-led conversion audit and an Alexander-verified redesign concept. You'll see exactly how your site should look and perform before you spend a dime.</p>
+          <p style="color:#a1a1aa;line-height:1.7;">Within 48 hours, Alexander delivers a personal conversion audit and a custom redesign concept — not an automated template. You'll see exactly how your site should look and perform before you spend a dime.</p>
         </div>
         <div style="text-align:center;">
           <div style="width:6rem;height:6rem;border-radius:1.5rem;margin:0 auto 2rem;display:flex;align-items:center;justify-content:center;font-size:1.875rem;font-weight:900;background:linear-gradient(to bottom right,#059669,#10b981);color:white;box-shadow:0 10px 30px rgba(16,185,129,0.25);">03</div>
@@ -338,7 +238,7 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;">
         <div style="position:relative;">
           <div style="position:absolute;inset:-1rem;background:linear-gradient(to bottom right,#dbeafe,#cffafe);border-radius:1.5rem;transform:rotate(-3deg);"></div>
-          <img src="/alexander.jpg" alt="Alexander Schottky" style="position:relative;border-radius:1.5rem;width:100%;object-fit:cover;box-shadow:0 25px 50px rgba(0,0,0,0.15);" />
+          <img src="images/alexander.jpg" alt="Alexander Schottky" style="position:relative;border-radius:1.5rem;width:100%;object-fit:cover;box-shadow:0 25px 50px rgba(0,0,0,0.15);" />
           <div style="position:absolute;bottom:-1rem;right:-1rem;background:#2563eb;color:white;font-weight:700;padding:0.75rem 1.5rem;border-radius:1rem;box-shadow:0 10px 25px rgba(0,0,0,0.15);font-size:0.875rem;">15+ Years Building Sites That Convert</div>
         </div>
         <div>
@@ -368,9 +268,65 @@
         <h2 style="font-size:clamp(2rem,5vw,3.75rem);font-weight:900;color:white;margin-top:1rem;line-height:1.1;">
           Agency quality.<br /><span style="background:linear-gradient(to right,#34d399,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Not agency prices.</span>
         </h2>
-        <p style="font-size:1.25rem;color:#a1a1aa;margin-top:1.5rem;max-width:42rem;margin-left:auto;margin-right:auto;">Exclusive, expert-led partnerships — not high-volume templates. Built for operators who need the phone to ring.</p>
+        <p style="font-size:1.25rem;color:#a1a1aa;margin-top:1.5rem;max-width:42rem;margin-left:auto;margin-right:auto;">No hidden fees. No long contracts. Just websites that pay for themselves.</p>
       </div>
-      <div id="pricing-cards"></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;align-items:start;">
+        <!-- Free Roast -->
+        <div style="border-radius:1.5rem;background:#18181b;border:1px solid #27272a;padding:2.5rem;">
+          <div style="font-size:0.875rem;font-weight:700;color:#71717a;text-transform:uppercase;letter-spacing:0.1em;">The Free Roast</div>
+          <h3 style="font-size:1.5rem;font-weight:700;color:white;margin-top:0.75rem;">See the fix first</h3>
+          <p style="color:#a1a1aa;margin-top:0.75rem;">Alexander personally redesigns your homepage and walks you through the conversion gaps. No bots. No automated previews.</p>
+          <div style="margin-top:2rem;"><span style="font-size:3.75rem;font-weight:900;color:white;">$0</span></div>
+          <ul style="margin-top:2rem;list-style:none;padding:0;">
+            <li style="display:flex;align-items:flex-start;gap:0.75rem;color:#a1a1aa;margin-bottom:1rem;"><span style="color:#34d399;font-size:1.125rem;">✓</span> Alexander-led conversion audit</li>
+            <li style="display:flex;align-items:flex-start;gap:0.75rem;color:#a1a1aa;margin-bottom:1rem;"><span style="color:#34d399;font-size:1.125rem;">✓</span> Personal redesign concept</li>
+            <li style="display:flex;align-items:flex-start;gap:0.75rem;color:#a1a1aa;margin-bottom:1rem;"><span style="color:#34d399;font-size:1.125rem;">✓</span> Competitor analysis</li>
+            <li style="display:flex;align-items:flex-start;gap:0.75rem;color:#a1a1aa;margin-bottom:1rem;"><span style="color:#34d399;font-size:1.125rem;">✓</span> Actionable recommendations</li>
+            <li style="display:flex;align-items:flex-start;gap:0.75rem;color:#a1a1aa;"><span style="color:#34d399;font-size:1.125rem;">✓</span> No obligation whatsoever</li>
+          </ul>
+          <a href="https://usetoolcrate.com/#hero" class="btn-primary" style="display:block;margin-top:2.5rem;text-align:center;background:transparent;color:white;border:2px solid #52525b;box-shadow:none;">Get My Free Roast</a>
+        </div>
+        <!-- The Build — POPULAR -->
+        <div style="border-radius:1.5rem;background:linear-gradient(to bottom,rgba(37,99,235,0.1),#18181b);border:2px solid rgba(59,130,246,0.3);padding:2.5rem;position:relative;box-shadow:0 10px 40px rgba(59,130,246,0.1);">
+          <div style="position:absolute;top:-1rem;left:50%;transform:translateX(-50%);background:#2563eb;color:white;font-weight:700;padding:0.375rem 1.5rem;border-radius:9999px;font-size:0.875rem;box-shadow:0 4px 12px rgba(0,0,0,0.2);">MOST POPULAR</div>
+          <div style="font-size:0.875rem;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:0.1em;">The Build</div>
+          <h3 style="font-size:1.5rem;font-weight:700;color:white;margin-top:0.75rem;">Your conversion machine</h3>
+          <p style="color:#a1a1aa;margin-top:0.75rem;">A complete, Alexander-built conversion site — scoped to stay focused and effective.</p>
+          <div style="margin-top:2rem;"><span style="font-size:3.75rem;font-weight:900;color:white;" class="display">$497</span><span style="color:#71717a;margin-left:0.5rem;">+ $79/mo</span></div>
+          <div style="font-size:0.875rem;color:#71717a;margin-top:0.25rem;">Hosting & updates included · clear page cap</div>
+          <ul style="margin-top:2rem;list-style:none;padding:0;">
+            <li style="display:flex;align-items:flex-start;gap:0.75rem;color:#d4d4d8;margin-bottom:1rem;"><span style="color:#f97316;font-size:1.125rem;">✓</span> Everything in Free Roast</li>
+            <li style="display:flex;align-items:flex-start;gap:0.75rem;color:#d4d4d8;margin-bottom:1rem;"><span style="color:#f97316;font-size:1.125rem;">✓</span> <strong style="color:white;">Up to 10 pages</strong> <span style="color:#71717a;">(hard scope cap — no creep)</span></li>
+            <li style="display:flex;align-items:flex-start;gap:0.75rem;color:#d4d4d8;margin-bottom:1rem;"><span style="color:#60a5fa;font-size:1.125rem;">✓</span> Mobile-first responsive</li>
+            <li style="display:flex;align-items:flex-start;gap:0.75rem;color:#d4d4d8;margin-bottom:1rem;"><span style="color:#60a5fa;font-size:1.125rem;">✓</span> SEO optimization</li>
+            <li style="display:flex;align-items:flex-start;gap:0.75rem;color:#d4d4d8;margin-bottom:1rem;"><span style="color:#60a5fa;font-size:1.125rem;">✓</span> Contact forms & click-to-call</li>
+            <li style="display:flex;align-items:flex-start;gap:0.75rem;color:#d4d4d8;margin-bottom:1rem;"><span style="color:#60a5fa;font-size:1.125rem;">✓</span> Google Analytics setup</li>
+            <li style="display:flex;align-items:flex-start;gap:0.75rem;color:#d4d4d8;margin-bottom:1rem;"><span style="color:#60a5fa;font-size:1.125rem;">✓</span> Hosting included</li>
+            <li style="display:flex;align-items:flex-start;gap:0.75rem;color:#d4d4d8;margin-bottom:1rem;"><span style="color:#60a5fa;font-size:1.125rem;">✓</span> Monthly updates & backups</li>
+            <li style="display:flex;align-items:flex-start;gap:0.75rem;color:#d4d4d8;"><span style="color:#60a5fa;font-size:1.125rem;">✓</span> 30-day money-back guarantee</li>
+          </ul>
+          <a href="mailto:support@usetoolcrate.com?subject=ToolCrate%20Build%20Inquiry" class="btn-primary" style="display:block;margin-top:2.5rem;text-align:center;">Start My Build →</a>
+        </div>
+        <!-- The Partnership -->
+        <div style="border-radius:1.5rem;background:#18181b;border:1px solid #27272a;padding:2.5rem;position:relative;">
+          <div style="font-size:0.875rem;font-weight:700;color:#34d399;text-transform:uppercase;letter-spacing:0.1em;">The Partnership</div>
+          <h3 style="font-size:1.5rem;font-weight:700;color:white;margin-top:0.75rem;">Concierge conversion support</h3>
+          <p style="color:#a1a1aa;margin-top:0.75rem;">Full build plus ongoing strategy — direct access to Alexander, not an account manager queue.</p>
+          <div style="margin-top:2rem;"><span style="font-size:3.75rem;font-weight:900;color:white;" class="display">$1,497</span><span style="color:#71717a;margin-left:0.5rem;">+ $149/mo</span></div>
+          <div style="font-size:0.875rem;color:#71717a;margin-top:0.25rem;">Strategic growth support · not unlimited page churn</div>
+          <ul style="margin-top:2rem;list-style:none;padding:0;">
+            <li style="display:flex;align-items:flex-start;gap:0.75rem;color:#a1a1aa;margin-bottom:1rem;"><span style="color:#34d399;font-size:1.125rem;">✓</span> Everything in The Build</li>
+            <li style="display:flex;align-items:flex-start;gap:0.75rem;color:#a1a1aa;margin-bottom:1rem;"><span style="color:#34d399;font-size:1.125rem;">✓</span> <strong style="color:#e4e4e7;">Strategic Growth Support</strong></li>
+            <li style="display:flex;align-items:flex-start;gap:0.75rem;color:#a1a1aa;margin-bottom:1rem;"><span style="color:#34d399;font-size:1.125rem;">✓</span> Direct Slack/text access to Alexander</li>
+            <li style="display:flex;align-items:flex-start;gap:0.75rem;color:#a1a1aa;margin-bottom:1rem;"><span style="color:#34d399;font-size:1.125rem;">✓</span> Monthly Performance Audits</li>
+            <li style="display:flex;align-items:flex-start;gap:0.75rem;color:#a1a1aa;margin-bottom:1rem;"><span style="color:#34d399;font-size:1.125rem;">✓</span> Conversion optimization & A/B testing</li>
+            <li style="display:flex;align-items:flex-start;gap:0.75rem;color:#a1a1aa;margin-bottom:1rem;"><span style="color:#34d399;font-size:1.125rem;">✓</span> Priority support</li>
+            <li style="display:flex;align-items:flex-start;gap:0.75rem;color:#a1a1aa;margin-bottom:1rem;"><span style="color:#34d399;font-size:1.125rem;">✓</span> Quarterly strategy calls</li>
+            <li style="display:flex;align-items:flex-start;gap:0.75rem;color:#a1a1aa;"><span style="color:#34d399;font-size:1.125rem;">✓</span> Cancel anytime</li>
+          </ul>
+          <a href="mailto:support@usetoolcrate.com?subject=ToolCrate%20Partnership%20Inquiry" style="display:block;margin-top:2.5rem;text-align:center;padding:1rem;border-radius:0.75rem;border:2px solid #52525b;color:white;font-weight:700;text-decoration:none;">Let's Partner Up</a>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -388,7 +344,7 @@
             <span style="font-size:1.5rem;color:#a1a1aa;transition:transform 0.3s;" class="faq-icon">+</span>
           </button>
           <div class="faq-answer" style="max-height:0;overflow:hidden;transition:max-height 0.3s;">
-            <p style="color:#52525b;line-height:1.7;padding-bottom:1.5rem;">Perfect — <a href="/blueprint/" style="color:#2563eb;font-weight:600;text-decoration:none;">start a blueprint</a> and Alexander will map a conversion-first site from scratch. Most clients either have no site or have one that isn't doing anything. Either way, you get an Alexander-led audit and strategy built for high-stakes service work.</p>
+            <p style="color:#52525b;line-height:1.7;padding-bottom:1.5rem;">Perfect — I'll blueprint one from scratch. Most of my clients either have no site or have a site that's not doing anything. Either way, you get an Alexander-led audit and a conversion strategy built for high-stakes service work.</p>
           </div>
         </div>
         <div class="faq-item" style="border-bottom:1px solid #e4e4e7;">
@@ -406,7 +362,7 @@
             <span style="font-size:1.5rem;color:#a1a1aa;transition:transform 0.3s;" class="faq-icon">+</span>
           </button>
           <div class="faq-answer" style="max-height:0;overflow:hidden;transition:max-height 0.3s;">
-            <p style="color:#52525b;line-height:1.7;padding-bottom:1.5rem;">That's what the free roast is for. You'll see exactly what I'd do before spending a dime. Plus The Foundation build comes with a 30-day money-back guarantee.</p>
+            <p style="color:#52525b;line-height:1.7;padding-bottom:1.5rem;">That's what the free roast is for. You'll see exactly what I'd do before spending a dime. Plus The Build comes with a 30-day money-back guarantee.</p>
           </div>
         </div>
         <div class="faq-item" style="border-bottom:1px solid #e4e4e7;">
@@ -443,15 +399,15 @@
   <!-- ═══════ FINAL CTA ═══════ -->
   <section id="cta" style="position:relative;overflow:hidden;">
     <div style="position:absolute;inset:0;">
-      <img src="/hero-bg.webp" alt="" style="width:100%;height:100%;object-fit:cover;" />
+      <img src="images/hero-bg.webp" alt="" style="width:100%;height:100%;object-fit:cover;" />
       <div style="position:absolute;inset:0;background:rgba(9,9,11,0.85);"></div>
     </div>
     <div style="position:relative;z-index:10;max-width:56rem;margin:0 auto;padding:7rem 1.5rem;text-align:center;">
       <h2 class="display" style="font-size:clamp(2rem,5vw,3.75rem);color:white;line-height:1.1;">Ready to stop losing<br />customers to your website?</h2>
       <p style="font-size:1.125rem;color:#a1a1aa;margin-top:1.5rem;max-width:36rem;margin-left:auto;margin-right:auto;">Drop your URL — Alexander will personally audit what's broken and show you the fix. Free. No strings.</p>
       <div style="display:flex;flex-wrap:wrap;gap:0.75rem;max-width:36rem;margin:2rem auto 0;justify-content:center;">
-        <input id="cta-url" type="text" placeholder="yourwebsite.com" class="hero-input" style="flex:1;min-width:200px;" />
-        <a id="cta-btn" href="#hero" class="btn-primary">Get My Free Roast</a>
+        <input id="cta-url" type="text" placeholder="yourwebsite.com" style="flex:1;min-width:200px;padding:1rem 1.25rem;border-radius:0.75rem;background:rgba(15,23,42,0.65);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.15);color:white;font-size:1rem;outline:none;" />
+        <a id="cta-btn" href="https://usetoolcrate.com/#hero" class="btn-primary">Get My Free Roast</a>
       </div>
       <button type="button" class="strategy-line" id="cta-strategy-copy" style="margin-top:1.25rem;">Strategy line · (818) 869-9928</button>
       <p style="font-size:0.875rem;color:#71717a;margin-top:1rem;">Prefer to talk first? Copy the strategy line above.</p>
@@ -472,8 +428,6 @@
             <a href="#work" style="color:#71717a;text-decoration:none;">Our Work</a>
             <a href="#pricing" style="color:#71717a;text-decoration:none;">Pricing</a>
             <a href="#about" style="color:#71717a;text-decoration:none;">About</a>
-            <a href="/privacy/" style="color:#71717a;text-decoration:none;">Privacy</a>
-            <a href="/terms/" style="color:#71717a;text-decoration:none;">Terms</a>
           </div>
         </div>
         <div>
@@ -492,8 +446,83 @@
 
   <div class="copy-toast" id="copy-toast" role="status" aria-live="polite"></div>
 
-  <script type="module" src="./scripts/hero-flow.js"></script>
-  <script type="module" src="./scripts/homepage.js"></script>
+  <script>
+    const STRATEGY_PHONE_DISPLAY = '(818) 869-9928';
+    const STRATEGY_PHONE_E164 = '+18188699928';
+    const copyToast = document.getElementById('copy-toast');
+    let copyToastTimer;
+
+    function showCopyToast(message) {
+      if (!copyToast) return;
+      copyToast.textContent = message;
+      copyToast.classList.add('is-visible');
+      clearTimeout(copyToastTimer);
+      copyToastTimer = setTimeout(() => copyToast.classList.remove('is-visible'), 2200);
+    }
+
+    function wireCopyButton(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(STRATEGY_PHONE_DISPLAY);
+          showCopyToast('Strategy line copied');
+        } catch {
+          showCopyToast(STRATEGY_PHONE_DISPLAY);
+        }
+      });
+    }
+    ['nav-strategy-copy', 'hero-strategy-copy', 'cta-strategy-copy', 'footer-strategy-copy'].forEach(wireCopyButton);
+
+    // Fade-in on scroll
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+
+    // Counter animation
+    document.querySelectorAll('[data-counter]').forEach(el => {
+      const end = parseInt(el.dataset.counter);
+      const suffix = el.dataset.suffix || '';
+      const counterObs = new IntersectionObserver(([e]) => {
+        if (e.isIntersecting) {
+          const start = performance.now();
+          const tick = (now) => {
+            const p = Math.min((now - start) / 2000, 1);
+            el.textContent = Math.floor(p * end) + suffix;
+            if (p < 1) requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+          counterObs.disconnect();
+        }
+      }, { threshold: 0.5 });
+      counterObs.observe(el);
+    });
+
+    // FAQ toggle
+    document.head.insertAdjacentHTML('beforeend', '<style>.faq-item.open .faq-answer{max-height:10rem!important}.faq-item.open .faq-icon{transform:rotate(45deg)}</style>');
+
+    // Hero / CTA URL → live roast funnel on usetoolcrate.com
+    function setupForm(inputId, btnId) {
+      const input = document.getElementById(inputId);
+      const btn = document.getElementById(btnId);
+      if (!input || !btn) return;
+      function go() {
+        const url = input.value.trim();
+        const target = new URL('https://usetoolcrate.com/');
+        target.hash = 'hero';
+        if (url) target.searchParams.set('url', url);
+        window.location.href = target.toString();
+      }
+      btn.addEventListener('click', (e) => { e.preventDefault(); go(); });
+      input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); go(); } });
+    }
+    setupForm('hero-url', 'hero-btn');
+    setupForm('cta-url', 'cta-btn');
+
+    // Responsive: show connecting line on desktop
+    if (window.innerWidth >= 768) document.querySelectorAll('.conn-line').forEach(el => el.style.display = 'block');
+  </script>
 
   <style>
     @media (max-width: 768px) {

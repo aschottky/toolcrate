@@ -222,3 +222,11 @@ contactForm?.addEventListener("submit", async (event) => {
     setContactSubmitting(false);
   }
 });
+
+const urlFromQuery = new URLSearchParams(window.location.search).get("url")?.trim();
+if (urlFromQuery && urlInput) {
+  urlInput.value = urlFromQuery.replace(/^https?:\/\//i, "").replace(/^www\./i, "");
+}
+if (window.location.hash === "#hero") {
+  document.getElementById("hero")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
