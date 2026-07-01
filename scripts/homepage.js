@@ -69,10 +69,13 @@ document.querySelectorAll("[data-counter]").forEach((el) => {
   counterObs.observe(el);
 });
 
-// FAQ toggle
-document.querySelectorAll(".faq-item button").forEach((btn) => {
+// FAQ accordion (single handler — no inline onclick to avoid double-toggle)
+document.querySelectorAll(".faq-item").forEach((item) => {
+  const btn = item.querySelector(".faq-toggle");
+  if (!btn) return;
   btn.addEventListener("click", () => {
-    btn.parentElement?.classList.toggle("open");
+    const isOpen = item.classList.toggle("open");
+    btn.setAttribute("aria-expanded", String(isOpen));
   });
 });
 

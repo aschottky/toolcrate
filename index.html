@@ -120,8 +120,16 @@
     .hero-contact-fields { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem; }
     .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
     .btn-primary.is-loading { opacity: 0.75; pointer-events: none; }
-    .faq-item.open .faq-answer { max-height: 12rem !important; }
+    .faq-item.open .faq-answer { max-height: 30rem !important; }
     .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-toggle {
+      width: 100%; display: flex; justify-content: space-between; align-items: center;
+      padding: 1.5rem 0; text-align: left; background: none; border: none; cursor: pointer;
+    }
+    .faq-toggle-text { font-size: 1.125rem; font-weight: 600; color: #18181b; }
+    .faq-icon { font-size: 1.5rem; color: #a1a1aa; transition: transform 0.3s; flex-shrink: 0; }
+    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+    .faq-answer p { color: #52525b; line-height: 1.7; padding-bottom: 1.5rem; margin: 0; }
     .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; align-items: stretch; }
     .pricing-card {
       border-radius: 1.5rem; background: #18181b; border: 1px solid #27272a;
@@ -411,57 +419,57 @@
       </div>
       <div>
         <div class="faq-item" style="border-bottom:1px solid #e4e4e7;">
-          <button onclick="this.parentElement.classList.toggle('open')" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:1.5rem 0;text-align:left;background:none;border:none;cursor:pointer;">
-            <span style="font-size:1.125rem;font-weight:600;color:#18181b;">What if I don't have a website yet?</span>
-            <span style="font-size:1.5rem;color:#a1a1aa;transition:transform 0.3s;" class="faq-icon">+</span>
+          <button type="button" class="faq-toggle" aria-expanded="false">
+            <span class="faq-toggle-text">What if I don't have a website yet?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
           </button>
-          <div class="faq-answer" style="max-height:0;overflow:hidden;transition:max-height 0.3s;">
-            <p style="color:#52525b;line-height:1.7;padding-bottom:1.5rem;">Perfect — <a href="/blueprint/" style="color:#2563eb;font-weight:600;text-decoration:none;">start a blueprint</a> and Alexander will map a conversion-first site from scratch. Most clients either have no site or have one that isn't doing anything. Either way, you get an Alexander-led audit and strategy built for high-stakes service work.</p>
+          <div class="faq-answer">
+            <p>Perfect — <a href="/blueprint/" style="color:#2563eb;font-weight:600;text-decoration:none;">start a blueprint</a> and Alexander will map a conversion-first site from scratch. Most clients either have no site or have one that isn't doing anything. Either way, you get an Alexander-led audit and strategy built for high-stakes service work.</p>
           </div>
         </div>
         <div class="faq-item" style="border-bottom:1px solid #e4e4e7;">
-          <button onclick="this.parentElement.classList.toggle('open')" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:1.5rem 0;text-align:left;background:none;border:none;cursor:pointer;">
-            <span style="font-size:1.125rem;font-weight:600;color:#18181b;">How long does a site build take?</span>
-            <span style="font-size:1.5rem;color:#a1a1aa;transition:transform 0.3s;" class="faq-icon">+</span>
+          <button type="button" class="faq-toggle" aria-expanded="false">
+            <span class="faq-toggle-text">How long does a site build take?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
           </button>
-          <div class="faq-answer" style="max-height:0;overflow:hidden;transition:max-height 0.3s;">
-            <p style="color:#52525b;line-height:1.7;padding-bottom:1.5rem;">Most sites go live within 5-7 business days. If you need it faster, I can usually turn something around in 48-72 hours for a rush fee.</p>
+          <div class="faq-answer">
+            <p>Most sites go live within 5-7 business days. If you need it faster, I can usually turn something around in 48-72 hours for a rush fee.</p>
           </div>
         </div>
         <div class="faq-item" style="border-bottom:1px solid #e4e4e7;">
-          <button onclick="this.parentElement.classList.toggle('open')" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:1.5rem 0;text-align:left;background:none;border:none;cursor:pointer;">
-            <span style="font-size:1.125rem;font-weight:600;color:#18181b;">What if I don't like the redesign?</span>
-            <span style="font-size:1.5rem;color:#a1a1aa;transition:transform 0.3s;" class="faq-icon">+</span>
+          <button type="button" class="faq-toggle" aria-expanded="false">
+            <span class="faq-toggle-text">What if I don't like the redesign?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
           </button>
-          <div class="faq-answer" style="max-height:0;overflow:hidden;transition:max-height 0.3s;">
-            <p style="color:#52525b;line-height:1.7;padding-bottom:1.5rem;">That's what the free roast is for. You'll see exactly what I'd do before spending a dime. Plus The Foundation build comes with a 30-day money-back guarantee.</p>
+          <div class="faq-answer">
+            <p>That's what the free roast is for. You'll see exactly what I'd do before spending a dime. Plus The Foundation build comes with a 30-day money-back guarantee.</p>
           </div>
         </div>
         <div class="faq-item" style="border-bottom:1px solid #e4e4e7;">
-          <button onclick="this.parentElement.classList.toggle('open')" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:1.5rem 0;text-align:left;background:none;border:none;cursor:pointer;">
-            <span style="font-size:1.125rem;font-weight:600;color:#18181b;">Do I own my website?</span>
-            <span style="font-size:1.5rem;color:#a1a1aa;transition:transform 0.3s;" class="faq-icon">+</span>
+          <button type="button" class="faq-toggle" aria-expanded="false">
+            <span class="faq-toggle-text">Do I own my website?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
           </button>
-          <div class="faq-answer" style="max-height:0;overflow:hidden;transition:max-height 0.3s;">
-            <p style="color:#52525b;line-height:1.7;padding-bottom:1.5rem;">100%. You own everything — the design, the code, the content. If you ever want to leave, I'll hand over all the files. No hostage situations.</p>
+          <div class="faq-answer">
+            <p>100%. You own everything — the design, the code, the content. If you ever want to leave, I'll hand over all the files. No hostage situations.</p>
           </div>
         </div>
         <div class="faq-item" style="border-bottom:1px solid #e4e4e7;">
-          <button onclick="this.parentElement.classList.toggle('open')" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:1.5rem 0;text-align:left;background:none;border:none;cursor:pointer;">
-            <span style="font-size:1.125rem;font-weight:600;color:#18181b;">What industries do you work with?</span>
-            <span style="font-size:1.5rem;color:#a1a1aa;transition:transform 0.3s;" class="faq-icon">+</span>
+          <button type="button" class="faq-toggle" aria-expanded="false">
+            <span class="faq-toggle-text">What industries do you work with?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
           </button>
-          <div class="faq-answer" style="max-height:0;overflow:hidden;transition:max-height 0.3s;">
-            <p style="color:#52525b;line-height:1.7;padding-bottom:1.5rem;">I specialize in high-stakes service providers. Contractors and heavy trades — excavation, HVAC, roofing, plumbing, electrical — are my core. I also work with specialized professional services (legal, medical, consulting) when local reputation and phone calls drive the business.</p>
+          <div class="faq-answer">
+            <p>I specialize in high-stakes service providers. Contractors and heavy trades — excavation, HVAC, roofing, plumbing, electrical — are my core. I also work with specialized professional services (legal, medical, consulting) when local reputation and phone calls drive the business.</p>
           </div>
         </div>
         <div class="faq-item">
-          <button onclick="this.parentElement.classList.toggle('open')" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:1.5rem 0;text-align:left;background:none;border:none;cursor:pointer;">
-            <span style="font-size:1.125rem;font-weight:600;color:#18181b;">What's included in the monthly fee?</span>
-            <span style="font-size:1.5rem;color:#a1a1aa;transition:transform 0.3s;" class="faq-icon">+</span>
+          <button type="button" class="faq-toggle" aria-expanded="false">
+            <span class="faq-toggle-text">What's included in the monthly fee?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
           </button>
-          <div class="faq-answer" style="max-height:0;overflow:hidden;transition:max-height 0.3s;">
-            <p style="color:#52525b;line-height:1.7;padding-bottom:1.5rem;">Hosting, SSL, monthly updates, security patches, backups, and minor content changes. Basically everything you need to keep your site fast, secure, and converting.</p>
+          <div class="faq-answer">
+            <p>Hosting, SSL, monthly updates, security patches, backups, and minor content changes. Basically everything you need to keep your site fast, secure, and converting.</p>
           </div>
         </div>
       </div>
