@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ToolCrate — Websites That Make The Phone Ring</title>
-  <meta name="description" content="Alexander-led conversion websites for high-stakes service providers — contractors, heavy trades, and specialized professional firms. Strategy line: (818) 869-9928." />
+  <meta name="description" content="Alexander-led conversion websites for high-stakes service providers — contractors, heavy trades, and specialized professional firms." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
@@ -26,14 +26,6 @@
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 0 32px rgba(248, 250, 252, 0.25); }
-    .strategy-line {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: 0.9375rem; font-weight: 600; color: #e4e4e7;
-      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
-      padding: 0.5rem 0.875rem; border-radius: 9999px; cursor: pointer;
-    }
-    .strategy-line:hover { color: #fff; border-color: rgba(249,115,22,0.45); }
     .copy-toast {
       position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
       background: #18181b; color: #e4e4e7; border: 1px solid #3f3f46;
@@ -201,8 +193,6 @@
         <a href="#about" style="font-size:0.875rem;color:#a1a1aa;text-decoration:none;">About</a>
       </div>
       <div style="display:flex;align-items:center;gap:1rem;">
-        <button type="button" class="strategy-line nav-strategy-desktop" id="nav-strategy-copy" title="Click to copy strategy line" aria-label="Copy (818) 869-9928">Strategy line · (818) 869-9928</button>
-        <a href="tel:+18188699928" class="strategy-line nav-strategy-mobile" style="display:none;text-decoration:none;">(818) 869-9928</a>
         <a href="#hero" data-scroll-hero class="btn-primary" style="font-size:0.875rem;padding:0.625rem 1.25rem;border-radius:9999px;">Get Free Roast →</a>
       </div>
     </div>
@@ -245,7 +235,6 @@
         <form id="hero-contact-form" novalidate>
           <div class="hero-contact-fields">
             <input id="hero-email-input" name="email" type="email" class="hero-input" placeholder="you@company.com" autocomplete="email" required />
-            <input id="hero-phone-input" name="phone" type="tel" class="hero-input" placeholder="Phone (optional)" autocomplete="tel" />
           </div>
           <button type="submit" id="hero-contact-submit" class="btn-primary btn-roast">Send me the audit →</button>
         </form>
@@ -505,8 +494,7 @@
         <input id="cta-url" type="text" placeholder="yourwebsite.com" class="hero-input" style="flex:1;min-width:200px;" />
         <a id="cta-btn" href="#hero" class="btn-primary">Get My Free Roast</a>
       </div>
-      <button type="button" class="strategy-line" id="cta-strategy-copy" style="margin-top:1.25rem;">Strategy line · (818) 869-9928</button>
-      <p style="font-size:0.875rem;color:#71717a;margin-top:1rem;">Prefer to talk first? Copy the strategy line above.</p>
+      <p style="font-size:0.875rem;color:#71717a;margin-top:1rem;">Questions? Email <a href="mailto:support@usetoolcrate.com" style="color:#f97316;text-decoration:none;font-weight:600;">support@usetoolcrate.com</a></p>
     </div>
   </section>
 
@@ -531,7 +519,6 @@
         <div>
           <h4 style="font-weight:700;color:white;margin-bottom:1rem;">Get In Touch</h4>
           <div style="display:flex;flex-direction:column;gap:0.75rem;">
-            <button type="button" class="strategy-line" id="footer-strategy-copy" style="width:fit-content;">(818) 869-9928 · click to copy</button>
             <a href="mailto:support@usetoolcrate.com" style="color:#71717a;text-decoration:none;">support@usetoolcrate.com</a>
           </div>
         </div>
@@ -542,7 +529,7 @@
     </div>
   </footer>
 
-  <div class="copy-toast" id="copy-toast" role="status" aria-live="polite"></div>
+  <div class="copy-toast" id="copy-toast" role="status" aria-live="polite" hidden></div>
 
   <script type="module" src="./scripts/hero-flow.js"></script>
   <script type="module" src="./scripts/homepage.js"></script>
@@ -550,8 +537,6 @@
   <style>
     @media (max-width: 768px) {
       .nav-links { display: none !important; }
-      .nav-strategy-desktop { display: none !important; }
-      .nav-strategy-mobile { display: inline-flex !important; }
       [style*="grid-template-columns: repeat(3"] { grid-template-columns: 1fr !important; }
       [style*="grid-template-columns:repeat(3"] { grid-template-columns: 1fr !important; }
       [style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }

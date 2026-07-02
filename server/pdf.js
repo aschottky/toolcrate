@@ -14,7 +14,7 @@ const SCORE_COLUMN_WIDTH = 88;
 const CARD_PADDING = 16;
 const BADGE_SIZE = 24;
 const TIP_AFTER_IMPACT_GAP = 12;
-const SIGN_OFF_TEXT = `Hi, I'm Alexander. I've spent decades building websites for real businesses, and I created this tool to give owners an honest look at what's working and what's broken under the hood. You can hand this report directly to your web team to implement the fixes. But if you need an experienced WebDev to step in and handle this for you, I'd be happy to help. Reply directly to this email or call/text me at 818-216-2428.`;
+const SIGN_OFF_TEXT = `Hi, I'm Alexander. I've spent decades building websites for real businesses, and I created this tool to give owners an honest look at what's working and what's broken under the hood. You can hand this report directly to your web team to implement the fixes. But if you need an experienced WebDev to step in and handle this for you, I'd be happy to help. Reply directly to this email.`;
 
 /**
  * Build a professional audit PDF and return it as a Buffer (for email attachments).

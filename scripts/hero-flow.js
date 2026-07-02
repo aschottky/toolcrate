@@ -7,7 +7,6 @@ const urlForm = document.getElementById("hero-url-form");
 const contactForm = document.getElementById("hero-contact-form");
 const urlInput = document.getElementById("hero-url-input");
 const emailInput = document.getElementById("hero-email-input");
-const phoneInput = document.getElementById("hero-phone-input");
 const urlError = document.getElementById("hero-form-error");
 const contactError = document.getElementById("hero-contact-error");
 const processingTitle = document.getElementById("hero-processing-title");
@@ -178,7 +177,6 @@ contactForm?.addEventListener("submit", async (event) => {
 
   setContactError("");
   const email = emailInput?.value.trim() || "";
-  const phone = phoneInput?.value.trim() || "";
 
   if (!EMAIL_RE.test(email)) {
     setContactError("Please enter a valid email address.");
@@ -195,7 +193,6 @@ contactForm?.addEventListener("submit", async (event) => {
       body: JSON.stringify({
         token: previewToken,
         email,
-        phone: phone || undefined,
       }),
     });
 

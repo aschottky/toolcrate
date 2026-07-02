@@ -9,7 +9,6 @@ const companyInput = document.getElementById("blueprint-company");
 const serviceInput = document.getElementById("blueprint-service");
 const locationInput = document.getElementById("blueprint-location");
 const emailInput = document.getElementById("blueprint-email");
-const phoneInput = document.getElementById("blueprint-phone");
 const formError = document.getElementById("blueprint-form-error");
 const contactError = document.getElementById("blueprint-contact-error");
 const processingTitle = document.getElementById("blueprint-processing-title");
@@ -163,7 +162,6 @@ contactForm?.addEventListener("submit", async (event) => {
 
   setContactError("");
   const email = emailInput?.value.trim() || "";
-  const phone = phoneInput?.value.trim() || "";
 
   if (!EMAIL_RE.test(email)) {
     setContactError("Please enter a valid email address.");
@@ -180,7 +178,6 @@ contactForm?.addEventListener("submit", async (event) => {
       body: JSON.stringify({
         token: previewToken,
         email,
-        phone: phone || undefined,
       }),
     });
 

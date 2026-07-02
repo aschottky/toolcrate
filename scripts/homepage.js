@@ -1,38 +1,8 @@
-/** Marketing homepage: scroll effects, strategy-line copy, FAQ, pricing, bottom CTA → hero. */
+/** Marketing homepage: scroll effects, FAQ, pricing, bottom CTA → hero. */
 
 import { renderPricingCards } from "./pricing.js";
 
 renderPricingCards(document.getElementById("pricing-cards"));
-
-const STRATEGY_PHONE_DISPLAY = "(818) 869-9928";
-
-const copyToast = document.getElementById("copy-toast");
-let copyToastTimer;
-
-function showCopyToast(message) {
-  if (!copyToast) return;
-  copyToast.textContent = message;
-  copyToast.classList.add("is-visible");
-  clearTimeout(copyToastTimer);
-  copyToastTimer = setTimeout(() => copyToast.classList.remove("is-visible"), 2200);
-}
-
-function wireCopyButton(id) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(STRATEGY_PHONE_DISPLAY);
-      showCopyToast("Strategy line copied");
-    } catch {
-      showCopyToast(STRATEGY_PHONE_DISPLAY);
-    }
-  });
-}
-
-["nav-strategy-copy", "cta-strategy-copy", "footer-strategy-copy"].forEach(
-  wireCopyButton
-);
 
 // Fade-in on scroll
 const fadeObs = new IntersectionObserver(
@@ -69,7 +39,7 @@ document.querySelectorAll("[data-counter]").forEach((el) => {
   counterObs.observe(el);
 });
 
-// FAQ accordion (single handler — no inline onclick to avoid double-toggle)
+// FAQ accordion
 document.querySelectorAll(".faq-item").forEach((item) => {
   const btn = item.querySelector(".faq-toggle");
   if (!btn) return;

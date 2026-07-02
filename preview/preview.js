@@ -26,7 +26,6 @@ const isSubmissionConfirmed =
     })()
   );
 
-const STRATEGY_PHONE_E164 = "+18188699928";
 const LOG_PREFIX = "[ToolCrate Preview]";
 
 const loader = document.getElementById("loader");
@@ -35,7 +34,6 @@ const confirmedTitle = document.getElementById("confirmed-title");
 const confirmedCopy = document.getElementById("confirmed-copy");
 const queueBadge = document.getElementById("queue-badge");
 const queueBadgeText = document.getElementById("queue-badge-text");
-const saveStrategyBtn = document.getElementById("save-strategy-btn");
 
 /** Stable 2–5 queue depth from token (social proof, not live data). */
 function queueSitesAhead(previewToken) {
@@ -108,28 +106,6 @@ function showLoaderError(title, detail) {
   confirmed.hidden = true;
 }
 
-function downloadAlexanderVCard() {
-  const vcard = [
-    "BEGIN:VCARD",
-    "VERSION:3.0",
-    "FN:Alexander Schottky",
-    "ORG:ToolCrate",
-    `TEL;TYPE=CELL:${STRATEGY_PHONE_E164}`,
-    "EMAIL:support@usetoolcrate.com",
-    "URL:https://usetoolcrate.com",
-    "NOTE:ToolCrate strategy line — website conversion specialist",
-    "END:VCARD",
-  ].join("\r\n");
-
-  const blob = new Blob([vcard], { type: "text/vcard;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "Alexander-Schottky-ToolCrate.vcf";
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
 function showSubmissionConfirmed({
   email,
   showQueue = true,
@@ -154,8 +130,6 @@ function showSubmissionConfirmed({
     queueBadge.hidden = false;
   }
 
-  saveStrategyBtn?.addEventListener("click", downloadAlexanderVCard);
-
   console.log(`${LOG_PREFIX} submission confirmed`, {
     token: token?.slice(0, 8),
     email: resolvedEmail,
@@ -178,8 +152,8 @@ function showRedesignUnavailable() {
   }
   const bridge = document.getElementById("confirmed-bridge");
   if (bridge) {
-    bridge.textContent =
-      "If you're in a rush or want to discuss a specific project deadline, call my strategy line below.";
+    bridge.innerHTML =
+      'Questions? Email <a href="mailto:support@usetoolcrate.com" style="color:#c4b5fd;font-weight:600;text-decoration:none;">support@usetoolcrate.com</a>.';
   }
 }
 

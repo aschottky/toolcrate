@@ -50,7 +50,6 @@ form?.addEventListener("submit", async (event) => {
     name: form.name.value.trim(),
     businessName: form.businessName.value.trim(),
     website: normalizedWebsite,
-    phone: form.phone.value.trim(),
     description: form.description.value.trim(),
     idealCustomer: form.idealCustomer.value.trim(),
     primaryGoal: form.primaryGoal.value,

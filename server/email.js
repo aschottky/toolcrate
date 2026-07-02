@@ -371,15 +371,12 @@ export async function sendNewLeadReviewNotification({
 
   const emailLabel = userEmail?.trim() || "None provided";
   const nameLabel = userName?.trim() || "Not provided";
-  const phoneLabel = userPhone?.trim() || "Not provided";
   const subject = `New submission: ${businessUrl}`;
-
   const html = `
     <p>A new lead submitted through the ToolCrate funnel.</p>
     <p><strong>Name:</strong> ${nameLabel}<br>
     <strong>URL:</strong> ${businessUrl}<br>
-    <strong>Lead email:</strong> ${emailLabel}<br>
-    <strong>Phone:</strong> ${phoneLabel}</p>
+    <strong>Lead email:</strong> ${emailLabel}</p>
     <p><a href="${reviewUrl}">Open in admin preview</a></p>
     <p>No automatic AI generation was triggered. Start roast/redesign from admin when you are ready to work this lead.</p>
   `.trim();
@@ -388,7 +385,6 @@ export async function sendNewLeadReviewNotification({
 
 Name: ${nameLabel}
 Lead email: ${emailLabel}
-Phone: ${phoneLabel}
 
 Open in admin preview: ${reviewUrl}
 
