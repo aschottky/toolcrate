@@ -288,7 +288,6 @@ app.post("/api/intake", async (req, res) => {
     name,
     businessName,
     website,
-    phone,
     description,
     idealCustomer,
     primaryGoal,
@@ -300,7 +299,6 @@ app.post("/api/intake", async (req, res) => {
   const trimmedName = String(name ?? "").trim();
   const trimmedBusinessName = String(businessName ?? "").trim();
   const trimmedWebsite = String(website ?? "").trim();
-  const trimmedPhone = String(phone ?? "").trim();
   const trimmedDescription = String(description ?? "").trim();
   const trimmedIdealCustomer = String(idealCustomer ?? "").trim();
   const trimmedPrimaryGoal = String(primaryGoal ?? "").trim();
@@ -343,7 +341,6 @@ app.post("/api/intake", async (req, res) => {
     ["Your Name", trimmedName],
     ["Business Name", trimmedBusinessName],
     ["Website URL", normalizedWebsite],
-    ["Phone Number", trimmedPhone || "—"],
     ["What the business does", trimmedDescription],
     ["Ideal customer", trimmedIdealCustomer || "—"],
     ["Primary site goal", trimmedPrimaryGoal || "—"],
@@ -1158,7 +1155,6 @@ app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
 app.post("/api/public-redesign/contact", publicRedesignLimiter, async (req, res) => {
   const token = String(req.body?.token ?? "").trim();
   const emailRaw = String(req.body?.email ?? "").trim().toLowerCase();
-  const phoneRaw = String(req.body?.phone ?? "").trim();
   const firstName = normalizeProspectFirstName(req.body?.first_name);
 
   if (!PREVIEW_TOKEN_RE.test(token)) {
@@ -1211,7 +1207,6 @@ app.post("/api/public-redesign/contact", publicRedesignLimiter, async (req, res)
       businessUrl: redesign.website_url,
       userEmail: emailRaw,
       userName: firstName,
-      userPhone: phoneRaw || null,
       reviewUrl,
     }).catch((error) =>
       console.warn(`${logPrefix} New-lead notification failed:`, error.message)

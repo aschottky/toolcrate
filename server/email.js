@@ -355,7 +355,6 @@ export async function sendNewLeadReviewNotification({
   businessUrl,
   userEmail,
   userName,
-  userPhone,
   reviewUrl,
 }) {
   if (!process.env.RESEND_API_KEY) {
