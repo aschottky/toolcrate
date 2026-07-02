@@ -58,11 +58,28 @@
       font-size: 1.125rem; color: #a1a1aa; max-width: 32rem;
       margin: 0 auto 2.25rem; line-height: 1.7;
     }
+    .hero-section {
+      position: relative;
+      min-height: 100vh;
+      min-height: 100svh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #09090b;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background: #09090b url("/hero-bg.webp") center 42% / cover no-repeat;
+      transform: scale(1.02);
+    }
     .hero-bg-overlay {
-      position: absolute; inset: 0;
+      position: absolute;
+      inset: 0;
       background:
-        linear-gradient(to bottom, rgba(9,9,11,0.82) 0%, rgba(9,9,11,0.72) 45%, rgba(9,9,11,0.94) 100%),
-        radial-gradient(ellipse 80% 60% at 50% 40%, rgba(249,115,22,0.06) 0%, transparent 70%);
+        linear-gradient(to bottom, rgba(9,9,11,0.72) 0%, rgba(9,9,11,0.48) 42%, rgba(9,9,11,0.88) 100%),
+        radial-gradient(ellipse 120% 90% at 50% 38%, rgba(249,115,22,0.07) 0%, transparent 55%);
     }
     .hero-panel[hidden] { display: none !important; }
     .hero-form-row {
@@ -199,11 +216,8 @@
   </nav>
 
   <!-- ═══════ HERO ═══════ -->
-  <section id="hero" style="position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;">
-    <div style="position:absolute;inset:0;">
-      <img src="/hero-bg.webp" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center 35%;" />
-      <div class="hero-bg-overlay"></div>
-    </div>
+  <section id="hero" class="hero-section">
+    <div class="hero-bg" aria-hidden="true"><div class="hero-bg-overlay"></div></div>
     <div style="position:relative;z-index:10;width:100%;" class="hero-shell">
       <div class="hero-eyebrow">
         <span class="hero-eyebrow-dot" aria-hidden="true"></span>
@@ -482,11 +496,9 @@
   </section>
 
   <!-- ═══════ FINAL CTA ═══════ -->
-  <section id="cta" style="position:relative;overflow:hidden;">
-    <div style="position:absolute;inset:0;">
-      <img src="/hero-bg.webp" alt="" style="width:100%;height:100%;object-fit:cover;" />
-      <div style="position:absolute;inset:0;background:rgba(9,9,11,0.85);"></div>
-    </div>
+  <section id="cta" style="position:relative;overflow:hidden;background:#09090b;">
+    <div style="position:absolute;inset:0;background:#09090b url('/hero-bg.webp') center 42% / cover no-repeat;"></div>
+    <div style="position:absolute;inset:0;background:rgba(9,9,11,0.82);"></div>
     <div style="position:relative;z-index:10;max-width:56rem;margin:0 auto;padding:7rem 1.5rem;text-align:center;">
       <h2 class="display" style="font-size:clamp(2rem,5vw,3.75rem);color:white;line-height:1.1;">Ready to stop losing<br />customers to your website?</h2>
       <p style="font-size:1.125rem;color:#a1a1aa;margin-top:1.5rem;max-width:36rem;margin-left:auto;margin-right:auto;">Drop your URL — Alexander will personally audit what's broken and show you the fix. Free. No strings.</p>
