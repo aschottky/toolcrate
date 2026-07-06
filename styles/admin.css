@@ -380,3 +380,30 @@
 .admin-script-output p {
   margin: 0 0 0.75rem;
 }
+
+.admin-badge {
+  display: inline-block;
+  margin-bottom: 0.35rem;
+  padding: 0.15rem 0.45rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  vertical-align: middle;
+}
+
+.admin-badge--audit {
+  color: #1d4ed8;
+  background: #dbeafe;
+}
+
+.admin-badge--vision {
+  color: #7c3aed;
+  background: #ede9fe;
+}
+
+.cell-url .admin-badge {
+  display: block;
+  width: fit-content;
+}

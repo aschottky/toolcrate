@@ -542,7 +542,7 @@ export async function markWarmLeadAuditSent(leadId) {
 }
 
 const REDESIGN_LIST_SELECT_LEGACY =
-  "id, website_url, email, source_type, source_id, engine, model, max_tokens, preview_token, status, created_at";
+  "id, website_url, email, source_type, source_id, engine, model, max_tokens, preview_token, status, lead_intent, created_at";
 
 const REDESIGN_LIST_SELECT =
   `${REDESIGN_LIST_SELECT_LEGACY}, style_direction, hero_headline, primary_accent_color`;
@@ -784,6 +784,7 @@ export async function insertPendingRedesign({
   engine,
   model,
   maxTokens,
+  leadIntent,
 }) {
   const supabase = getSupabaseAdmin();
 
@@ -801,6 +802,9 @@ export async function insertPendingRedesign({
 
   if (firstName) {
     row.first_name = firstName;
+  }
+  if (leadIntent) {
+    row.lead_intent = leadIntent;
   }
 
   let { data, error } = await supabase

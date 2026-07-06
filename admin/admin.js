@@ -407,6 +407,17 @@ const ENGINE_LABELS = {
   "gpt-4o": "Claude Sonnet 5",
 };
 
+function blueprintLeadBadge(item) {
+  const intent = String(item.lead_intent ?? "");
+  if (intent.includes("TYPE:SITE_AUDIT")) {
+    return '<span class="admin-badge admin-badge--audit">Site Audit</span>';
+  }
+  if (intent.includes("TYPE:VISION_CONCEPT") || String(item.website_url ?? "").startsWith("blueprint://")) {
+    return '<span class="admin-badge admin-badge--vision">Vision Concept</span>';
+  }
+  return "";
+}
+
 function renderRedesigns(redesigns) {
   redesignsCache = redesigns;
 
@@ -420,7 +431,10 @@ function renderRedesigns(redesigns) {
     .map(
       (item) => `
         <tr data-redesign-id="${item.id}">
-          <td class="cell-url">${escapeHtml(item.website_url)}</td>
+          <td class="cell-url">
+            ${blueprintLeadBadge(item)}
+            ${escapeHtml(item.website_url)}
+          </td>
           <td>${item.email ? escapeHtml(item.email) : '<span class="admin-muted">—</span>'}</td>
           <td>${escapeHtml(ENGINE_LABELS[item.engine] || item.engine)}</td>
           <td>${escapeHtml(item.status || "ready")}</td>

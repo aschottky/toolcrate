@@ -93,7 +93,7 @@ async function waitForProcessingBeat(startedAt) {
 function showProcessing(domain) {
   activeDomain = domain;
   if (processingTitle) {
-    processingTitle.innerHTML = `Analyzing <strong>${domain}</strong>…`;
+    processingTitle.innerHTML = `Alexander is reviewing <strong>${domain}</strong>…`;
   }
   setPanel(processingPanel);
   document.getElementById("hero")?.scrollIntoView({ behavior: "smooth", block: "start" });

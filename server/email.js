@@ -349,6 +349,7 @@ const PREVIEW_NOTIFY_TO =
  * @param {string|null|undefined} options.userEmail
  * @param {string|null|undefined} [options.userName]
  * @param {string} options.reviewUrl — internal preview link for Alexander
+ * @param {string|null|undefined} [options.blueprintLeadType]
  * @returns {Promise<{ id: string }|null>}
  */
 export async function sendNewLeadReviewNotification({
@@ -356,6 +357,7 @@ export async function sendNewLeadReviewNotification({
   userEmail,
   userName,
   reviewUrl,
+  blueprintLeadType,
 }) {
   if (!process.env.RESEND_API_KEY) {
     console.warn(
@@ -370,9 +372,18 @@ export async function sendNewLeadReviewNotification({
 
   const emailLabel = userEmail?.trim() || "None provided";
   const nameLabel = userName?.trim() || "Not provided";
-  const subject = `New submission: ${businessUrl}`;
+  const leadTypeLabel =
+    blueprintLeadType === "SITE_AUDIT"
+      ? "Site Audit (existing website)"
+      : blueprintLeadType === "VISION_CONCEPT"
+        ? "Vision Concept (no website yet)"
+        : null;
+  const subject = leadTypeLabel
+    ? `New ${leadTypeLabel}: ${businessUrl}`
+    : `New submission: ${businessUrl}`;
   const html = `
-    <p>A new lead submitted through the ToolCrate funnel.</p>
+    <p>A new lead submitted through the ToolCrate Free Blueprint funnel.</p>
+    ${leadTypeLabel ? `<p><strong>Blueprint type:</strong> ${leadTypeLabel}</p>` : ""}
     <p><strong>Name:</strong> ${nameLabel}<br>
     <strong>URL:</strong> ${businessUrl}<br>
     <strong>Lead email:</strong> ${emailLabel}</p>
@@ -402,6 +413,89 @@ No automatic AI generation was triggered. Start roast/redesign from admin when r
   }
 
   console.log(`[email] New-lead review notification sent to ${notifyTo} (${businessUrl}).`);
+  return data;
+}
+
+/**
+ * Concierge confirmation when a prospect submits the blueprint / roast funnel.
+ *
+ * @param {object} options
+ * @param {string} options.customerEmail
+ * @param {string|null|undefined} [options.firstName]
+ * @param {boolean} [options.isBlueprint]
+ * @param {string|null|undefined} [options.companyName]
+ * @param {string|null|undefined} [options.websiteUrl]
+ * @returns {Promise<{ id: string }|null>}
+ */
+export async function sendSubmissionConfirmationEmail({
+  customerEmail,
+  firstName,
+  isBlueprint = false,
+  companyName,
+  websiteUrl,
+}) {
+  const to = customerEmail?.trim();
+  if (!to) {
+    return null;
+  }
+
+  if (!process.env.RESEND_API_KEY) {
+    console.warn(
+      `[email] RESEND_API_KEY not set — skipping submission confirmation to ${to}.`
+    );
+    return null;
+  }
+
+  const resend = getResend();
+  const from = getFromAddress();
+  const greeting = buildEmailGreeting(firstName);
+  const subject = isBlueprint
+    ? "Your Blueprint is in the works"
+    : "I'm reviewing your site now";
+
+  const focusLine = isBlueprint
+    ? companyName?.trim()
+      ? `I'm diving into ${companyName.trim()}'s goals now.`
+      : "I'm diving into your goals now."
+    : websiteUrl
+      ? `I'm diving into ${formatSiteLabel(websiteUrl)} now.`
+      : "I'm diving into your site and goals now.";
+
+  const html = `
+<div style="font-family: sans-serif; max-width: 600px; line-height: 1.65; color: #1a1a1a;">
+  <p>${greeting}</p>
+  <p>${focusLine} I'll have something visual for you to look at soon.</p>
+  <p style="margin: 1.25rem 0 0; padding: 1rem 1.25rem; background: #f4f4f5; border-radius: 8px; color: #3f3f46;">
+    <strong>No strings attached.</strong> You'll get a link to your Blueprint. If you love it, we can talk about a build. If not, the strategy and concept are yours to keep — no hard sales, no automated billing.
+  </p>
+  <p style="margin: 1.5rem 0 0;">— Alexander<br>ToolCrate</p>
+</div>
+  `.trim();
+
+  const text = `${greeting.replace(/<[^>]+>/g, "")}
+
+${focusLine} I'll have something visual for you to look at soon.
+
+No strings attached. You'll get a link to your Blueprint. If you love it, we can talk about a build. If not, the strategy and concept are yours to keep — no hard sales, no automated billing.
+
+— Alexander
+ToolCrate`;
+
+  const { data, error } = await resend.emails.send({
+    from,
+    to: [to],
+    subject,
+    html,
+    text,
+  });
+
+  if (error) {
+    throw new Error(
+      error.message || "Failed to send submission confirmation via Resend."
+    );
+  }
+
+  console.log(`[email] Submission confirmation sent to ${to}.`);
   return data;
 }
 

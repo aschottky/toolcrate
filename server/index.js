@@ -4,7 +4,7 @@ import express from "express";
 import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import { runSiteAudit } from "./audit.js";
 import { buildAuditPdf } from "./audit-pipeline.js";
-import { sendAuditReportEmail, sendNewLeadReviewNotification, sendWelcomeEmail, normalizeProspectFirstName, getResend } from "./email.js";
+import { sendAuditReportEmail, sendNewLeadReviewNotification, sendSubmissionConfirmationEmail, sendWelcomeEmail, normalizeProspectFirstName, getResend } from "./email.js";
 import { generateAuditPDF } from "./pdf.js";
 import { sendAuditError, sendRedesignError } from "./errors.js";
 import { handleInstantlyWebhook } from "./instantly-webhook.js";
@@ -32,8 +32,13 @@ import { normalizeRootDomain } from "./url-utils.js";
 import {
   buildBlueprintScrapedData,
   buildBlueprintWebsiteUrl,
+  buildBlueprintLeadIntent,
+  BLUEPRINT_LEAD_SITE_AUDIT,
+  BLUEPRINT_LEAD_VISION,
+  inferBlueprintLeadType,
   isBlueprintBuild,
   normalizeBlueprintRequest,
+  parseBlueprintLeadIntent,
   parseBlueprintWebsiteUrl,
 } from "./blueprint.js";
 import { processNurtureEmails } from "./nurture.js";
@@ -826,12 +831,19 @@ function previewStatusPayload(redesign) {
   const status = previewSessionStatus(redesign);
   const roast_status = redesign.roast_status ?? "pending";
   const redesign_status = redesign.status ?? (redesign.html ? "ready" : "pending");
+  const blueprint = isBlueprintBuild(redesign.website_url)
+    ? parseBlueprintWebsiteUrl(redesign.website_url)
+    : null;
 
   const payload = {
     status,
     roast_status,
     redesign_status,
   };
+
+  if (status !== "ready" && status !== "failed" && status !== "redesign_failed") {
+    payload.status_label = blueprint ? "Blueprint in Progress" : "Review in Progress";
+  }
 
   if (redesign.email) {
     payload.email = redesign.email;
@@ -840,13 +852,31 @@ function previewStatusPayload(redesign) {
     payload.website_url = redesign.website_url;
   }
 
-  if (isBlueprintBuild(redesign.website_url)) {
-    const blueprint = parseBlueprintWebsiteUrl(redesign.website_url);
-    if (blueprint) {
-      payload.build_mode = blueprint.buildMode;
-      payload.company_name = blueprint.companyName;
-      payload.service_type = blueprint.serviceType;
-      payload.location = blueprint.location;
+  if (blueprint) {
+    payload.build_mode = blueprint.buildMode;
+    payload.company_name = blueprint.companyName;
+    payload.service_type = blueprint.serviceType;
+    payload.location = blueprint.location;
+    payload.has_existing_site = false;
+  }
+
+  const leadType = inferBlueprintLeadType({
+    websiteUrl: redesign.website_url,
+    leadIntent: redesign.lead_intent,
+  });
+  if (leadType === BLUEPRINT_LEAD_SITE_AUDIT) {
+    payload.has_existing_site = true;
+    payload.blueprint_lead_type = "Site Audit";
+    if (status !== "ready" && status !== "failed" && status !== "redesign_failed") {
+      payload.status_label = "Site Audit in Progress";
+    }
+    const parsedIntent = parseBlueprintLeadIntent(redesign.lead_intent);
+    if (parsedIntent?.companyName) payload.company_name = parsedIntent.companyName;
+  } else if (leadType === BLUEPRINT_LEAD_VISION) {
+    payload.has_existing_site = false;
+    payload.blueprint_lead_type = "Vision Concept";
+    if (status !== "ready" && status !== "failed" && status !== "redesign_failed") {
+      payload.status_label = "Blueprint in Progress";
     }
   }
 
@@ -959,14 +989,65 @@ app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
       });
     }
 
-    const { companyName, serviceType, location } = blueprintRequest.blueprint;
-    const websiteUrl = buildBlueprintWebsiteUrl(blueprintRequest.blueprint);
+    const { companyName, serviceType, location } = blueprintRequest.blueprint ?? blueprintRequest.existingSite ?? {};
     const logPrefix = `[public-redesign:blueprint:${companyName.slice(0, 24)}]`;
 
     try {
       const engine = resolveRedesignEngine(
         process.env.PUBLIC_REDESIGN_ENGINE || DEFAULT_PUBLIC_REDESIGN_ENGINE
       );
+
+      if (blueprintRequest.hasExistingSite) {
+        const { websiteUrl, primaryChange } = blueprintRequest.existingSite;
+        let normalizedUrl;
+        try {
+          normalizedUrl = normalizeWebsiteUrl(normalizeRootDomain(websiteUrl));
+        } catch (error) {
+          return res.status(400).json({ ok: false, error: error.message });
+        }
+
+        const leadIntent = buildBlueprintLeadIntent({
+          type: BLUEPRINT_LEAD_SITE_AUDIT,
+          companyName,
+          serviceType,
+          location,
+          primaryChange,
+        });
+
+        const pending = await insertPendingRedesign({
+          websiteUrl: normalizedUrl,
+          email: null,
+          firstName: null,
+          sourceType: "manual",
+          sourceId: null,
+          engine: engine.id,
+          model: engine.model,
+          maxTokens: DEFAULT_REDESIGN_MAX_TOKENS,
+          leadIntent,
+        });
+
+        console.log(`${logPrefix} Site-audit blueprint lead captured for ${normalizedUrl}.`);
+        return res.json({
+          ok: true,
+          status: "processing",
+          token: pending.preview_token,
+          has_existing_site: true,
+          company_name: companyName,
+          service_type: serviceType,
+          location,
+        });
+      }
+
+      const { businessGoals, referenceLinks } = blueprintRequest.blueprint;
+      const websiteUrl = buildBlueprintWebsiteUrl(blueprintRequest.blueprint);
+      const leadIntent = buildBlueprintLeadIntent({
+        type: BLUEPRINT_LEAD_VISION,
+        companyName,
+        serviceType,
+        location,
+        businessGoals,
+        referenceLinks,
+      });
 
       const pending = await insertPendingRedesign({
         websiteUrl,
@@ -977,14 +1058,16 @@ app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
         engine: engine.id,
         model: engine.model,
         maxTokens: DEFAULT_REDESIGN_MAX_TOKENS,
+        leadIntent,
       });
 
-      console.log(`${logPrefix} Blueprint lead captured (no auto-generation).`);
+      console.log(`${logPrefix} Vision-concept blueprint lead captured (no auto-generation).`);
       return res.json({
         ok: true,
         status: "processing",
         token: pending.preview_token,
         build_mode: "NEW_SITE_BUILD",
+        has_existing_site: false,
         company_name: companyName,
         service_type: serviceType,
         location,
@@ -1208,8 +1291,23 @@ app.post("/api/public-redesign/contact", publicRedesignLimiter, async (req, res)
       userEmail: emailRaw,
       userName: firstName,
       reviewUrl,
+      blueprintLeadType: inferBlueprintLeadType({
+        websiteUrl: redesign.website_url,
+        leadIntent: redesign.lead_intent,
+      }),
     }).catch((error) =>
       console.warn(`${logPrefix} New-lead notification failed:`, error.message)
+    );
+
+    const blueprintMeta = parseBlueprintWebsiteUrl(redesign.website_url);
+    sendSubmissionConfirmationEmail({
+      customerEmail: emailRaw,
+      firstName,
+      isBlueprint: Boolean(blueprintMeta),
+      companyName: blueprintMeta?.companyName,
+      websiteUrl: blueprintMeta ? null : redesign.website_url,
+    }).catch((error) =>
+      console.warn(`${logPrefix} Submission confirmation email failed:`, error.message)
     );
 
     console.log(`${logPrefix} Contact captured for ${redesign.website_url}.`);

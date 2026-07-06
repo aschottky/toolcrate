@@ -32,17 +32,9 @@ const loader = document.getElementById("loader");
 const confirmed = document.getElementById("confirmed");
 const confirmedTitle = document.getElementById("confirmed-title");
 const confirmedCopy = document.getElementById("confirmed-copy");
+const confirmedFooter = confirmed?.querySelector(".confirmed-footer");
 const queueBadge = document.getElementById("queue-badge");
 const queueBadgeText = document.getElementById("queue-badge-text");
-
-/** Stable 2–5 queue depth from token (social proof, not live data). */
-function queueSitesAhead(previewToken) {
-  let sum = 0;
-  for (let i = 0; i < previewToken.length; i += 1) {
-    sum += previewToken.charCodeAt(i);
-  }
-  return 2 + (sum % 4);
-}
 
 function resolveCompanyName(apiCompany) {
   const fromQuery = params.get("company")?.trim() || "";
@@ -65,28 +57,53 @@ function escapeHtml(value) {
 }
 
 function applyStandardConfirmationCopy(email) {
-  confirmedTitle.textContent = "URL Received. I'm on it.";
+  confirmedTitle.textContent = "Your Blueprint is in the works.";
   confirmedTitle.classList.remove("unavailable-title");
   if (confirmedCopy) {
     const emailBit =
       email && email !== "your email"
-        ? ` at <strong class="confirmed-email" id="confirmed-email">${escapeHtml(email)}</strong>`
-        : "";
-    confirmedCopy.innerHTML = `I've received your site details and I'm personally reviewing your conversion structure now. You'll receive your custom redesign blueprint and audit${emailBit} in the next 24-48 hours.`;
+        ? ` We'll send your custom visual concept to <strong class="confirmed-email" id="confirmed-email">${escapeHtml(email)}</strong> shortly.`
+        : " You'll receive your custom visual concept shortly.";
+    confirmedCopy.innerHTML = `Alexander has received your request and is personally reviewing your site and goals.${emailBit}`;
+  }
+  if (confirmedFooter) {
+    confirmedFooter.textContent =
+      "You can close this tab — we'll email you when your Blueprint is ready.";
   }
 }
 
-function applyBlueprintConfirmationCopy(email, companyName) {
-  confirmedTitle.textContent = "Blueprint Initiated.";
+function resolveHasExistingSite(apiValue) {
+  if (typeof apiValue === "boolean") return apiValue;
+  const fromQuery = params.get("has_site");
+  if (fromQuery === "1") return true;
+  if (fromQuery === "0") return false;
+  try {
+    const stored = sessionStorage.getItem("toolcrate_has_existing_site");
+    if (stored === "1") return true;
+    if (stored === "0") return false;
+  } catch {
+    /* private browsing */
+  }
+  return false;
+}
+
+function applyBlueprintConfirmationCopy(email, companyName, hasExistingSite) {
+  confirmedTitle.textContent = "Got it.";
   confirmedTitle.classList.remove("unavailable-title");
+  const action = hasExistingSite ? "auditing your site" : "mapping your new concept";
   if (confirmedCopy) {
     const emailBit =
       email && email !== "your email"
-        ? ` to <strong class="confirmed-email" id="confirmed-email">${escapeHtml(email)}</strong>`
+        ? ` We'll send your Blueprint to <strong class="confirmed-email" id="confirmed-email">${escapeHtml(email)}</strong> when it's ready.`
         : "";
-    confirmedCopy.innerHTML = `I'm sketching out a custom conversion structure for <strong class="confirmed-company">${escapeHtml(companyName)}</strong> now. You'll receive your brand-new site concept and strategy${emailBit} within the next 24-48 hours.`;
+    confirmedCopy.innerHTML = `Alexander is ${action} now. You'll see the Blueprint soon.${emailBit}`;
+  }
+  if (confirmedFooter) {
+    confirmedFooter.textContent =
+      "You can close this tab — we'll email you when your Blueprint is ready.";
   }
 }
+
 function resolveEmail(apiEmail) {
   const fromStorage = (() => {
     try {
@@ -111,23 +128,30 @@ function showSubmissionConfirmed({
   showQueue = true,
   buildMode,
   companyName,
+  statusLabel,
+  hasExistingSite,
 }) {
   loader.hidden = true;
   confirmed.hidden = false;
 
   const resolvedEmail = resolveEmail(email);
-  const isBlueprint = buildMode === "NEW_SITE_BUILD" || isBlueprintFlow;
+  const isBlueprint = buildMode === "NEW_SITE_BUILD" || isBlueprintFlow || typeof hasExistingSite === "boolean";
+  const existingSite = resolveHasExistingSite(hasExistingSite);
 
   if (isBlueprint) {
-    applyBlueprintConfirmationCopy(resolvedEmail, resolveCompanyName(companyName));
+    applyBlueprintConfirmationCopy(resolvedEmail, resolveCompanyName(companyName), existingSite);
   } else {
     applyStandardConfirmationCopy(resolvedEmail);
   }
 
   if (showQueue && token) {
-    const ahead = queueSitesAhead(token);
-    queueBadgeText.textContent = `Currently reviewing: ${ahead} site${ahead === 1 ? "" : "s"} ahead of you`;
+    const label =
+      statusLabel ||
+      (existingSite ? "Site Audit in Progress" : isBlueprint ? "Blueprint in Progress" : "Review in Progress");
+    queueBadgeText.textContent = label;
     queueBadge.hidden = false;
+  } else {
+    queueBadge.hidden = true;
   }
 
   console.log(`${LOG_PREFIX} submission confirmed`, {
@@ -191,18 +215,25 @@ async function loadPreview() {
         showQueue: status.status !== "failed" && status.status !== "redesign_failed",
         buildMode: status.build_mode,
         companyName: status.company_name,
+        statusLabel: status.status_label,
+        hasExistingSite: status.has_existing_site,
       });
       return;
     }
 
     if (status.status === "failed" || status.status === "redesign_failed") {
       // Blueprint submissions with contact on file — never show a dead-end error page.
-      if (status.build_mode === "NEW_SITE_BUILD" && status.email) {
+      if (
+        (status.build_mode === "NEW_SITE_BUILD" || status.has_existing_site) &&
+        status.email
+      ) {
         showSubmissionConfirmed({
           email: status.email,
           showQueue: false,
           buildMode: status.build_mode,
           companyName: status.company_name,
+          statusLabel: status.status_label,
+          hasExistingSite: status.has_existing_site,
         });
         return;
       }
@@ -215,6 +246,8 @@ async function loadPreview() {
       showQueue: true,
       buildMode: status.build_mode,
       companyName: status.company_name,
+      statusLabel: status.status_label,
+      hasExistingSite: status.has_existing_site,
     });
   } catch (error) {
     console.error(`${LOG_PREFIX} load failed`, error?.message || error);

@@ -267,6 +267,29 @@
         color: #e4e4e7;
       }
 
+      .no-strings-box {
+        margin-top: 1.75rem;
+        padding: 1.5rem;
+        text-align: left;
+        background: rgba(52, 211, 153, 0.08);
+        border: 1px solid rgba(52, 211, 153, 0.22);
+        border-radius: 1rem;
+      }
+
+      .no-strings-box h2 {
+        margin: 0 0 0.65rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #e4e4e7;
+      }
+
+      .no-strings-box p {
+        margin: 0;
+        font-size: 0.9375rem;
+        color: #a1a1aa;
+        line-height: 1.65;
+      }
+
       .unavailable-title {
         color: #fca5a5;
         -webkit-text-fill-color: #fca5a5;
@@ -304,8 +327,8 @@
   <body>
     <div class="preview-loader" id="loader">
       <div class="spinner" aria-hidden="true"></div>
-      <h1>Confirming your submission</h1>
-      <p>One moment…</p>
+      <h1>Confirming your details</h1>
+      <p>Alexander is reviewing your submission…</p>
     </div>
 
     <main id="confirmed" hidden>
@@ -320,17 +343,22 @@
           <p class="confirmed-founder-caption">Every request is reviewed by Alexander personally — no bots, no instant junk previews.</p>
         </div>
 
-        <h1 class="confirmed-title" id="confirmed-title">URL Received. I'm on it.</h1>
+        <h1 class="confirmed-title" id="confirmed-title">Your Blueprint is in the works.</h1>
 
         <p class="confirmed-copy" id="confirmed-copy">
-          I've received your site details and I'm personally reviewing your conversion structure now. You'll receive your custom redesign blueprint and audit in the next 24-48 hours.
+          Alexander has received your request and is personally reviewing your goals. You'll receive your custom visual concept shortly.
         </p>
         <p class="confirmed-copy strategy-bridge" id="confirmed-bridge">
           Questions or a tight deadline? Email <a href="mailto:support@usetoolcrate.com" style="color:#c4b5fd;font-weight:600;text-decoration:none;">support@usetoolcrate.com</a> — Alexander reads every message personally.
         </p>
 
+        <div class="no-strings-box" id="no-strings-box">
+          <h2>What happens next?</h2>
+          <p>You'll get a link to your Blueprint. If you love it, we can move forward with a build. If not, the strategy and concept are yours to keep. No hard sales, no automated billing, no strings attached.</p>
+        </div>
+
         <p class="confirmed-footer">
-          You can close this tab — we'll email you when your audit is ready.
+          You can close this tab — we'll email you when your Blueprint is ready.
         </p>
         <a class="confirmed-back" href="/">← Back to ToolCrate</a>
       </div>
