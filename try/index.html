@@ -3,7 +3,6 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-1JPM7QNHFN"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -11,191 +10,346 @@
       gtag('js', new Date());
       gtag('config', 'G-1JPM7QNHFN');
     </script>
-    <title>Request Your Custom Conversion Redesign — ToolCrate</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Get My Free Website Preview — ToolCrate</title>
     <meta
       name="description"
-      content="Request a free custom conversion redesign from Alexander Schottky. Expert-curated review—no commitment."
+      content="Tell Alexander about your business and get a free custom website preview — existing site or starting from scratch. 100% free, no commitment."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/styles/main.css" />
     <style>
       :root {
         color-scheme: dark;
-        --try-surface: #161b26;
-        --text: #e4e4e7;
+        --bg: #0a0a0f;
+        --surface: rgba(255, 255, 255, 0.04);
+        --border: rgba(255, 255, 255, 0.1);
+        --text: #f4f4f5;
         --muted: #a1a1aa;
-        --muted-soft: #71717a;
-        --accent-start: #3b82f6;
-        --accent-end: #8b5cf6;
+        --accent-glow: rgba(139, 92, 246, 0.35);
       }
-
-      *, *::before, *::after {
-        box-sizing: border-box;
+      * { box-sizing: border-box; }
+      body {
         margin: 0;
-        padding: 0;
-      }
-
-      .back-link {
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 100;
-        padding: 20px 24px;
-        color: var(--muted);
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 500;
-        font-family: "DM Sans", system-ui, sans-serif;
-        transition: color 0.3s ease;
-      }
-
-      .back-link:hover {
+        min-height: 100vh;
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: var(--bg);
         color: var(--text);
       }
-
-      [hidden] {
-        display: none !important;
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(circle at 50% -20%, rgba(59, 130, 246, 0.12), transparent 55%);
+        pointer-events: none;
       }
+      .back-link {
+        position: relative;
+        z-index: 2;
+        display: inline-block;
+        margin: 1.25rem 0 0 1.5rem;
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+      .back-link:hover { color: var(--text); }
+      .shell {
+        position: relative;
+        z-index: 1;
+        max-width: 520px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem 4rem;
+        text-align: center;
+      }
+      .founder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.75rem;
+      }
+      .founder img {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid rgba(139, 92, 246, 0.4);
+      }
+      .founder p {
+        margin: 0;
+        font-size: 0.8125rem;
+        color: var(--muted);
+        max-width: 320px;
+        line-height: 1.5;
+      }
+      h1 {
+        margin: 0 0 0.75rem;
+        font-size: clamp(1.65rem, 5vw, 2.1rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+      }
+      .lead {
+        margin: 0 0 1.75rem;
+        color: var(--muted);
+        font-size: 1rem;
+        line-height: 1.65;
+      }
+      .form-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        text-align: left;
+      }
+      .field-label {
+        display: block;
+        margin-bottom: 0.35rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #71717a;
+      }
+      .field-input {
+        width: 100%;
+        min-height: 48px;
+        padding: 0.75rem 1rem;
+        font: inherit;
+        font-size: 1rem;
+        color: var(--text);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+      }
+      .field-input::placeholder { color: #71717a; }
+      textarea.field-input {
+        min-height: 96px;
+        resize: vertical;
+        line-height: 1.5;
+      }
+      .field-input:focus {
+        outline: none;
+        border-color: rgba(139, 92, 246, 0.55);
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+      }
+      .site-toggle {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 0.25rem;
+      }
+      .site-toggle-options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+      }
+      .site-toggle-option {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        padding: 0.65rem 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--muted);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        cursor: pointer;
+        text-align: center;
+        line-height: 1.35;
+        transition: border-color 0.15s, color 0.15s, background 0.15s;
+      }
+      .site-toggle-option input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+      .site-toggle-option:has(input:checked) {
+        color: var(--text);
+        border-color: rgba(139, 92, 246, 0.55);
+        background: rgba(139, 92, 246, 0.12);
+      }
+      .submit-btn {
+        margin-top: 0.5rem;
+        min-height: 48px;
+        padding: 0.75rem 1.25rem;
+        font: inherit;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: #fff;
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        box-shadow: 0 8px 24px var(--accent-glow);
+      }
+      .submit-btn:hover:not(:disabled) { transform: translateY(-1px); }
+      .submit-btn:disabled { opacity: 0.65; cursor: not-allowed; }
+      .submit-btn.is-loading { opacity: 0.85; }
+      .form-error {
+        margin: 0.5rem 0 0;
+        font-size: 0.875rem;
+        color: #f87171;
+        text-align: center;
+      }
+      .form-error[hidden] { display: none; }
+      .preview-hint {
+        margin: 0.5rem 0 0;
+        font-size: 0.8125rem;
+        color: #a1a1aa;
+        line-height: 1.5;
+        text-align: center;
+      }
+      .zero-commitment {
+        margin: 0.75rem 0 0;
+        font-size: 0.8125rem;
+        color: #71717a;
+        line-height: 1.5;
+        text-align: center;
+      }
+      .progress-track {
+        width: 100%;
+        height: 6px;
+        margin: 0 0 1.5rem;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 999px;
+        overflow: hidden;
+      }
+      .progress-fill {
+        height: 100%;
+        width: 35%;
+        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        animation: progress-crawl 240s linear forwards;
+      }
+      @keyframes progress-crawl {
+        from { width: 35%; }
+        to { width: 92%; }
+      }
+      .processing-title {
+        margin: 0 0 0.5rem;
+        font-size: 1.35rem;
+        font-weight: 700;
+      }
+      .processing-sub {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+      [hidden] { display: none !important; }
     </style>
   </head>
-  <body class="try-page">
-    <a href="/" class="back-link">← ToolCrate</a>
+  <body>
+    <a href="/" class="back-link">← Back to ToolCrate</a>
 
-    <main class="try-shell">
-      <div class="try-founder">
-        <img src="/alexander.jpg" alt="Alexander Schottky" class="try-founder-photo" width="64" height="64" />
-        <p class="try-founder-text"><strong>Alexander Schottky</strong> personally reviews every request and prepares your custom conversion redesign.</p>
-      </div>
-      <h1 id="page-title">Request your custom Conversion Redesign.</h1>
-      <p class="sub" id="page-sub">
-        Drop your URL below. I'll review your current site and send you a conversion-focused redesign—free, no strings attached.
-      </p>
+    <main class="shell">
+      <div class="panel" id="try-intro">
+        <div class="founder">
+          <img src="/alexander.jpg" alt="Alexander Schottky" width="72" height="72" />
+          <p>Every preview is designed by Alexander personally — no templates, no generic page builders.</p>
+        </div>
+        <h1>Tell Alexander about your business.</h1>
+        <p class="lead">Whether you're scaling an existing site or starting from scratch, I'll map a custom preview built to convert.</p>
 
-      <form class="try-form" id="try-form" novalidate>
-        <div class="field-group field-group--hero">
-          <div class="url-input-wrap">
-            <svg class="url-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M2 12h20"/>
-              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-            </svg>
+        <form id="try-form" class="form-stack" novalidate>
+          <fieldset class="site-toggle">
+            <legend class="field-label">Do you have an existing website?</legend>
+            <div class="site-toggle-options">
+              <label class="site-toggle-option">
+                <input type="radio" name="has_existing_site" id="has-site-yes" value="yes" />
+                Yes
+              </label>
+              <label class="site-toggle-option">
+                <input type="radio" name="has_existing_site" id="has-site-no" value="no" checked />
+                No, I'm starting fresh
+              </label>
+            </div>
+          </fieldset>
+
+          <div id="try-fields-existing" hidden>
+            <label class="field-label" for="try-url">Existing Website URL</label>
             <input
-              class="try-input try-input--hero"
-              id="website-input"
-              type="text"
+              class="field-input"
+              type="url"
+              id="try-url"
+              name="url"
+              placeholder="https://yourbusiness.com"
               inputmode="url"
               autocomplete="url"
-              placeholder="yourbusiness.com"
-              aria-label="Your website address"
-              required
             />
+            <label class="field-label" for="try-change" style="margin-top: 0.75rem">What's the #1 thing you want to change?</label>
+            <textarea
+              class="field-input"
+              id="try-change"
+              name="primary_change"
+              placeholder="e.g. More calls from mobile visitors, clearer service pages, stronger trust signals…"
+              rows="3"
+            ></textarea>
           </div>
-        </div>
 
-        <div class="contact-fields">
-          <div class="field-group field-group--contact">
-            <label class="field-label" for="first-name-input">First name</label>
+          <div id="try-fields-fresh">
+            <label class="field-label" for="try-goals">Describe your business goals</label>
+            <textarea
+              class="field-input"
+              id="try-goals"
+              name="business_goals"
+              placeholder="e.g. Launch a professional site that generates 10+ quote requests per month from local homeowners."
+              rows="3"
+              required
+            ></textarea>
+            <label class="field-label" for="try-refs" style="margin-top: 0.75rem">Link to social media or reference sites you love <span style="text-transform: none; letter-spacing: 0; font-weight: 500; color: #52525b">(optional)</span></label>
             <input
-              class="try-input try-input--contact"
-              id="first-name-input"
+              class="field-input"
               type="text"
-              autocomplete="given-name"
-              placeholder="Your name"
-              aria-label="First name"
-              required
+              id="try-refs"
+              name="reference_links"
+              placeholder="Instagram, competitor sites, Pinterest boards…"
             />
           </div>
-          <div class="field-group field-group--contact">
-            <label class="field-label" for="email-input">Email address</label>
-            <input
-              class="try-input try-input--contact"
-              id="email-input"
-              type="email"
-              inputmode="email"
-              autocomplete="email"
-              placeholder="your@email.com"
-              aria-label="Email address"
-              required
-            />
+
+          <div>
+            <label class="field-label" for="try-company">Company Name</label>
+            <input class="field-input" id="try-company" name="company_name" placeholder="e.g. Smith Plumbing Co." required />
           </div>
-        </div>
-
-        <button class="try-submit" id="submit-btn" type="submit" disabled>
-          <span class="try-submit-spinner" aria-hidden="true"></span>
-          <span class="try-submit-label">Submit for Alexander's Review →</span>
-        </button>
-        <p class="try-trust-support">
-          Questions before you submit? Email
-          <a href="mailto:support@usetoolcrate.com">support@usetoolcrate.com</a>
-        </p>
-        <p class="form-error" id="form-error" role="alert"></p>
-        <p class="curated-lead-note">I take every redesign seriously. To make sure I'm giving each site the attention it needs to actually convert, I prioritize active businesses ready for growth. Keep an eye on your inbox—I'll send your custom link as soon as it's ready.</p>
-      </form>
-
-      <div class="try-success" id="try-success" hidden>
-        <p id="try-success-message">
-          Got it! Your request is in my queue. I'm personally reviewing the architecture of
-          <strong class="try-success-highlight" id="try-success-url"></strong>
-          now. Check your inbox at
-          <strong class="try-success-highlight" id="try-success-email"></strong>—I'll send your custom redesign link shortly.
-        </p>
-        <a class="try-success-home" href="/">← Back to Home</a>
+          <div>
+            <label class="field-label" for="try-service">Service Type</label>
+            <input class="field-input" id="try-service" name="service_type" placeholder="e.g. Residential Plumbing &amp; HVAC" required />
+          </div>
+          <div>
+            <label class="field-label" for="try-location">Location</label>
+            <input class="field-input" id="try-location" name="location" placeholder="e.g. Springfield, IL" required />
+          </div>
+          <button type="submit" class="submit-btn" id="try-submit">Request My Free Preview</button>
+          <p class="preview-hint" id="try-hint">Alexander will research your niche and design a custom preview from scratch.</p>
+          <p class="zero-commitment">See your new design before you pay a dime. 100% Free. No commitment.</p>
+          <p class="form-error" id="try-form-error" hidden></p>
+        </form>
       </div>
 
-      <p class="fine-print" id="try-footer-note">No credit card required.</p>
+      <div class="panel" id="try-processing" hidden>
+        <div class="progress-track" aria-hidden="true"><div class="progress-fill"></div></div>
+        <h2 class="processing-title" id="try-processing-title">Designing your preview…</h2>
+        <p class="processing-sub" id="try-processing-sub">Alexander is reviewing your details.</p>
+      </div>
 
-      <div class="trust-row">
-        <span>Free</span>
-        <span>No login required</span>
-        <span>Built on real experience since 2008</span>
+      <div class="panel" id="try-contact" hidden>
+        <div class="progress-track" aria-hidden="true"><div class="progress-fill"></div></div>
+        <h2 class="processing-title">Where should I send your preview?</h2>
+        <p class="processing-sub" id="try-contact-sub">Your preview is taking shape. Add your email so Alexander can deliver it personally.</p>
+        <form id="try-contact-form" class="form-stack" style="margin-top: 1.5rem" novalidate>
+          <input class="field-input" type="email" id="try-email" name="email" placeholder="Your email address" autocomplete="email" required />
+          <button type="submit" class="submit-btn" id="try-contact-submit">Send My Preview</button>
+          <p class="zero-commitment">See your new design before you pay a dime. 100% Free. No commitment.</p>
+          <p class="form-error" id="try-contact-error" hidden></p>
+        </form>
       </div>
     </main>
 
-    <div class="queue-modal" id="queue-modal" hidden>
-      <div class="queue-modal-backdrop" aria-hidden="true"></div>
-      <div
-        class="queue-modal-card"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="queue-modal-title"
-      >
-        <h2 class="queue-modal-title" id="queue-modal-title">You're already on the list!</h2>
-        <p class="queue-modal-body">
-          I've already received a request for
-          <strong class="try-success-highlight" id="try-duplicate-url"></strong>.
-          To ensure I give every business the attention it deserves, I limit reviews to one per site.
-          Check your inbox—your custom redesign link will be sent there as soon as it's ready.
-        </p>
-        <div class="queue-modal-actions">
-          <a class="try-submit queue-modal-primary" id="view-redesign-link" href="#" hidden>
-            View My Redesign →
-          </a>
-          <a class="queue-modal-secondary" href="mailto:support@usetoolcrate.com">Email support@usetoolcrate.com</a>
-          <a class="queue-modal-secondary" href="/">Back to Home</a>
-        </div>
-      </div>
-    </div>
-
     <script type="module" src="./try.js"></script>
-    <style>
-      /* Production-safe overrides: bundled main.css loads before this block in dev,
-         but Vite injects CSS after inline head styles in production — these rules
-         must win over global .hero styles from main.css. */
-      html,
-      body.try-page {
-        background: #161b26 !important;
-      }
-
-      body.try-page .try-shell {
-        background: none !important;
-        padding: 0 !important;
-        color: #e4e4e7 !important;
-      }
-    </style>
   </body>
 </html>

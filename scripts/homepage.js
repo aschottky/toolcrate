@@ -1,4 +1,4 @@
-/** Marketing homepage: scroll effects, FAQ, pricing, bottom CTA → hero. */
+/** Marketing homepage: scroll effects, FAQ, pricing. */
 
 import { renderPricingCards } from "./pricing.js";
 
@@ -46,45 +46,6 @@ document.querySelectorAll(".faq-item").forEach((item) => {
   btn.addEventListener("click", () => {
     const isOpen = item.classList.toggle("open");
     btn.setAttribute("aria-expanded", String(isOpen));
-  });
-});
-
-// Bottom CTA → hero funnel
-const ctaUrl = document.getElementById("cta-url");
-const ctaBtn = document.getElementById("cta-btn");
-const heroUrlInput = document.getElementById("hero-url-input");
-
-function goToHeroFunnel(fromInput) {
-  const value = fromInput?.value.trim() || "";
-  if (value && heroUrlInput) {
-    heroUrlInput.value = value.replace(/^https?:\/\//i, "").replace(/^www\./i, "");
-  }
-  document.getElementById("hero")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  if (value) {
-    document.getElementById("hero-url-form")?.requestSubmit();
-    return;
-  }
-  heroUrlInput?.focus();
-}
-
-ctaBtn?.addEventListener("click", (event) => {
-  event.preventDefault();
-  goToHeroFunnel(ctaUrl);
-});
-
-ctaUrl?.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    event.preventDefault();
-    goToHeroFunnel(ctaUrl);
-  }
-});
-
-// Pricing / nav roast links
-document.querySelectorAll("[data-scroll-hero]").forEach((el) => {
-  el.addEventListener("click", (event) => {
-    event.preventDefault();
-    document.getElementById("hero")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    heroUrlInput?.focus();
   });
 });
 

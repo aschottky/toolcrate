@@ -22,7 +22,7 @@ function renderStarter() {
       ${featureItem("Mobile-Responsive")}
       ${featureItem("SEO &amp; Speed optimization")}
     </ul>
-    <a href="/blueprint/" class="btn-primary pricing-cta pricing-cta-outline">Start with a Free Blueprint</a>
+    <a href="/try/" class="btn-primary pricing-cta pricing-cta-outline">Get My Free Website Preview</a>
   `);
 }
 
@@ -41,7 +41,7 @@ function renderBuild() {
       ${featureItem("Custom Lead Magnets")}
       ${featureItem("Conversion Audit")}
     </ul>
-    <a href="/blueprint/" class="btn-primary pricing-cta btn-roast">Start with a Free Blueprint</a>
+    <a href="/try/" class="btn-primary pricing-cta btn-roast">Get My Free Website Preview</a>
   `, "pricing-card-featured");
 }
 
