@@ -37,8 +37,8 @@
         left: 0;
         right: 0;
         z-index: 99999 !important;
-        background: rgba(10, 10, 10, 0.92);
-        backdrop-filter: blur(12px);
+        background: rgba(9, 9, 11, 0.8);
+        backdrop-filter: blur(16px);
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       }
 
@@ -46,43 +46,33 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 20px 0;
-        max-width: 1200px;
+        gap: 1rem;
+        padding: 1rem 1.5rem;
+        max-width: 80rem;
         width: 100%;
         margin: 0 auto;
-        padding-left: 24px;
-        padding-right: 24px;
         font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
       }
 
-      /* Higher specificity than main.css (loaded after this block in production) */
       body.blog-page header nav a.logo {
         display: inline-flex;
         align-items: baseline;
         text-decoration: none;
-        font-size: 24px;
-        font-weight: 800;
+        font-size: 1.5rem;
+        font-weight: 400;
+        color: #fff;
         letter-spacing: normal;
-        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        color: transparent;
+        background: none;
+        -webkit-text-fill-color: unset;
       }
 
-      body.blog-page header nav a.logo .logo-tagline {
-        font-size: 11px;
-        color: #71717a;
-        -webkit-text-fill-color: #71717a;
-        font-weight: 400;
-        margin-left: 8px;
-        letter-spacing: 0.5px;
-        background: none;
+      body.blog-page header nav a.logo .logo-accent {
+        color: #f97316;
       }
 
       body.blog-page header nav .nav-links {
         display: flex;
-        gap: 32px;
+        gap: 2rem;
         align-items: center;
         list-style: none !important;
         margin: 0;
@@ -92,13 +82,35 @@
       body.blog-page header nav .nav-links a {
         color: #a1a1aa;
         text-decoration: none;
-        font-size: 14px;
+        font-size: 0.875rem;
         font-weight: 500;
-        transition: color 0.3s ease;
+        transition: color 0.2s ease;
       }
 
-      body.blog-page header nav .nav-links a:hover {
+      body.blog-page header nav .nav-links a:hover,
+      body.blog-page header nav .nav-links a.is-current {
         color: #e4e4e7;
+      }
+
+      body.blog-page header nav .nav-cta {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.625rem 1.25rem;
+        border-radius: 9999px;
+        background: #f8fafc;
+        color: #0f172a;
+        font-size: 0.875rem;
+        font-weight: 700;
+        text-decoration: none;
+        border: 2px solid #f8fafc;
+        white-space: nowrap;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      body.blog-page header nav .nav-cta:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 0 24px rgba(248, 250, 252, 0.15);
       }
 
       .hamburger {
@@ -183,14 +195,14 @@
       @media (max-width: 768px) {
         body.blog-page header nav .nav-links {
           position: fixed;
-          top: 71px;
+          top: 65px;
           left: 0;
           right: 0;
-          background: rgba(10, 10, 10, 0.98);
+          background: rgba(9, 9, 11, 0.98);
           backdrop-filter: blur(12px);
           flex-direction: column;
-          padding: 32px;
-          gap: 24px;
+          padding: 2rem;
+          gap: 1.5rem;
           display: none;
           border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
@@ -201,6 +213,11 @@
 
         body.blog-page header nav .hamburger {
           display: flex;
+        }
+
+        body.blog-page header nav .nav-cta {
+          font-size: 0.8125rem;
+          padding: 0.5rem 1rem;
         }
       }
     </style>
@@ -213,17 +230,15 @@
     </script>
     <header>
         <nav>
-            <a href="/" class="logo">
-                ToolCrate
-                <span class="logo-tagline">AI done right.</span>
-            </a>
+            <a href="/" class="logo">Tool<span class="logo-accent">Crate</span></a>
             <ul class="nav-links" id="navLinks">
-                <li><a href="/#problem">The Problem</a></li>
-                <li><a href="/#about">Who Built This</a></li>
-                <li><a href="/#products">Pricing</a></li>
-                <li><a href="/blog/">Blog</a></li>
-                <li><a href="/#cta">Get Started</a></li>
+                <li><a href="/#work">Our Work</a></li>
+                <li><a href="/#results">Results</a></li>
+                <li><a href="/#pricing">Pricing</a></li>
+                <li><a href="/#about">About</a></li>
+                <li><a href="/blog/" class="is-current" aria-current="page">Blog</a></li>
             </ul>
+            <a href="/try/" class="nav-cta">Get My Free Preview.</a>
             <div class="hamburger" id="hamburger">
                 <span></span>
                 <span></span>
