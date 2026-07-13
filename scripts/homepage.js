@@ -1,6 +1,9 @@
 /** Marketing homepage: scroll effects, FAQ, pricing. */
 
+import { initConversionMirror } from "./conversion-mirror.js";
 import { renderPricingCards } from "./pricing.js";
+
+initConversionMirror();
 
 renderPricingCards(document.getElementById("pricing-cards"));
 

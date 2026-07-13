@@ -215,6 +215,83 @@
       font-size: 1.25rem; font-weight: 700; color: #18181b; margin: 0 0 0.75rem; line-height: 1.25;
     }
     .problem-card p { color: #71717a; line-height: 1.7; margin: 0; }
+    .mirror-section { width: 100%; max-width: 56rem; margin: 0 auto; }
+    .mirror-hint {
+      text-align: center; font-size: 0.9375rem; color: #71717a;
+      margin: 0 0 1.5rem;
+    }
+    .mirror-container {
+      position: relative; width: 100%; aspect-ratio: 1600 / 1066;
+      border-radius: 1.25rem; overflow: hidden;
+      border: 1px solid #334155; background: #0f172a;
+    }
+    @media (hover: hover) {
+      .mirror-container { cursor: none; }
+    }
+    .mirror-container .layer {
+      position: absolute; inset: 0;
+    }
+    .mirror-container .layer img {
+      display: block; width: 100%; height: 100%;
+      object-fit: cover; user-select: none; -webkit-user-drag: none;
+    }
+    .layer-after {
+      clip-path: circle(0px at center);
+    }
+    .lens-ring {
+      position: absolute; width: 300px; height: 300px;
+      border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 50%;
+      pointer-events: none; transform: translate(-50%, -50%);
+      opacity: 0; box-shadow: 0 0 50px rgba(255, 255, 255, 0.08);
+      transition: opacity 0.15s ease;
+    }
+    .mirror-container.is-full-after .layer-after {
+      clip-path: none !important;
+    }
+    .mirror-container.is-full-after .lens-ring {
+      opacity: 0 !important;
+    }
+    .mirror-container.is-full-after {
+      cursor: default !important;
+    }
+    .mirror-switch {
+      display: flex;
+      justify-content: center;
+      margin-top: 1.25rem;
+    }
+    .mirror-switch__track {
+      display: inline-flex;
+      padding: 0.25rem;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      gap: 0.25rem;
+    }
+    .mirror-switch__btn {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: #a1a1aa;
+      font-size: 0.875rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0.55rem 1.15rem;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .mirror-switch__btn:hover {
+      color: #e4e4e7;
+    }
+    .mirror-switch__btn.is-active {
+      background: #f97316;
+      color: #fff;
+    }
+    .mirror-switch__btn:focus-visible {
+      outline: 2px solid #f97316;
+      outline-offset: 2px;
+    }
   </style>
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-1JPM7QNHFN"></script>
@@ -320,10 +397,24 @@
         </h2>
         <p style="font-size:1.25rem;color:#a1a1aa;margin-top:1.5rem;max-width:42rem;margin-left:auto;margin-right:auto;">Every site I build is designed for one thing: making your phone ring. Beautiful, fast, and engineered to convert visitors into paying customers.</p>
       </div>
-      <div style="position:relative;max-width:56rem;margin:0 auto;">
-        <div style="position:absolute;inset:0;background:rgba(59,130,246,0.2);filter:blur(48px);border-radius:50%;transform:scale(0.75);"></div>
-        <img src="/devices.webp" alt="Websites on every device" style="position:relative;width:100%;border-radius:1rem;" />
-      </div>
+      <section class="mirror-section" aria-label="Before and after website comparison">
+        <p class="mirror-hint" id="mirrorHint">Hover your &ldquo;Conversion Lens&rdquo; over the site to see the Toolcrate difference.</p>
+        <div class="mirror-container" id="mirrorContainer">
+          <div class="layer layer-before">
+            <img src="/mirror-before.jpg" alt="Generic template-style Patriot Plumbing website before the ToolCrate redesign" loading="lazy" />
+          </div>
+          <div class="layer layer-after" id="afterLayer" aria-hidden="true">
+            <img src="/mirror-after.jpg" alt="High-authority Patriot Plumbing website after the ToolCrate redesign" loading="lazy" />
+          </div>
+          <div class="lens-ring" id="lensRing" aria-hidden="true"></div>
+        </div>
+        <div class="mirror-switch" role="group" aria-label="Compare full website designs">
+          <div class="mirror-switch__track">
+            <button type="button" class="mirror-switch__btn is-active" id="mirrorBeforeBtn" aria-pressed="true">Before</button>
+            <button type="button" class="mirror-switch__btn" id="mirrorAfterBtn" aria-pressed="false">After</button>
+          </div>
+        </div>
+      </section>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;max-width:36rem;margin:4rem auto 0;text-align:center;">
         <div><div style="font-size:1.875rem;font-weight:900;color:white;">2.3%</div><div style="font-size:0.875rem;color:#71717a;margin-top:0.25rem;">→</div></div>
         <div><div style="font-size:1.875rem;font-weight:900;color:#34d399;">11.2%</div><div style="font-size:0.875rem;color:#71717a;margin-top:0.25rem;">Conversion Rate</div></div>

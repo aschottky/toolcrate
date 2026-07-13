@@ -12,11 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/styles/main.css" />
@@ -35,73 +31,76 @@
         margin: 0;
         background: #0a0a0a !important;
         color: #e4e4e7 !important;
-        font-family: "DM Sans", system-ui, sans-serif;
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
         line-height: 1.6;
         -webkit-font-smoothing: antialiased;
       }
 
-      body.blog-page > header {
-        position: fixed !important;
+      body.blog-page .display {
+        font-family: "Archivo Black", "Inter", sans-serif;
+        letter-spacing: -0.03em;
+      }
+
+      /* Match homepage sticky nav exactly */
+      body.blog-page > .site-nav {
+        position: fixed;
         top: 0;
-        left: 0;
-        right: 0;
-        z-index: 99999 !important;
+        width: 100%;
+        z-index: 50;
         background: rgba(9, 9, 11, 0.8);
         backdrop-filter: blur(16px);
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       }
 
-      body.blog-page > header nav {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 1rem;
-        padding: 1rem 1.5rem;
+      body.blog-page > .site-nav .site-nav__inner {
         max-width: 80rem;
-        width: 100%;
         margin: 0 auto;
-        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
       }
 
-      body.blog-page header nav a.logo {
-        display: inline-flex;
-        align-items: baseline;
+      body.blog-page > .site-nav .site-nav__logo {
         text-decoration: none;
         font-size: 1.5rem;
         font-weight: 400;
         color: #fff;
-        letter-spacing: normal;
-        background: none;
-        -webkit-text-fill-color: unset;
       }
 
-      body.blog-page header nav a.logo .logo-accent {
-        color: #e85d2a;
+      body.blog-page > .site-nav .site-nav__logo-accent {
+        color: #f97316;
       }
 
-      body.blog-page header nav .nav-links {
+      body.blog-page > .site-nav .nav-links {
         display: flex;
-        gap: 2rem;
         align-items: center;
-        list-style: none !important;
+        gap: 2rem;
         margin: 0;
         padding: 0;
+        list-style: none;
       }
 
-      body.blog-page header nav .nav-links a {
+      body.blog-page > .site-nav .nav-links a {
+        font-size: 0.875rem;
         color: #a1a1aa;
         text-decoration: none;
-        font-size: 0.875rem;
-        font-weight: 500;
+        font-weight: 400;
         transition: color 0.2s ease;
       }
 
-      body.blog-page header nav .nav-links a:hover,
-      body.blog-page header nav .nav-links a.is-current {
+      body.blog-page > .site-nav .nav-links a:hover,
+      body.blog-page > .site-nav .nav-links a.is-current {
         color: #e4e4e7;
       }
 
-      body.blog-page header nav .nav-cta {
+      body.blog-page > .site-nav .site-nav__actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      body.blog-page > .site-nav .nav-cta {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -113,13 +112,14 @@
         font-weight: 700;
         text-decoration: none;
         border: 2px solid #f8fafc;
+        box-shadow: 0 0 24px rgba(248, 250, 252, 0.15);
         white-space: nowrap;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
       }
 
-      body.blog-page header nav .nav-cta:hover {
+      body.blog-page > .site-nav .nav-cta:hover {
         transform: translateY(-1px);
-        box-shadow: 0 0 24px rgba(248, 250, 252, 0.15);
+        box-shadow: 0 0 32px rgba(248, 250, 252, 0.25);
       }
 
       .hamburger {
@@ -127,6 +127,9 @@
         flex-direction: column;
         cursor: pointer;
         gap: 5px;
+        background: none;
+        border: 0;
+        padding: 0;
       }
 
       .hamburger span {
@@ -489,7 +492,7 @@
       }
 
       @media (max-width: 768px) {
-        body.blog-page header nav .nav-links {
+        body.blog-page > .site-nav .nav-links {
           position: fixed;
           top: 65px;
           left: 0;
@@ -503,15 +506,15 @@
           border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        body.blog-page header nav .nav-links.active {
+        body.blog-page > .site-nav .nav-links.active {
           display: flex;
         }
 
-        body.blog-page header nav .hamburger {
+        body.blog-page > .site-nav .hamburger {
           display: flex;
         }
 
-        body.blog-page header nav .nav-cta {
+        body.blog-page > .site-nav .nav-cta {
           font-size: 0.8125rem;
           padding: 0.5rem 1rem;
         }
@@ -524,24 +527,26 @@
         document.body.classList.add("blog-post-view");
       }
     </script>
-    <header>
-      <nav>
-        <a href="/" class="logo">Tool<span class="logo-accent">Crate</span></a>
-        <ul class="nav-links" id="navLinks">
-          <li><a href="/#work">Our Work</a></li>
-          <li><a href="/#results">Results</a></li>
-          <li><a href="/#pricing">Pricing</a></li>
-          <li><a href="/#about">About</a></li>
-          <li><a href="/blog/" class="is-current" aria-current="page">Blog</a></li>
-        </ul>
-        <a href="/try/" class="nav-cta">Get My Free Preview.</a>
-        <div class="hamburger" id="hamburger">
-          <span></span>
-          <span></span>
-          <span></span>
+    <nav class="site-nav" aria-label="Primary">
+      <div class="site-nav__inner">
+        <a href="/" class="display site-nav__logo">Tool<span class="site-nav__logo-accent">Crate</span></a>
+        <div class="nav-links" id="navLinks">
+          <a href="/#work">Our Work</a>
+          <a href="/#results">Results</a>
+          <a href="/#pricing">Pricing</a>
+          <a href="/#about">About</a>
+          <a href="/blog/" class="is-current" aria-current="page">Blog</a>
         </div>
-      </nav>
-    </header>
+        <div class="site-nav__actions">
+          <a href="/try/" class="nav-cta">Get My Free Preview.</a>
+          <button type="button" class="hamburger" id="hamburger" aria-label="Open menu">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+      </div>
+    </nav>
 
     <main class="blog-main">
       <div class="container" id="blog-root"></div>
