@@ -1,66 +1,127 @@
-const HEADER_OFFSET_PX = 88;
+import { getPostById, getPostsSorted } from "../src/data/posts.js";
 
-function syncBlogView() {
-  const isPost = new URLSearchParams(window.location.search).has("post");
-  document.body.classList.toggle("blog-post-view", isPost);
+const root = document.getElementById("blog-root");
 
-  const intro = document.getElementById("blog-intro");
-  if (intro) {
-    intro.hidden = isPost;
-  }
-
-  if (isPost) {
-    guardSoroScroll();
-    schedulePostScrollFix();
-  }
-}
-
-function guardSoroScroll() {
-  const container = document.getElementById("soro-blog");
-  if (!container || container.dataset.scrollGuard === "true") {
-    return;
-  }
-
-  container.dataset.scrollGuard = "true";
-  container.scrollIntoView = function scrollIntoViewWithHeaderOffset(options = {}) {
-    const top = container.getBoundingClientRect().top + window.scrollY;
-    window.scrollTo({
-      top: Math.max(0, top - HEADER_OFFSET_PX),
-      behavior: options.behavior === "smooth" ? "smooth" : "auto",
-    });
-  };
-}
-
-function schedulePostScrollFix() {
-  [0, 120, 400].forEach((delay) => {
-    window.setTimeout(() => {
-      if (!document.body.classList.contains("blog-post-view")) return;
-      const container = document.getElementById("soro-blog");
-      if (!container) return;
-      const top = container.getBoundingClientRect().top + window.scrollY;
-      const target = Math.max(0, top - HEADER_OFFSET_PX);
-      if (Math.abs(window.scrollY - target) > 4) {
-        window.scrollTo({ top: target, behavior: "auto" });
-      }
-    }, delay);
+function formatDate(iso) {
+  const date = new Date(`${iso}T12:00:00`);
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
   });
 }
 
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function renderList() {
+  document.title = "Blog — ToolCrate";
+  document.body.classList.remove("blog-post-view");
+
+  const posts = getPostsSorted();
+  const cards = posts
+    .map((post) => {
+      const media = post.imageUrl
+        ? `
+          <div class="post-card__media">
+            <img
+              src="${escapeHtml(post.imageUrl)}"
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        `
+        : `
+          <div class="post-card__media post-card__media--placeholder" aria-hidden="true">
+            <span>Tool<span>Crate</span></span>
+          </div>
+        `;
+
+      return `
+      <a class="post-card${post.imageUrl ? "" : " post-card--no-image"}" href="/blog/?post=${encodeURIComponent(post.id)}">
+        ${media}
+        <div class="post-card__body">
+          <div class="post-card__meta">
+            <span class="post-card__category">${escapeHtml(post.category)}</span>
+            <span>${escapeHtml(formatDate(post.date))}</span>
+          </div>
+          <h2 class="post-card__title">${escapeHtml(post.title)}</h2>
+          <p class="post-card__excerpt">${escapeHtml(post.excerpt)}</p>
+          <span class="post-card__link">Read more →</span>
+        </div>
+      </a>
+    `;
+    })
+    .join("");
+
+  root.innerHTML = `
+    <div class="blog-intro" id="blog-intro">
+      <p class="eyebrow">Insights</p>
+      <h1>The Digital Locksmith: Expert Insights on Conversion &amp; UX.</h1>
+      <p>Minimal, professional, zero fluff — how high-authority sites win the job.</p>
+    </div>
+    ${
+      posts.length
+        ? `<div class="blog-grid">${cards}</div>`
+        : `<p class="blog-empty">No posts yet.</p>`
+    }
+  `;
+}
+
+function renderPost(id) {
+  const post = getPostById(id);
+
+  if (!post) {
+    document.title = "Post not found — ToolCrate";
+    document.body.classList.add("blog-post-view");
+    root.innerHTML = `
+      <div class="post-view">
+        <a class="post-back" href="/blog/">← Back to Blog</a>
+        <p class="blog-missing">That post doesn’t exist. <a href="/blog/">Return to the blog</a>.</p>
+      </div>
+    `;
+    return;
+  }
+
+  document.title = `${post.title} — ToolCrate`;
+  document.body.classList.add("blog-post-view");
+  window.scrollTo({ top: 0, behavior: "auto" });
+
+  root.innerHTML = `
+    <article class="post-view">
+      <a class="post-back" href="/blog/">← Back to Blog</a>
+      <div class="post-view__meta">
+        <span class="post-view__category">${escapeHtml(post.category)}</span>
+        <span>${escapeHtml(formatDate(post.date))}</span>
+      </div>
+      <h1 class="post-view__title">${escapeHtml(post.title)}</h1>
+      <div class="post-prose">${post.content}</div>
+      <aside class="post-cta">
+        <h2>See what elite looks like on your site.</h2>
+        <p>Get a free expert preview — a concrete before/after of your homepage, built to convert.</p>
+        <a class="post-cta__btn" href="/try/">Get a Free Expert Preview</a>
+      </aside>
+    </article>
+  `;
+}
+
+function syncBlogView() {
+  const postId = new URLSearchParams(window.location.search).get("post");
+  if (postId) {
+    renderPost(postId);
+  } else {
+    renderList();
+  }
+}
+
 syncBlogView();
-
 window.addEventListener("popstate", syncBlogView);
-
-const pushState = history.pushState.bind(history);
-history.pushState = (...args) => {
-  pushState(...args);
-  syncBlogView();
-};
-
-const replaceState = history.replaceState.bind(history);
-history.replaceState = (...args) => {
-  replaceState(...args);
-  syncBlogView();
-};
 
 const hamburger = document.getElementById("hamburger");
 const navLinks = document.getElementById("navLinks");

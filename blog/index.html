@@ -5,22 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="index, follow" />
     <title>Blog — ToolCrate</title>
-    <meta name="description" content="Insights on websites, conversions, and growing your business online from ToolCrate." />
+    <meta
+      name="description"
+      content="Expert insights on conversion, UX, and high-authority websites for home-service businesses."
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="/styles/main.css" />
-    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-1JPM7QNHFN"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-1JPM7QNHFN');
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-1JPM7QNHFN");
     </script>
     <style>
-      /* Homepage header + dark theme (index.html uses inline CSS — not in main.css) */
       body.blog-page {
         min-height: 100vh;
         margin: 0;
@@ -67,7 +76,7 @@
       }
 
       body.blog-page header nav a.logo .logo-accent {
-        color: #f97316;
+        color: #e85d2a;
       }
 
       body.blog-page header nav .nav-links {
@@ -140,56 +149,343 @@
       }
 
       .blog-main {
-        padding: 6rem 24px 4rem;
-      }
-
-      body.blog-post-view .blog-intro {
-        display: none;
-      }
-
-      body.blog-post-view .blog-main {
-        padding-top: 5.5rem;
+        padding: 6.5rem 24px 5rem;
       }
 
       .blog-main .container {
-        max-width: 900px;
+        max-width: 960px;
         margin: 0 auto;
       }
 
       .blog-intro {
-        max-width: 42rem;
-        margin: 0 auto 2.5rem;
-        text-align: center;
+        max-width: 40rem;
+        margin: 0 0 3rem;
+      }
+
+      .blog-intro .eyebrow {
+        display: inline-block;
+        margin: 0 0 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #e85d2a;
       }
 
       .blog-intro h1 {
         font-family: "Instrument Serif", Georgia, serif;
-        font-size: clamp(2rem, 5vw, 2.75rem);
+        font-size: clamp(2rem, 4.5vw, 2.85rem);
         font-weight: 400;
-        color: #e4e4e7;
-        margin: 0 0 1rem;
+        color: #fafafa;
+        margin: 0 0 0.85rem;
         line-height: 1.15;
       }
 
       .blog-intro p {
         margin: 0;
         color: #a1a1aa;
-        font-size: 1.125rem;
+        font-size: 1.0625rem;
         line-height: 1.7;
       }
 
-      #soro-blog {
+      .blog-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+      }
+
+      .post-card {
+        display: grid;
+        grid-template-columns: 1fr;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.02);
+        text-decoration: none;
+        color: inherit;
+        transition: border-color 0.2s ease, background 0.2s ease;
+      }
+
+      @media (min-width: 720px) {
+        .post-card {
+          grid-template-columns: 240px 1fr;
+          min-height: 200px;
+        }
+      }
+
+      .post-card:hover {
+        border-color: rgba(232, 93, 42, 0.45);
+        background: rgba(255, 255, 255, 0.035);
+      }
+
+      .post-card__media {
+        position: relative;
+        overflow: hidden;
+        aspect-ratio: 16 / 10;
+        background: #111113;
+      }
+
+      @media (min-width: 720px) {
+        .post-card__media {
+          aspect-ratio: auto;
+          min-height: 100%;
+        }
+      }
+
+      .post-card__media img {
+        display: block;
         width: 100%;
-        margin: 0 auto;
-        scroll-margin-top: 5.5rem;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.45s ease;
       }
 
-      body.blog-post-view #soro-blog {
-        scroll-margin-top: 5.5rem;
+      .post-card:hover .post-card__media img {
+        transform: scale(1.05);
       }
 
-      body.blog-post-view #soro-blog .soro-blog {
-        margin-top: 0;
+      .post-card__media--placeholder {
+        display: grid;
+        place-items: center;
+        background:
+          linear-gradient(145deg, rgba(232, 93, 42, 0.12), transparent 55%),
+          #111113;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      @media (min-width: 720px) {
+        .post-card__media--placeholder {
+          border-bottom: none;
+          border-right: 1px solid rgba(255, 255, 255, 0.06);
+        }
+      }
+
+      .post-card__media--placeholder span {
+        font-family: "Instrument Serif", Georgia, serif;
+        font-size: 1.25rem;
+        color: #e4e4e7;
+        letter-spacing: 0.02em;
+      }
+
+      .post-card__media--placeholder span span {
+        color: #e85d2a;
+      }
+
+      .post-card--no-image:hover .post-card__media--placeholder {
+        background:
+          linear-gradient(145deg, rgba(232, 93, 42, 0.18), transparent 55%),
+          #141416;
+      }
+
+      .post-card__body {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1.35rem 1.35rem 1.5rem;
+      }
+
+      @media (min-width: 720px) {
+        .post-card__body {
+          padding: 1.5rem 1.5rem 1.6rem;
+          justify-content: center;
+        }
+      }
+
+      .post-card__meta {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.75rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: #71717a;
+      }
+
+      .post-card__category {
+        color: #e85d2a;
+        font-weight: 600;
+      }
+
+      .post-card__title {
+        margin: 0;
+        font-family: "Instrument Serif", Georgia, serif;
+        font-size: clamp(1.2rem, 2.4vw, 1.4rem);
+        font-weight: 400;
+        line-height: 1.25;
+        color: #fafafa;
+      }
+
+      .post-card__excerpt {
+        margin: 0;
+        flex: 1;
+        font-size: 0.9375rem;
+        line-height: 1.65;
+        color: #a1a1aa;
+      }
+
+      .post-card__link {
+        margin-top: 0.15rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #e4e4e7;
+      }
+
+      .post-card:hover .post-card__link {
+        color: #e85d2a;
+      }
+
+      .post-view {
+        max-width: 40rem;
+      }
+
+      .post-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-bottom: 1.75rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #a1a1aa;
+        text-decoration: none;
+      }
+
+      .post-back:hover {
+        color: #e4e4e7;
+      }
+
+      .post-view__meta {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.85rem;
+        font-size: 0.75rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: #71717a;
+      }
+
+      .post-view__category {
+        color: #e85d2a;
+        font-weight: 600;
+      }
+
+      .post-view__title {
+        margin: 0 0 1.75rem;
+        font-family: "Instrument Serif", Georgia, serif;
+        font-size: clamp(1.85rem, 4vw, 2.5rem);
+        font-weight: 400;
+        line-height: 1.15;
+        color: #fafafa;
+      }
+
+      .post-prose {
+        font-size: 1.0625rem;
+        line-height: 1.75;
+        color: #d4d4d8;
+      }
+
+      .post-prose p {
+        margin: 0 0 1.25rem;
+      }
+
+      .post-prose h2 {
+        margin: 2rem 0 0.85rem;
+        font-family: "Instrument Serif", Georgia, serif;
+        font-size: 1.5rem;
+        font-weight: 400;
+        line-height: 1.25;
+        color: #fafafa;
+      }
+
+      .post-prose h3 {
+        margin: 1.5rem 0 0.65rem;
+        font-size: 1.0625rem;
+        font-weight: 700;
+        line-height: 1.35;
+        color: #fafafa;
+      }
+
+      .post-prose img {
+        display: block;
+        width: 100%;
+        height: auto;
+        margin: 0 0 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .post-prose ul {
+        margin: 0 0 1.25rem;
+        padding-left: 1.25rem;
+      }
+
+      .post-prose li {
+        margin-bottom: 0.45rem;
+      }
+
+      .post-prose a {
+        color: #e85d2a;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+
+      .post-prose em {
+        font-style: italic;
+        color: #e4e4e7;
+      }
+
+      .post-prose strong {
+        color: #fafafa;
+        font-weight: 600;
+      }
+
+      .post-cta {
+        margin-top: 3rem;
+        padding: 1.75rem 1.5rem;
+        border: 1px solid rgba(232, 93, 42, 0.35);
+        background: rgba(232, 93, 42, 0.06);
+      }
+
+      .post-cta h2 {
+        margin: 0 0 0.5rem;
+        font-family: "Instrument Serif", Georgia, serif;
+        font-size: 1.5rem;
+        font-weight: 400;
+        color: #fafafa;
+      }
+
+      .post-cta p {
+        margin: 0 0 1.25rem;
+        color: #a1a1aa;
+        font-size: 0.975rem;
+        line-height: 1.6;
+      }
+
+      .post-cta__btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.75rem 1.35rem;
+        background: #e85d2a;
+        color: #fff;
+        font-size: 0.9375rem;
+        font-weight: 700;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: background 0.2s ease;
+      }
+
+      .post-cta__btn:hover {
+        background: #cf4f22;
+      }
+
+      .blog-empty,
+      .blog-missing {
+        color: #a1a1aa;
+        font-size: 1rem;
+      }
+
+      .blog-missing a {
+        color: #e85d2a;
       }
 
       @media (max-width: 768px) {
@@ -229,34 +525,26 @@
       }
     </script>
     <header>
-        <nav>
-            <a href="/" class="logo">Tool<span class="logo-accent">Crate</span></a>
-            <ul class="nav-links" id="navLinks">
-                <li><a href="/#work">Our Work</a></li>
-                <li><a href="/#results">Results</a></li>
-                <li><a href="/#pricing">Pricing</a></li>
-                <li><a href="/#about">About</a></li>
-                <li><a href="/blog/" class="is-current" aria-current="page">Blog</a></li>
-            </ul>
-            <a href="/try/" class="nav-cta">Get My Free Preview.</a>
-            <div class="hamburger" id="hamburger">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </nav>
+      <nav>
+        <a href="/" class="logo">Tool<span class="logo-accent">Crate</span></a>
+        <ul class="nav-links" id="navLinks">
+          <li><a href="/#work">Our Work</a></li>
+          <li><a href="/#results">Results</a></li>
+          <li><a href="/#pricing">Pricing</a></li>
+          <li><a href="/#about">About</a></li>
+          <li><a href="/blog/" class="is-current" aria-current="page">Blog</a></li>
+        </ul>
+        <a href="/try/" class="nav-cta">Get My Free Preview.</a>
+        <div class="hamburger" id="hamburger">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </nav>
     </header>
 
     <main class="blog-main">
-      <div class="container">
-        <div class="blog-intro" id="blog-intro">
-          <h1>Blog</h1>
-          <p>Insights on websites, conversions, and growing your business online.</p>
-        </div>
-
-        <div id="soro-blog"></div>
-        <script src="https://app.trysoro.com/api/embed/9d3f8837-a8f6-4848-a8e8-7546fb8db7e2?theme=dark" defer></script>
-      </div>
+      <div class="container" id="blog-root"></div>
     </main>
 
     <script type="module" src="./blog.js"></script>
