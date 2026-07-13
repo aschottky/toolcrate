@@ -221,7 +221,7 @@
       margin: 0 0 1.5rem;
     }
     .mirror-container {
-      position: relative; width: 100%; aspect-ratio: 1600 / 1066;
+      position: relative; width: 100%; aspect-ratio: 1024 / 571;
       border-radius: 1.25rem; overflow: hidden;
       border: 1px solid #334155; background: #0f172a;
     }
@@ -291,6 +291,83 @@
     .mirror-switch__btn:focus-visible {
       outline: 2px solid #f97316;
       outline-offset: 2px;
+    }
+    .mirror-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .mirror-nav__arrow {
+      appearance: none;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.05);
+      color: #e4e4e7;
+      font-size: 1.125rem;
+      line-height: 1;
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+    .mirror-nav__arrow:hover {
+      background: rgba(249, 115, 22, 0.15);
+      border-color: rgba(249, 115, 22, 0.45);
+      color: #fff;
+    }
+    .mirror-nav__arrow:focus-visible {
+      outline: 2px solid #f97316;
+      outline-offset: 2px;
+    }
+    .mirror-nav__meta {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.45rem;
+      min-width: 10rem;
+    }
+    .mirror-nav__niche {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #f97316;
+    }
+    .mirror-nav__dots {
+      display: flex;
+      gap: 0.45rem;
+      align-items: center;
+      justify-content: center;
+    }
+    .mirror-nav__dot {
+      appearance: none;
+      width: 0.55rem;
+      height: 0.55rem;
+      padding: 0;
+      border-radius: 9999px;
+      border: 0;
+      background: rgba(255, 255, 255, 0.25);
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .mirror-nav__dot.is-active {
+      background: #f97316;
+      transform: scale(1.2);
+    }
+    .mirror-nav__dot:focus-visible {
+      outline: 2px solid #f97316;
+      outline-offset: 2px;
+    }
+    .mirror-container.is-fading {
+      opacity: 0;
+      transition: opacity 0.28s ease;
+    }
+    .mirror-container.is-ready {
+      opacity: 1;
+      transition: opacity 0.35s ease;
     }
   </style>
   <!-- Google Analytics -->
@@ -399,12 +476,12 @@
       </div>
       <section class="mirror-section" aria-label="Before and after website comparison">
         <p class="mirror-hint" id="mirrorHint">Hover your &ldquo;Conversion Lens&rdquo; over the site to see the Toolcrate difference.</p>
-        <div class="mirror-container" id="mirrorContainer">
+        <div class="mirror-container is-ready" id="mirrorContainer">
           <div class="layer layer-before">
-            <img src="/mirror-before.jpg" alt="Generic template-style Patriot Plumbing website before the ToolCrate redesign" loading="lazy" />
+            <img id="mirrorBeforeImg" src="/mirror-before.jpg" alt="Generic template-style Patriot Plumbing website before the ToolCrate redesign" loading="lazy" />
           </div>
           <div class="layer layer-after" id="afterLayer" aria-hidden="true">
-            <img src="/mirror-after.jpg" alt="High-authority Patriot Plumbing website after the ToolCrate redesign" loading="lazy" />
+            <img id="mirrorAfterImg" src="/mirror-after.jpg" alt="High-authority Patriot Plumbing website after the ToolCrate redesign" loading="lazy" />
           </div>
           <div class="lens-ring" id="lensRing" aria-hidden="true"></div>
         </div>
@@ -413,6 +490,14 @@
             <button type="button" class="mirror-switch__btn is-active" id="mirrorBeforeBtn" aria-pressed="true">Before</button>
             <button type="button" class="mirror-switch__btn" id="mirrorAfterBtn" aria-pressed="false">After</button>
           </div>
+        </div>
+        <div class="mirror-nav" aria-label="Project examples">
+          <button type="button" class="mirror-nav__arrow" id="mirrorPrevBtn" aria-label="Previous project">‹</button>
+          <div class="mirror-nav__meta">
+            <span class="mirror-nav__niche" id="mirrorNicheLabel">Plumbing</span>
+            <div class="mirror-nav__dots" id="mirrorDots" role="tablist" aria-label="Select project"></div>
+          </div>
+          <button type="button" class="mirror-nav__arrow" id="mirrorNextBtn" aria-label="Next project">›</button>
         </div>
       </section>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;max-width:36rem;margin:4rem auto 0;text-align:center;">
