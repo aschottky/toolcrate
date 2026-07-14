@@ -63,7 +63,7 @@ function renderList() {
   root.innerHTML = `
     <div class="blog-intro" id="blog-intro">
       <p class="eyebrow">Insights</p>
-      <h1>The Digital Locksmith: Expert Insights on Conversion &amp; UX.</h1>
+      <h1>Expert Insights on Conversion &amp; UX.</h1>
       <p>Minimal, professional, zero fluff — how high-authority sites win the job.</p>
     </div>
     ${
