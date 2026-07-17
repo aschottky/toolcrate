@@ -34,58 +34,127 @@
     }
     .copy-toast.is-visible { opacity: 1; }
     .hero-shell {
-      text-align: center; max-width: 44rem; width: 100%;
-      margin: 0 auto; padding: 9rem 1.5rem 5rem;
-      display: flex; flex-direction: column; align-items: center;
+      position: relative;
+      z-index: 10;
+      width: min(100% - 2rem, 72rem);
+      margin: 0 auto;
+      padding: 0 0 3.5rem;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      align-items: center;
+    }
+    @media (min-width: 900px) {
+      .hero-shell {
+        grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+        gap: 3.5rem;
+        padding: 0 0 4rem;
+      }
+    }
+    .hero-copy {
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
     }
     .hero-eyebrow {
       display: inline-flex; align-items: center; gap: 0.5rem;
       background: rgba(255,255,255,0.06); backdrop-filter: blur(8px);
       border: 1px solid rgba(255,255,255,0.1); border-radius: 9999px;
-      padding: 0.5rem 1.25rem; margin-bottom: 2rem;
+      padding: 0.5rem 1.25rem; margin-bottom: 1.5rem;
     }
-    .hero-eyebrow-dot { width: 8px; height: 8px; border-radius: 50%; background: #f97316; }
+    .hero-eyebrow-dot { width: 8px; height: 8px; border-radius: 50%; background: #F28C38; }
     .hero-eyebrow-text {
       font-size: 0.75rem; color: #d4d4d8; letter-spacing: 0.14em; text-transform: uppercase;
     }
     .hero-headline {
-      font-size: clamp(2.25rem, 6.5vw, 4.5rem);
-      color: #fafafa; line-height: 0.92; margin: 0 0 1.5rem;
-      text-transform: uppercase; letter-spacing: -0.045em;
+      font-size: clamp(2rem, 5vw, 3.75rem);
+      color: #fafafa; line-height: 1.12; margin: 0 0 1.35rem;
+      text-transform: uppercase; letter-spacing: -0.04em;
+      max-width: 14ch;
     }
-    .hero-headline-accent { color: #f97316; }
+    .hero-headline-accent {
+      color: #F28C38;
+      font-weight: 900;
+    }
     .hero-subhead {
-      font-size: 1.125rem; color: #a1a1aa; max-width: 32rem;
-      margin: 0 auto 2.25rem; line-height: 1.7;
+      font-size: 1.0625rem; color: #a1a1aa; max-width: 34rem;
+      margin: 0 0 1.75rem; line-height: 1.7;
     }
     .hero-section {
       position: relative;
       min-height: 100vh;
       min-height: 100svh;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
       overflow: hidden;
       background: #09090b;
+      /* Fixed nav (~72px) + 80px breathing room */
+      padding-top: 152px;
+      box-sizing: border-box;
     }
-    .hero-bg {
-      position: absolute;
-      inset: 0;
-      background: #09090b url("/hero-bg.webp") center 42% / cover no-repeat;
-      transform: scale(1.02);
+    .hero-portrait {
+      position: relative;
+      width: 100%;
+      max-width: 28rem;
+      margin: 0 auto;
+      justify-self: center;
     }
-    .hero-bg-overlay {
+    @media (min-width: 900px) {
+      .hero-portrait {
+        max-width: none;
+        justify-self: end;
+        width: 100%;
+      }
+    }
+    .hero-portrait__frame {
+      position: relative;
+      border-radius: 1.5rem;
+      overflow: hidden;
+      aspect-ratio: 4 / 5;
+      background: #1a1512;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow:
+        0 0 30px rgba(242, 140, 56, 0.15),
+        0 30px 80px rgba(0, 0, 0, 0.45);
+    }
+    .hero-portrait__frame img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 18%;
+    }
+    .hero-portrait__glow {
       position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(to bottom, rgba(9,9,11,0.72) 0%, rgba(9,9,11,0.48) 42%, rgba(9,9,11,0.88) 100%),
-        radial-gradient(ellipse 120% 90% at 50% 38%, rgba(249,115,22,0.07) 0%, transparent 55%);
+      inset: auto -12% -18% -12%;
+      height: 45%;
+      background: radial-gradient(ellipse at center, rgba(242, 140, 56, 0.28), transparent 70%);
+      pointer-events: none;
+      z-index: -1;
     }
     .hero-panel[hidden] { display: none !important; }
     .hero-form-row {
       display: flex; flex-wrap: wrap; gap: 0.75rem;
-      width: 100%; max-width: 32rem; margin: 0 auto 0.75rem;
+      width: 100%; max-width: 36rem; margin: 0 0 0.85rem;
+      justify-content: flex-start;
+      align-items: center;
+    }
+    .hero-cta-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: fit-content;
+      max-width: 100%;
+      margin: 0 0 0.85rem;
+    }
+    .hero-cta-block .hero-form-row {
+      margin: 0 0 0.75rem;
       justify-content: center;
+    }
+    .hero-cta-block .hero-vetted {
+      margin: 0;
     }
     .hero-input {
       flex: 1; min-width: min(100%, 220px); padding: 1rem 1.25rem; border-radius: 0.75rem;
@@ -94,23 +163,63 @@
       text-align: center;
     }
     .hero-input::placeholder { color: #71717a; }
-    .hero-input:focus { border-color: rgba(249,115,22,0.55); box-shadow: 0 0 0 3px rgba(249,115,22,0.12); }
+    .hero-input:focus { border-color: rgba(242,140,56,0.55); box-shadow: 0 0 0 3px rgba(242,140,56,0.12); }
     .btn-roast {
-      background: #f97316; color: #0a0a0a; border: 2px solid #f97316;
-      box-shadow: 0 0 28px rgba(249,115,22,0.35), 0 4px 14px rgba(0,0,0,0.25);
+      background: #F28C38; color: #0a0a0a; border: 2px solid #F28C38;
+      box-shadow: 0 0 28px rgba(242,140,56,0.35), 0 4px 14px rgba(0,0,0,0.25);
+      font-size: 1.1rem;
+      padding: 1.05rem 1.85rem;
+      animation: hero-cta-pulse 3s ease-in-out infinite;
     }
     .btn-roast:hover {
-      background: #fb923c; border-color: #fb923c;
-      box-shadow: 0 0 40px rgba(249,115,22,0.45), 0 6px 20px rgba(0,0,0,0.3);
+      background: #f5a05a; border-color: #f5a05a;
+      box-shadow: 0 0 40px rgba(242,140,56,0.45), 0 6px 20px rgba(0,0,0,0.3);
+      animation: none;
+    }
+    @keyframes hero-cta-pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 28px rgba(242,140,56,0.35), 0 4px 14px rgba(0,0,0,0.25); }
+      50% { transform: scale(1.03); box-shadow: 0 0 40px rgba(242,140,56,0.5), 0 6px 18px rgba(0,0,0,0.3); }
+    }
+    .hero-vetted {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin: 0 0 0.85rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      background: rgba(242, 140, 56, 0.1);
+      border: 1px solid rgba(242, 140, 56, 0.35);
+      color: #F28C38;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .hero-vetted::before {
+      content: "";
+      width: 0.45rem;
+      height: 0.45rem;
+      border-radius: 50%;
+      background: #F28C38;
+      box-shadow: 0 0 0 3px rgba(242, 140, 56, 0.2);
     }
     .hero-form-error, .hero-contact-error {
       font-size: 0.875rem; color: #f87171; margin: 0 auto 1rem; max-width: 32rem; text-align: center;
     }
     .hero-form-error[hidden], .hero-contact-error[hidden] { display: none; }
     .hero-blueprint-link { font-size: 0.875rem; color: #a1a1aa; margin-bottom: 0.75rem; text-align: center; }
-    .hero-blueprint-link a { color: #f97316; text-decoration: none; font-weight: 600; }
+    .hero-blueprint-link a { color: #F28C38; text-decoration: none; font-weight: 600; }
     .hero-blueprint-link a:hover { text-decoration: underline; }
-    .hero-fine-print { font-size: 0.875rem; color: #71717a; margin: 0; text-align: center; }
+    .hero-fine-print { font-size: 0.875rem; color: #71717a; margin: 0; text-align: left; }
+    @media (max-width: 899px) {
+      .hero-copy { text-align: center; align-items: center; }
+      .hero-headline { max-width: none; }
+      .hero-form-row { justify-content: center; }
+      .hero-cta-block { margin-left: auto; margin-right: auto; }
+      .hero-fine-print { text-align: center; }
+      .hero-portrait { order: -1; max-width: 16rem; }
+      .hero-portrait__frame { aspect-ratio: 1 / 1; border-radius: 9999px; }
+      .hero-portrait__frame img { object-position: center 15%; }
+    }
     .hero-processing-box {
       width: 100%; max-width: 32rem; margin: 0 auto; padding: 2rem; border-radius: 1rem;
       background: rgba(9,9,11,0.75); border: 1px solid rgba(255,255,255,0.1);
@@ -369,6 +478,193 @@
       opacity: 1;
       transition: opacity 0.35s ease;
     }
+
+    /* Rachel Challenge FAB + modal */
+    @keyframes rachel-fab-pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 8px 28px rgba(242, 140, 56, 0.45); }
+      50% { transform: scale(1.04); box-shadow: 0 10px 36px rgba(242, 140, 56, 0.65); }
+    }
+    @keyframes rachel-modal-in {
+      from { opacity: 0; transform: scale(0.92) translateY(12px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .rachel-fab {
+      position: fixed;
+      right: 1.25rem;
+      bottom: 1.25rem;
+      z-index: 90;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      max-width: calc(100vw - 2.5rem);
+      padding: 0.9rem 1.15rem;
+      border: 0;
+      border-radius: 9999px;
+      background: #F28C38;
+      color: #0a0a0a;
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 800;
+      line-height: 1.25;
+      cursor: pointer;
+      text-align: left;
+      animation: rachel-fab-pulse 2.2s ease-in-out infinite;
+      transition: filter 0.2s ease;
+    }
+    .rachel-fab:hover { filter: brightness(1.06); }
+    .rachel-fab:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: 3px;
+    }
+    .rachel-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(6px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .rachel-modal.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .rachel-modal__panel {
+      position: relative;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-sizing: border-box;
+      background: #0a0a0a;
+      color: #e4e4e7;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 1.25rem 1.25rem 0 0;
+      padding: 1.5rem 1.25rem 1.25rem;
+      box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.45);
+    }
+    .rachel-modal.is-open .rachel-modal__panel {
+      animation: rachel-modal-in 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .rachel-modal__close {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      width: 2.5rem;
+      height: 2.5rem;
+      border: 0;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #fafafa;
+      font-size: 1.5rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .rachel-modal__close:hover { background: rgba(255, 255, 255, 0.14); }
+    .rachel-modal__badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin: 0 0 0.75rem;
+      padding: 0.4rem 0.75rem;
+      border-radius: 9999px;
+      background: rgba(242, 140, 56, 0.15);
+      border: 1px solid rgba(242, 140, 56, 0.45);
+      color: #F28C38;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .rachel-modal__title {
+      margin: 0 2.5rem 0.75rem 0;
+      font-family: "Archivo Black", "Inter", sans-serif;
+      font-size: clamp(1.4rem, 4vw, 1.85rem);
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      color: #fafafa;
+    }
+    .rachel-modal__body {
+      margin: 0 0 0.65rem;
+      font-size: 0.975rem;
+      line-height: 1.6;
+      color: #a1a1aa;
+    }
+    .rachel-modal__body strong { color: #fafafa; }
+    .rachel-modal__challenge {
+      margin: 0 0 0.85rem;
+      font-size: 0.975rem;
+      line-height: 1.6;
+      color: #d4d4d8;
+    }
+    .rachel-modal__challenge strong { color: #fafafa; }
+    .rachel-modal__phone-prefix {
+      font-size: 0.75em;
+      font-weight: 600;
+      color: #a1a1aa;
+      margin-right: 0.15em;
+    }
+    .rachel-modal__prize {
+      margin: 0 0 1.15rem;
+      padding: 0.85rem 1rem;
+      border-radius: 0.85rem;
+      background: rgba(242, 140, 56, 0.08);
+      border: 1px solid rgba(242, 140, 56, 0.28);
+      font-size: 0.9375rem;
+      line-height: 1.55;
+      color: #e4e4e7;
+    }
+    .rachel-modal__prize strong { color: #F28C38; }
+    .rachel-modal__cta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      padding: 1rem 1.25rem; /* py-4 */
+      border-radius: 0.85rem;
+      background: #F28C38;
+      color: #0a0a0a;
+      font-size: 1.0625rem;
+      font-weight: 800;
+      text-decoration: none;
+      transition: filter 0.2s ease, transform 0.2s ease;
+    }
+    .rachel-modal__cta:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+    }
+    .rachel-modal__hint {
+      display: none;
+      margin: 0.65rem 0 0;
+      text-align: center;
+      color: #71717a;
+      font-size: 0.8125rem;
+    }
+    @media (max-width: 639px) {
+      .rachel-modal__hint { display: block; }
+    }
+    @media (min-width: 640px) {
+      .rachel-modal {
+        align-items: center;
+        padding: 1.25rem;
+      }
+      .rachel-modal__panel {
+        max-width: 30rem;
+        max-height: 90vh;
+        overflow-y: auto;
+        border-radius: 1.25rem;
+        padding: 1.65rem 1.5rem 1.35rem;
+      }
+    }
+    @media (max-width: 420px) {
+      .rachel-fab { font-size: 0.8125rem; padding: 0.8rem 1rem; }
+    }
   </style>
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-1JPM7QNHFN"></script>
@@ -395,30 +691,35 @@
 
   <!-- ═══════ HERO ═══════ -->
   <section id="hero" class="hero-section">
-    <div class="hero-bg" aria-hidden="true"><div class="hero-bg-overlay"></div></div>
-    <div style="position:relative;z-index:10;width:100%;" class="hero-shell">
-      <div class="hero-eyebrow">
-        <span class="hero-eyebrow-dot" aria-hidden="true"></span>
-        <span class="hero-eyebrow-text">High-Stakes Service Providers</span>
-      </div>
-      <h1 class="display hero-headline">
-        Websites that<br />
-        <span class="hero-headline-accent">make the phone</span><br />
-        ring.
-      </h1>
-      <p class="hero-subhead">
-        I build conversion machines for high-stakes service pros. Whether you're scaling or starting from scratch, I'll personally design a custom preview of your new site—for free.
-      </p>
-      <div id="hero-intro" class="hero-panel" style="width:100%;">
-        <div class="hero-form-row">
-          <a href="/try/" class="btn-primary btn-roast">Get My Free Website Preview</a>
+    <div class="hero-shell">
+      <div class="hero-copy">
+        <div class="hero-eyebrow">
+          <span class="hero-eyebrow-dot" aria-hidden="true"></span>
+          <span class="hero-eyebrow-text">High-Stakes Service Providers</span>
         </div>
-        <p class="hero-fine-print">See your new design before you pay a dime. 100% Free. No commitment.</p>
+        <h1 class="display hero-headline">
+          I build websites that<br />
+          <span class="hero-headline-accent">make the phone</span><br />
+          ring.
+        </h1>
+        <p class="hero-subhead">
+          I’m Alexander. I’ve spent 15 years auditing sites that should be printing money but are just burning it. I don’t use generic templates—I personally hand-vet every conversion leak to ensure your phone stays busy.
+        </p>
+        <div id="hero-intro" class="hero-panel" style="width:100%;">
+          <div class="hero-cta-block">
+            <div class="hero-form-row">
+              <a href="/try/" class="btn-primary btn-roast">Get My Free Website Preview</a>
+            </div>
+            <p class="hero-vetted">Hand-vetted by Alexander</p>
+          </div>
+          <p class="hero-fine-print">See your new design before you pay a dime. 100% Free. No commitment.</p>
+        </div>
       </div>
-    </div>
-    <div style="position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);" class="anim-bounce">
-      <div style="width:24px;height:40px;border-radius:9999px;border:2px solid rgba(255,255,255,0.2);display:flex;align-items:flex-start;justify-content:center;padding:6px;">
-        <div style="width:6px;height:12px;background:rgba(255,255,255,0.4);border-radius:9999px;"></div>
+      <div class="hero-portrait">
+        <div class="hero-portrait__glow" aria-hidden="true"></div>
+        <div class="hero-portrait__frame">
+          <img src="/alexander.jpg" alt="Alexander Schottky, conversion specialist" width="800" height="1000" />
+        </div>
       </div>
     </div>
   </section>
@@ -726,6 +1027,30 @@
   </footer>
 
   <div class="copy-toast" id="copy-toast" role="status" aria-live="polite" hidden></div>
+
+  <button type="button" class="rachel-fab" id="rachelFab" aria-haspopup="dialog" aria-controls="rachelModal">
+    🎁 Win a Free Website for a Year!
+  </button>
+
+  <div class="rachel-modal" id="rachelModal" role="dialog" aria-modal="true" aria-labelledby="rachelModalTitle" hidden>
+    <div class="rachel-modal__panel" role="document">
+      <button type="button" class="rachel-modal__close" id="rachelModalClose" aria-label="Close">×</button>
+      <p class="rachel-modal__badge">Winner Announced Every Monday</p>
+      <h2 class="rachel-modal__title" id="rachelModalTitle">Can You Outsmart the Machine?</h2>
+      <p class="rachel-modal__body">
+        Meet Rachel, our determined, Missouri-friendly AI assistant. She’s convinced she’s human... and we've turned it into a game.
+      </p>
+      <p class="rachel-modal__challenge">
+        Call <strong><span class="rachel-modal__phone-prefix">+1</span> (818) 869-9928</strong> and try to get her to admit she’s a robot. It’s harder than it sounds.
+      </p>
+      <p class="rachel-modal__prize">
+        If you get the admission, you’re entered to win a <strong>FREE Toolcrate site + hosting for an entire year.</strong>
+        We pick one winner every single Monday.
+      </p>
+      <a class="rachel-modal__cta" href="tel:+18188699928">Call Rachel Now</a>
+      <p class="rachel-modal__hint">(Mobile only: tap to call)</p>
+    </div>
+  </div>
 
   <script type="module" src="./scripts/homepage.js"></script>
 
