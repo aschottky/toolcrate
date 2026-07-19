@@ -1,10 +1,8 @@
 /** Marketing homepage: scroll effects, FAQ, pricing. */
 
-import { initConversionMirror } from "./conversion-mirror.js";
 import { initRachelChallenge } from "./rachel-challenge.js";
 import { renderPricingCards } from "./pricing.js";
 
-initConversionMirror();
 initRachelChallenge();
 
 renderPricingCards(document.getElementById("pricing-cards"));
