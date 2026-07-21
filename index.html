@@ -524,14 +524,25 @@
     }
     #work .anatomy-reassure .ck { color: var(--green); }
 
-    /* Rachel Challenge FAB + modal */
-    @keyframes rachel-fab-pulse {
-      0%, 100% { transform: scale(1); box-shadow: 0 8px 28px rgba(242, 140, 56, 0.45); }
-      50% { transform: scale(1.04); box-shadow: 0 10px 36px rgba(242, 140, 56, 0.65); }
+    /* Nav CTA: hidden until scroll */
+    .nav-cta {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease-out;
     }
+    .nav-cta.is-visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Rachel Challenge: modal + dismiss-into floating button */
     @keyframes rachel-modal-in {
-      from { opacity: 0; transform: scale(0.92) translateY(12px); }
+      from { opacity: 0; transform: scale(0.94) translateY(16px); }
       to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes rachel-pill-in {
+      from { opacity: 0; transform: translateY(12px) scale(0.88); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
     }
     .rachel-fab {
       position: fixed;
@@ -540,9 +551,8 @@
       z-index: 90;
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
-      max-width: calc(100vw - 2.5rem);
-      padding: 0.9rem 1.15rem;
+      gap: 0.35rem;
+      padding: 0.75rem 1.1rem;
       border: 0;
       border-radius: 9999px;
       background: #F28C38;
@@ -550,16 +560,31 @@
       font-family: inherit;
       font-size: 0.875rem;
       font-weight: 800;
-      line-height: 1.25;
+      line-height: 1.2;
       cursor: pointer;
-      text-align: left;
-      animation: rachel-fab-pulse 2.2s ease-in-out infinite;
+      box-shadow: 0 8px 28px rgba(242, 140, 56, 0.4);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(12px) scale(0.88);
       transition: filter 0.2s ease;
+    }
+    .rachel-fab.is-visible {
+      opacity: 1;
+      pointer-events: auto;
+      animation: rachel-pill-in 0.38s ease-out both;
     }
     .rachel-fab:hover { filter: brightness(1.06); }
     .rachel-fab:focus-visible {
       outline: 2px solid #fff;
       outline-offset: 3px;
+    }
+    @media (max-width: 640px) {
+      .rachel-fab {
+        right: 0.75rem;
+        bottom: 0.75rem;
+        font-size: 0.8125rem;
+        padding: 0.7rem 0.95rem;
+      }
     }
     .rachel-modal {
       position: fixed;
@@ -570,14 +595,19 @@
       justify-content: center;
       padding: 0;
       background: rgba(0, 0, 0, 0.72);
-      backdrop-filter: blur(6px);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.25s ease;
+      transition: opacity 0.35s ease-out;
     }
     .rachel-modal.is-open {
       opacity: 1;
       pointer-events: auto;
+    }
+    .rachel-modal.is-dismissing {
+      opacity: 0;
+      pointer-events: none;
     }
     .rachel-modal__panel {
       position: relative;
@@ -591,9 +621,16 @@
       border-radius: 1.25rem 1.25rem 0 0;
       padding: 1.5rem 1.25rem 1.25rem;
       box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.45);
+      transform-origin: bottom right;
+      transition: transform 0.38s ease-out, opacity 0.38s ease-out;
     }
     .rachel-modal.is-open .rachel-modal__panel {
-      animation: rachel-modal-in 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation: rachel-modal-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .rachel-modal.is-dismissing .rachel-modal__panel {
+      animation: none;
+      opacity: 0;
+      transform: translate(28%, 42%) scale(0.28);
     }
     .rachel-modal__close {
       position: absolute;
@@ -669,9 +706,8 @@
       align-items: center;
       justify-content: center;
       width: 100%;
-      max-width: 100%;
       box-sizing: border-box;
-      padding: 1rem 1.25rem; /* py-4 */
+      padding: 1rem 1.25rem;
       border-radius: 0.85rem;
       background: #F28C38;
       color: #0a0a0a;
@@ -706,9 +742,9 @@
         border-radius: 1.25rem;
         padding: 1.65rem 1.5rem 1.35rem;
       }
-    }
-    @media (max-width: 420px) {
-      .rachel-fab { font-size: 0.8125rem; padding: 0.8rem 1rem; }
+      .rachel-modal.is-dismissing .rachel-modal__panel {
+        transform: translate(42%, 48%) scale(0.22);
+      }
     }
   </style>
   <!-- Google Analytics -->
@@ -729,7 +765,7 @@
         <a href="/blog/" style="font-size:0.875rem;color:#a1a1aa;text-decoration:none;">Blog</a>
       </div>
       <div style="display:flex;align-items:center;gap:1rem;">
-        <a href="/try/" class="btn-primary" style="font-size:0.875rem;padding:0.625rem 1.25rem;border-radius:9999px;">Get My Free Preview.</a>
+        <a href="/try/" id="navCta" class="btn-primary nav-cta" style="font-size:0.875rem;padding:0.625rem 1.25rem;border-radius:9999px;">Get YOUR Free Website Preview</a>
       </div>
     </div>
   </nav>
@@ -753,7 +789,7 @@
         <div id="hero-intro" class="hero-panel" style="width:100%;">
           <div class="hero-cta-block">
             <div class="hero-form-row">
-              <a href="/try/" class="btn-primary btn-roast">Get My Free Website Preview</a>
+              <a href="/try/" class="btn-primary btn-roast">Get YOUR Free Website Preview</a>
             </div>
             <p class="hero-vetted">Hand-vetted by Alexander</p>
           </div>
@@ -1058,7 +1094,7 @@
       <h2 class="display" style="font-size:clamp(2rem,5vw,3.75rem);color:white;line-height:1.1;">Ready to stop losing<br />customers to your website?</h2>
       <p style="font-size:1.125rem;color:#a1a1aa;margin-top:1.5rem;max-width:36rem;margin-left:auto;margin-right:auto;">See your new design before you pay a dime. Whether you have a site today or you're starting fresh, Alexander maps the path to more calls.</p>
       <div style="margin:2rem auto 0;display:flex;flex-direction:column;align-items:center;gap:0.75rem;">
-        <a href="/try/" class="btn-primary btn-roast">Get My Free Website Preview</a>
+        <a href="/try/" class="btn-primary btn-roast">Get YOUR Free Website Preview</a>
         <p style="font-size:0.875rem;color:#71717a;margin:0;">100% Free. No commitment.</p>
       </div>
       <p style="font-size:0.875rem;color:#71717a;margin-top:1rem;">Questions? Email <a href="mailto:support@usetoolcrate.com" style="color:#f97316;text-decoration:none;font-weight:600;">support@usetoolcrate.com</a></p>
@@ -1099,8 +1135,8 @@
 
   <div class="copy-toast" id="copy-toast" role="status" aria-live="polite" hidden></div>
 
-  <button type="button" class="rachel-fab" id="rachelFab" aria-haspopup="dialog" aria-controls="rachelModal">
-    🎁 Win a Free Website for a Year!
+  <button type="button" class="rachel-fab" id="rachelFab" aria-haspopup="dialog" aria-controls="rachelModal" hidden>
+    Win a Site →
   </button>
 
   <div class="rachel-modal" id="rachelModal" role="dialog" aria-modal="true" aria-labelledby="rachelModalTitle" hidden>
@@ -1109,13 +1145,13 @@
       <p class="rachel-modal__badge">Winner Announced Every Monday</p>
       <h2 class="rachel-modal__title" id="rachelModalTitle">Can You Outsmart the Machine?</h2>
       <p class="rachel-modal__body">
-        Meet Rachel, our determined, Missouri-friendly AI assistant. She’s convinced she’s human... and we've turned it into a game.
+        Meet Rachel, our determined, Missouri-friendly AI assistant. She's convinced she's human... and we've turned it into a game.
       </p>
       <p class="rachel-modal__challenge">
-        Call <strong><span class="rachel-modal__phone-prefix">+1</span> (818) 869-9928</strong> and try to get her to admit she’s a robot. It’s harder than it sounds.
+        Call <strong><span class="rachel-modal__phone-prefix">+1</span> (818) 869-9928</strong> and try to get her to admit she's a robot. It's harder than it sounds.
       </p>
       <p class="rachel-modal__prize">
-        If you get the admission, you’re entered to win a <strong>FREE Toolcrate site + hosting for an entire year.</strong>
+        If you get the admission, you're entered to win a <strong>FREE Toolcrate site + hosting for an entire year.</strong>
         We pick one winner every single Monday.
       </p>
       <a class="rachel-modal__cta" href="tel:+18188699928">Call Rachel Now</a>

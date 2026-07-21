@@ -1,56 +1,65 @@
-/** Rachel Challenge FAB + modal (homepage). */
+/** Rachel Challenge: modal every page load → FAB only after dismiss (this page). */
 
-const STORAGE_KEY = "toolcrate_rachel_challenge_seen";
-const AUTO_SHOW_MS = 15000;
+const DISMISS_MS = 380;
+const OPEN_DELAY_MS = 8000;
 
 export function initRachelChallenge() {
   const fab = document.getElementById("rachelFab");
   const modal = document.getElementById("rachelModal");
   const closeBtn = document.getElementById("rachelModalClose");
-  if (!fab || !modal) return;
+  if (!modal) return;
 
   let lastFocus = null;
+  let dismissing = false;
+  let modalWasShown = false;
 
-  function hasSeen() {
-    try {
-      return localStorage.getItem(STORAGE_KEY) === "1";
-    } catch {
-      return false;
-    }
+  function hideFab() {
+    if (!fab) return;
+    fab.classList.remove("is-visible");
+    fab.hidden = true;
   }
 
-  function markSeen() {
-    try {
-      localStorage.setItem(STORAGE_KEY, "1");
-    } catch {
-      /* ignore */
-    }
+  function showFab() {
+    if (!fab || !modalWasShown) return;
+    fab.hidden = false;
+    void fab.offsetWidth;
+    fab.classList.add("is-visible");
   }
 
   function openModal() {
-    if (modal.classList.contains("is-open")) return;
+    if (modal.classList.contains("is-open") || dismissing) return;
     lastFocus = document.activeElement;
     modal.hidden = false;
-    // next frame so CSS transition/animation can run
+    modal.classList.remove("is-dismissing");
+    modalWasShown = true;
+    hideFab();
     requestAnimationFrame(() => {
       modal.classList.add("is-open");
     });
     document.body.style.overflow = "hidden";
-    markSeen();
     closeBtn?.focus();
   }
 
   function closeModal() {
-    if (!modal.classList.contains("is-open")) return;
+    if (!modal.classList.contains("is-open") || dismissing) return;
+    dismissing = true;
+
+    modal.classList.add("is-dismissing");
     modal.classList.remove("is-open");
     document.body.style.overflow = "";
+
     window.setTimeout(() => {
       modal.hidden = true;
+      modal.classList.remove("is-dismissing");
+      dismissing = false;
+      showFab();
       if (lastFocus && typeof lastFocus.focus === "function") lastFocus.focus();
-    }, 250);
+    }, DISMISS_MS);
   }
 
-  fab.addEventListener("click", openModal);
+  hideFab();
+
+  fab?.addEventListener("click", openModal);
   closeBtn?.addEventListener("click", closeModal);
 
   modal.addEventListener("click", (e) => {
@@ -63,9 +72,6 @@ export function initRachelChallenge() {
     }
   });
 
-  if (!hasSeen()) {
-    window.setTimeout(() => {
-      if (!hasSeen()) openModal();
-    }, AUTO_SHOW_MS);
-  }
+  // Every refresh: wait ~8s, then open. No session/cookie gate.
+  window.setTimeout(openModal, OPEN_DELAY_MS);
 }

@@ -1160,6 +1160,11 @@ app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
           userEmail: email,
           userName: firstName,
           reviewUrl,
+          leadIntent: existing.lead_intent,
+          blueprintLeadType: inferBlueprintLeadType({
+            websiteUrl: existing.website_url ?? websiteUrl,
+            leadIntent: existing.lead_intent,
+          }),
         }).catch((error) =>
           console.warn(`${logPrefix} New-lead notification failed:`, error.message)
         );
@@ -1207,6 +1212,11 @@ app.post("/api/public-redesign", publicRedesignLimiter, async (req, res) => {
         userEmail: email,
         userName: firstName,
         reviewUrl,
+        leadIntent: null,
+        blueprintLeadType: inferBlueprintLeadType({
+          websiteUrl,
+          leadIntent: null,
+        }),
       }).catch((error) =>
         console.warn(`${logPrefix} New-lead notification failed:`, error.message)
       );
@@ -1291,6 +1301,7 @@ app.post("/api/public-redesign/contact", publicRedesignLimiter, async (req, res)
       userEmail: emailRaw,
       userName: firstName,
       reviewUrl,
+      leadIntent: redesign.lead_intent,
       blueprintLeadType: inferBlueprintLeadType({
         websiteUrl: redesign.website_url,
         leadIntent: redesign.lead_intent,

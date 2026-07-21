@@ -1,4 +1,9 @@
 import { Resend } from "resend";
+import {
+  isBlueprintBuild,
+  parseBlueprintLeadIntent,
+  parseBlueprintWebsiteUrl,
+} from "./blueprint.js";
 
 const DEFAULT_FROM = "Alexander <alexander@usetoolcrate.com>";
 
@@ -350,6 +355,7 @@ const PREVIEW_NOTIFY_TO =
  * @param {string|null|undefined} [options.userName]
  * @param {string} options.reviewUrl — internal preview link for Alexander
  * @param {string|null|undefined} [options.blueprintLeadType]
+ * @param {string|null|undefined} [options.leadIntent]
  * @returns {Promise<{ id: string }|null>}
  */
 export async function sendNewLeadReviewNotification({
@@ -358,6 +364,7 @@ export async function sendNewLeadReviewNotification({
   userName,
   reviewUrl,
   blueprintLeadType,
+  leadIntent,
 }) {
   if (!process.env.RESEND_API_KEY) {
     console.warn(
@@ -378,23 +385,33 @@ export async function sendNewLeadReviewNotification({
       : blueprintLeadType === "VISION_CONCEPT"
         ? "Vision Concept (no website yet)"
         : null;
+
+  const fields = resolveLeadFormFields({ businessUrl, leadIntent });
+  const companyForSubject = fields.companyName || null;
   const subject = leadTypeLabel
-    ? `New ${leadTypeLabel}: ${businessUrl}`
-    : `New submission: ${businessUrl}`;
+    ? `New ${leadTypeLabel}: ${companyForSubject || businessUrl}`
+    : `New submission: ${companyForSubject || businessUrl}`;
+
+  const fieldRowsHtml = formatLeadFieldsHtml(fields, businessUrl);
+  const fieldRowsText = formatLeadFieldsText(fields, businessUrl);
+
   const html = `
     <p>A new lead submitted through the ToolCrate Free Blueprint funnel.</p>
-    ${leadTypeLabel ? `<p><strong>Blueprint type:</strong> ${leadTypeLabel}</p>` : ""}
-    <p><strong>Name:</strong> ${nameLabel}<br>
-    <strong>URL:</strong> ${businessUrl}<br>
-    <strong>Lead email:</strong> ${emailLabel}</p>
-    <p><a href="${reviewUrl}">Open in admin preview</a></p>
+    ${leadTypeLabel ? `<p><strong>Blueprint type:</strong> ${escapeHtml(leadTypeLabel)}</p>` : ""}
+    <p><strong>Name:</strong> ${escapeHtml(nameLabel)}<br>
+    <strong>Lead email:</strong> ${escapeHtml(emailLabel)}</p>
+    ${fieldRowsHtml}
+    <p><a href="${escapeHtml(reviewUrl)}">Open in admin preview</a></p>
     <p>No automatic AI generation was triggered. Start roast/redesign from admin when you are ready to work this lead.</p>
   `.trim();
 
-  const text = `New submission: ${businessUrl}
+  const text = `New submission: ${companyForSubject || businessUrl}
 
+Blueprint type: ${leadTypeLabel || "n/a"}
 Name: ${nameLabel}
 Lead email: ${emailLabel}
+
+${fieldRowsText}
 
 Open in admin preview: ${reviewUrl}
 
@@ -414,6 +431,67 @@ No automatic AI generation was triggered. Start roast/redesign from admin when r
 
   console.log(`[email] New-lead review notification sent to ${notifyTo} (${businessUrl}).`);
   return data;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function resolveLeadFormFields({ businessUrl, leadIntent }) {
+  const fromUrl = parseBlueprintWebsiteUrl(businessUrl) || {};
+  const fromIntent = parseBlueprintLeadIntent(leadIntent) || {};
+
+  return {
+    companyName: fromIntent.companyName || fromUrl.companyName || "",
+    serviceType: fromIntent.serviceType || fromUrl.serviceType || "",
+    location: fromIntent.location || fromUrl.location || "",
+    businessGoals: fromIntent.businessGoals || fromUrl.businessGoals || "",
+    referenceLinks: fromIntent.referenceLinks || fromUrl.referenceLinks || "",
+    primaryChange: fromIntent.primaryChange || "",
+    websiteUrl: isBlueprintBuild(businessUrl) ? "" : String(businessUrl || "").trim(),
+  };
+}
+
+function formatLeadFieldsHtml(fields, businessUrl) {
+  const rows = [];
+  if (fields.companyName) rows.push(["Company", fields.companyName]);
+  if (fields.serviceType) rows.push(["Service", fields.serviceType]);
+  if (fields.location) rows.push(["Location", fields.location]);
+  if (fields.businessGoals) rows.push(["Goals / what they wrote", fields.businessGoals]);
+  if (fields.referenceLinks) rows.push(["Reference links", fields.referenceLinks]);
+  if (fields.primaryChange) rows.push(["Primary change they want", fields.primaryChange]);
+  if (fields.websiteUrl) rows.push(["Website URL", fields.websiteUrl]);
+  else if (businessUrl) rows.push(["Blueprint ID URL", businessUrl]);
+
+  if (!rows.length) {
+    return `<p><strong>URL:</strong> ${escapeHtml(businessUrl || "n/a")}</p>`;
+  }
+
+  const body = rows
+    .map(
+      ([label, value]) =>
+        `<tr><td style="padding:6px 12px 6px 0;vertical-align:top;color:#555;white-space:nowrap;"><strong>${escapeHtml(label)}</strong></td><td style="padding:6px 0;vertical-align:top;">${escapeHtml(value).replace(/\n/g, "<br>")}</td></tr>`
+    )
+    .join("");
+
+  return `<table style="border-collapse:collapse;margin:16px 0;font-size:14px;line-height:1.45;">${body}</table>`;
+}
+
+function formatLeadFieldsText(fields, businessUrl) {
+  const lines = [];
+  if (fields.companyName) lines.push(`Company: ${fields.companyName}`);
+  if (fields.serviceType) lines.push(`Service: ${fields.serviceType}`);
+  if (fields.location) lines.push(`Location: ${fields.location}`);
+  if (fields.businessGoals) lines.push(`Goals / what they wrote:\n${fields.businessGoals}`);
+  if (fields.referenceLinks) lines.push(`Reference links: ${fields.referenceLinks}`);
+  if (fields.primaryChange) lines.push(`Primary change they want: ${fields.primaryChange}`);
+  if (fields.websiteUrl) lines.push(`Website URL: ${fields.websiteUrl}`);
+  else if (businessUrl) lines.push(`Blueprint ID URL: ${businessUrl}`);
+  return lines.join("\n\n") || `URL: ${businessUrl || "n/a"}`;
 }
 
 /**

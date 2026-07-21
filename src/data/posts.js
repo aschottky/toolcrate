@@ -16,6 +16,59 @@
 /** @type {BlogPost[]} */
 export const posts = [
   {
+    id: "expensive-free-website-myth",
+    title: 'Why Your "Free" Website is Actually Your Most Expensive Expense.',
+    date: "2026-07-16",
+    excerpt:
+      "Discover why $0 website builders are actually a 'stupidity tax' on your business, costing you thousands in lost revenue and mobile friction.",
+    category: "Growth",
+    imageUrl: "/blog/expensive-free-1.webp",
+    content: `
+      <img src="/blog/expensive-free-1.webp" alt="Alexander Schottky looking horrified as a Free Website machine spits out dollar bills into a trash can" />
+      <p><strong>You aren't saving money. You’re paying a "stupidity tax" you didn't sign up for.</strong></p>
+      <p>"Free" is the most expensive word in the English language.</p>
+      <p>In the world of business, it’s a siren song that leads straight into a graveyard of abandoned carts and "contact us" forms that never chime.</p>
+      <p>I’m Alexander Schottky. I’ve spent over 15 years auditing sites that should be printing money, but instead, they’re just burning it.</p>
+      <p>I see it every single day: a growth-minded owner tries to "save" a few thousand dollars by using a drag-and-drop builder or a generic AI generator. They get a site that looks... fine. Maybe even "pretty."</p>
+      <p>And then they wonder why their calendar is empty while they’re spending $5k a month on Google Ads.</p>
+      <p><strong>Here is the blunt truth: If your website was free (or $20/month), you aren't the customer. You're the casualty.</strong></p>
+
+      <h2>The Hidden Tax: Why Your $0 Site is Leaking Thousands</h2>
+      <img src="/blog/expensive-free-2.webp" alt="Alexander Schottky frantically bailing water out of a cardboard boat in a sea of gold coins" />
+      <p>Think of your website as a boat. You’re trying to sail across a sea of gold coins (your market) to reach the island of Revenue.</p>
+      <p>A "free" website builder gives you a boat made of wet cardboard. It looks like a boat. It floats for about five minutes. But the moment you actually put weight on it—the moment you send real traffic to it—it starts to sink.</p>
+      <p>You spend your whole day bailing out water (troubleshooting glitches) instead of steering toward the goal.</p>
+
+      <h3>1. The Speed Trap (The 4-Second Death Sentence)</h3>
+      <p>In 2026, the data is unforgiving. If your site takes longer than three seconds to load, 53% of mobile users are gone. They didn’t even see your headline.</p>
+      <p>A pro site converts at ~3%. A slow, free-builder site often converts below 1%. If you have 1,000 visitors a month, that "free" site just cost you 20 customers. If your average lead is worth $500, that’s $10,000 in lost revenue <em>this month</em>.</p>
+
+      <h3>2. The Mobile Friction Gap</h3>
+      <p>I’ve audited hundreds of these "AI-powered" builders. They promise a "mobile-responsive" design. What they actually give you is a desktop site that’s been shoved through a meat grinder to fit a phone screen.</p>
+      <p>If your mobile site feels like a chore to navigate—tiny buttons, microscopic text, overlapping images—you are effectively telling 70% of your potential revenue to go buy from your competitor.</p>
+
+      <h2>The Blindfold Effect: Looking Through "Free" Glasses</h2>
+      <img src="/blog/expensive-free-3.webp" alt="Alexander Schottky wearing glasses that are actually black blindfolds while looking at a computer error" />
+      <p>Building a website without a conversion expert is like driving a car while wearing blindfolds. Free builders give you templates designed by "artists" who care about aesthetics, not psychology.</p>
+      <p>An AI generator can't look at your business and say, "Hey, your headline is confusing, and your CTA is buried." It just spits out generic copy like "We provide high-quality solutions for your needs." <strong>Nobody buys "solutions." They buy a fix for a problem they have right now.</strong></p>
+
+      <h2>The Expert Difference: Why Human-Led Vetting Wins</h2>
+      <p>At <a href="https://usetoolcrate.com">ToolCrate</a>, we don't believe in "pretty" brochures. We believe in performance. Every site we build is hand-vetted by me using 15+ years of UX experience.</p>
+      <ul>
+        <li><strong>Zero Fluff:</strong> No 3-month discovery phases. We find the leaks and fix them.</li>
+        <li><strong>Elite Speed:</strong> Our sites are built for performance from the code up.</li>
+        <li><strong>No Technical Headaches:</strong> You handle the leads. We handle the complexity.</li>
+      </ul>
+
+      <h2>Stop Flushing Your Marketing Budget</h2>
+      <p>If you are spending money on ads to drive traffic to a "free" or cheap website, you are effectively burning cash. You are paying for the privilege of losing customers.</p>
+      <p><strong>I’ve cracked open hundreds of sites. I know exactly where the money is hiding.</strong></p>
+      <p>I offer a <strong>Free Expert Preview</strong>. Give me your URL, and I will personally create a functional redesign preview of your existing website. I’ll show you the conversion leaks, the missed revenue opportunities, and exactly how we would fix the locks on your revenue vault.</p>
+      <p>No cost. No commitment. Just expert-led analysis that shows you what’s really happening with your traffic.</p>
+      <p><strong><a href="/try/">Click here to get your Free Expert Preview and stop the leaks today.</a></strong></p>
+    `,
+  },
+  {
     id: "website-revenue-leaks-audit",
     title:
       "I Audited 200+ Small Business Websites Last Year. Here’s Why They Are Leaking Revenue.",

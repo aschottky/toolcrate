@@ -7,6 +7,33 @@ initRachelChallenge();
 
 renderPricingCards(document.getElementById("pricing-cards"));
 
+// Header CTA fades in after ~200px scroll
+(function initNavCtaOnScroll() {
+  const navCta = document.getElementById("navCta");
+  if (!navCta) return;
+
+  const SHOW_AT = 200;
+  let ticking = false;
+
+  function update() {
+    const show = window.scrollY >= SHOW_AT;
+    navCta.classList.toggle("is-visible", show);
+    ticking = false;
+  }
+
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    },
+    { passive: true }
+  );
+
+  update();
+})();
+
 // Fade-in on scroll
 const fadeObs = new IntersectionObserver(
   (entries) => {
