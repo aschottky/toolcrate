@@ -58,7 +58,7 @@ export const posts = [
       <p>You don't need a $10,000 band-aid. You need a conversion-focused architecture that treats every visitor as a potential customer.</p>
       <p>I've solved these conversion problems hundreds of times. I know what works, and more importantly, I know what’s just expensive noise.</p>
       <p>I offer a <strong>Free Expert Preview</strong>: a functional redesign of a key section of your site, created by me. I’ll show you the immediate conversion leaks and the missed revenue opportunities. No cost. No commitment. Just expert analysis.</p>
-      <p><strong><a href="https://usetoolcrate.com">Get your Free Expert Review here and stop the leaks today.</a></strong></p>
+      <p><strong><a href="/try/">Get your Free Expert Review here and stop the leaks today.</a></strong></p>
     `,
   },
   {
