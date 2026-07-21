@@ -16,6 +16,52 @@
 /** @type {BlogPost[]} */
 export const posts = [
   {
+    id: "starter-tier-outperforms-agencies",
+    title: "The $299 Website That's Outperforming $10,000 Agency Sites",
+    date: "2026-07-20",
+    excerpt:
+      "Discover why high-priced agency websites often fail to convert and how a $299 performance-focused site can drive more revenue for solo-pros and artisans.",
+    category: "Growth",
+    imageUrl: "/blog/starter-tier-1.webp",
+    content: `
+      <img src="/blog/starter-tier-1.webp" alt="Alexander Schottky balancing a massive $10,000 invoice against a glowing $299 revenue engine" />
+      <p>Most business owners are being robbed in broad daylight.</p>
+      <p>They write a check for $10,000, $20,000, or even $50,000 to a "high-end" creative agency. They wait six months for a "discovery phase" and a "branding workshop."</p>
+      <p>Then, they get a website that looks like a masterpiece but converts like a screen door on a submarine. It’s pretty. It’s artistic. And it’s completely useless for growing a business.</p>
+      <p>I’ve spent 15 years in the trenches of UX design, and I’m here to tell you the truth: you don’t need a digital brochure. You need a revenue engine. And surprisingly, you can get one for exactly $299.</p>
+
+      <h2>The Big Agency Scam: Paying for "Pretty"</h2>
+      <p>The agency model is broken. They charge you for their high-rise office, their fancy espresso machine, and their "creative director" who hasn't looked at a conversion heat map in a decade.</p>
+      <p>They focus on aesthetics because aesthetics are easy to sell. But aesthetics don’t pay the bills. I see sites every day that cost five figures but have no clear call to action, confusing navigation, and load times that make dial-up look fast.</p>
+      <p>These agencies build websites "from the inside out": describing your company as you see yourself, rather than how your customers see you. They give you a "brand showpiece" when you actually need a lead generation system.</p>
+      <img src="/blog/starter-tier-2.webp" alt="Alexander Schottky inspecting a website made of fragile balloons" />
+
+      <h2>Where Your Revenue Is Actually Leaking</h2>
+      <p>When I perform a <strong>Free Expert Review</strong>, I find the same three leaks over and over.</p>
+      <ul>
+        <li><strong>The "What Do You Actually Do?" Problem:</strong> Most $10k sites use vague, flowery jargon. If a visitor can't tell what you do and who you help in 3 seconds, they’re gone.</li>
+        <li><strong>The Invisible Call to Action:</strong> Agencies love to hide "Contact Us" buttons. If you want someone to call you, you have to tell them clearly and repeatedly.</li>
+        <li><strong>The Speed Trap:</strong> High-end sites are often bloated with heavy scripts. Every second your site takes to load, you're lighting money on fire.</li>
+      </ul>
+
+      <h2>Introducing "The Starter": The $299 Revenue Engine</h2>
+      <p>At ToolCrate, we decided to do things differently. We created <strong>The Starter</strong> tier for solo entrepreneurs and artisans who need performance without the agency fluff.</p>
+      <p>For a $299 setup and $29/mo, you get a 3-page site designed specifically to convert visitors into leads. This isn't a "budget" site. It's a high-performance site that has been stripped of everything that doesn't make you money.</p>
+      <p>It’s built on my 15+ years of real-world conversion experience. Every layout is hand-vetted by me. We don't do "discovery calls." We do work that works.</p>
+      <img src="/blog/starter-tier-3.webp" alt="Alexander high-fiving a solo professional beside a high-performance website" />
+
+      <h2>Expert-Led Strategy vs. Generic Templates</h2>
+      <p>The difference at ToolCrate is the <strong>Human Element.</strong> We aren't a bot-factory. When we build a site—even at the $299 level—it follows an expert-led methodology. We look for the specific locks on your revenue and we fix them.</p>
+      <p>We use high-EQ conversion strategy to guide your visitors through a journey: Problem → Trust → Offer → Action. Most agencies build for design awards. I build for your bank account.</p>
+
+      <h2>Stop Guessing. Start Converting.</h2>
+      <p>You don't need a $10,000 band-aid. You need a conversion-focused architecture that treats every visitor as a potential customer.</p>
+      <p>I've solved these conversion problems hundreds of times. I know what works, and more importantly, I know what’s just expensive noise.</p>
+      <p>I offer a <strong>Free Expert Preview</strong>: a functional redesign of a key section of your site, created by me. I’ll show you the immediate conversion leaks and the missed revenue opportunities. No cost. No commitment. Just expert analysis.</p>
+      <p><strong><a href="https://usetoolcrate.com">Get your Free Expert Review here and stop the leaks today.</a></strong></p>
+    `,
+  },
+  {
     id: "expensive-free-website-myth",
     title: 'Why Your "Free" Website is Actually Your Most Expensive Expense.',
     date: "2026-07-16",
