@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Invoice Admin — Zoho</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles/main.css" />
+    <link rel="stylesheet" href="../styles/admin.css" />
+    <link rel="stylesheet" href="../styles/invoices.css" />
+  </head>
+  <body class="admin-page">
+    <header class="site-header">
+      <div class="container header-inner">
+        <a href="../" class="logo">Website Tear Down</a>
+        <span class="audit-badge">Invoice admin</span>
+      </div>
+    </header>
+
+    <main class="container admin-main">
+      <section class="admin-intro">
+        <h1>Zoho Invoice admin</h1>
+        <p>
+          Outstanding invoices at a glance, one-click bank payments, and fast
+          invoice creation.
+        </p>
+        <p id="session-info" class="admin-hint" hidden>
+          Signed in as <strong id="session-email"></strong> ·
+          <button type="button" id="logout-btn" class="inv-linklike">Sign out</button>
+        </p>
+        <p id="org-status" class="admin-hint" hidden></p>
+      </section>
+
+      <section class="admin-auth card" id="login-card">
+        <h2>Sign in</h2>
+        <form id="login-form">
+          <div class="admin-auth-row">
+            <input
+              id="login-email"
+              type="email"
+              placeholder="Email"
+              autocomplete="username"
+              required
+            />
+            <input
+              id="login-password"
+              type="password"
+              placeholder="Password"
+              autocomplete="current-password"
+              required
+            />
+            <button type="submit" id="login-submit" class="btn btn-primary">Sign in</button>
+          </div>
+        </form>
+        <p id="auth-status" class="admin-hint" hidden></p>
+      </section>
+
+      <section class="card inv-summary-card">
+        <div class="inv-summary" id="summary-cards">
+          <div class="inv-stat">
+            <span class="inv-stat-label">Outstanding</span>
+            <span class="inv-stat-value" id="stat-outstanding">—</span>
+            <span class="inv-stat-sub" id="stat-outstanding-count"></span>
+          </div>
+          <div class="inv-stat inv-stat--danger">
+            <span class="inv-stat-label">Overdue</span>
+            <span class="inv-stat-value" id="stat-overdue">—</span>
+            <span class="inv-stat-sub" id="stat-overdue-count"></span>
+          </div>
+          <div class="inv-stat">
+            <span class="inv-stat-label">Due in 7 days</span>
+            <span class="inv-stat-value" id="stat-due-week">—</span>
+            <span class="inv-stat-sub" id="stat-due-week-count"></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="inv-toolbar">
+          <div class="inv-tabs" id="filter-tabs">
+            <button type="button" class="inv-tab inv-tab--active" data-filter="unpaid">Unpaid</button>
+            <button type="button" class="inv-tab" data-filter="overdue">Overdue</button>
+            <button type="button" class="inv-tab" data-filter="paid">Paid</button>
+            <button type="button" class="inv-tab" data-filter="draft">Drafts</button>
+            <button type="button" class="inv-tab" data-filter="all">All</button>
+          </div>
+          <input
+            id="search-input"
+            type="search"
+            placeholder="Search invoice # or customer…"
+            autocomplete="off"
+          />
+          <button type="button" id="refresh-invoices" class="btn btn-secondary">Refresh</button>
+        </div>
+
+        <div class="inv-bulk-bar" id="bulk-bar" hidden>
+          <span id="bulk-count"></span>
+          <button type="button" id="bulk-mark-paid" class="btn btn-primary">
+            Mark selected paid (bank)
+          </button>
+          <button type="button" id="bulk-clear" class="btn btn-secondary">Clear</button>
+        </div>
+
+        <p id="invoices-status" class="admin-hint" hidden></p>
+
+        <div class="inv-table-wrap" id="invoices-table-wrap" hidden>
+          <table class="inv-table">
+            <thead>
+              <tr>
+                <th class="inv-col-check"><input type="checkbox" id="check-all" /></th>
+                <th>Invoice</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Due</th>
+                <th>Status</th>
+                <th class="inv-col-num">Total</th>
+                <th class="inv-col-num">Balance</th>
+                <th class="inv-col-actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="invoices-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>New invoice</h2>
+        <p id="contacts-status" class="admin-hint" hidden></p>
+        <form id="create-form">
+          <div class="inv-form-row">
+            <div class="inv-field inv-field--grow">
+              <label for="new-customer">Customer</label>
+              <select id="new-customer" required>
+                <option value="">Loading customers…</option>
+              </select>
+            </div>
+            <div class="inv-field">
+              <label for="new-date">Invoice date</label>
+              <input id="new-date" type="date" />
+            </div>
+            <div class="inv-field">
+              <label for="new-due-date">Due date</label>
+              <input id="new-due-date" type="date" />
+            </div>
+          </div>
+
+          <div class="inv-line-items">
+            <label>Line items</label>
+            <div id="line-items"></div>
+            <button type="button" id="add-line" class="btn btn-secondary btn-small">
+              + Add line
+            </button>
+          </div>
+
+          <div class="inv-form-row">
+            <div class="inv-field inv-field--grow">
+              <label for="new-notes">Notes (optional)</label>
+              <input id="new-notes" type="text" placeholder="Shown on the invoice" />
+            </div>
+          </div>
+
+          <div class="inv-form-footer">
+            <span class="inv-form-total">Total: <strong id="new-total">—</strong></span>
+            <label class="inv-send-toggle">
+              After creating:
+              <select id="new-delivery">
+                <option value="email">Email to customer</option>
+                <option value="open">Mark as open (no email)</option>
+                <option value="draft">Leave as draft</option>
+              </select>
+            </label>
+            <button type="submit" id="create-submit" class="btn btn-primary">
+              Create invoice
+            </button>
+          </div>
+          <p id="create-status" class="admin-hint" hidden></p>
+        </form>
+      </section>
+    </main>
+
+    <script type="module" src="./invoices.js"></script>
+  </body>
+</html>

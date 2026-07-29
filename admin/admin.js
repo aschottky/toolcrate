@@ -76,7 +76,13 @@ function serverConfigHint(errorMessage) {
 }
 
 function getSecret() {
-  return sessionStorage.getItem(SECRET_KEY) || secretInput.value.trim();
+  return (
+    // Session token from the email+password login on /invoices — one login
+    // unlocks both admin pages.
+    localStorage.getItem("toolcrate_admin_token") ||
+    sessionStorage.getItem(SECRET_KEY) ||
+    secretInput.value.trim()
+  );
 }
 
 function saveSecret() {

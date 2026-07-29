@@ -1,0 +1,333 @@
+/* Zoho Invoice admin (/invoices) — builds on styles/admin.css */
+
+.inv-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .inv-summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+.inv-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  background: #faf8f6;
+}
+
+.inv-stat--danger .inv-stat-value {
+  color: #b3261e;
+}
+
+.inv-stat-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--admin-muted);
+}
+
+.inv-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.inv-stat-sub {
+  font-size: 0.8rem;
+  color: var(--admin-muted);
+}
+
+.inv-linklike {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Toolbar */
+
+.inv-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.inv-toolbar input[type="search"] {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+}
+
+.inv-tabs {
+  display: flex;
+  gap: 0.25rem;
+  background: #f1ede9;
+  border-radius: 8px;
+  padding: 0.2rem;
+}
+
+.inv-tab {
+  border: none;
+  background: transparent;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--admin-muted);
+  cursor: pointer;
+}
+
+.inv-tab--active {
+  background: #fff;
+  color: inherit;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+/* Bulk bar */
+
+.inv-bulk-bar[hidden] {
+  display: none;
+}
+
+.inv-bulk-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.9rem;
+  margin-bottom: 1rem;
+  border: 1px solid #d8c9a8;
+  background: #fdf6e6;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* Table */
+
+.inv-table-wrap {
+  overflow-x: auto;
+}
+
+.inv-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.inv-table th,
+.inv-table td {
+  text-align: left;
+  padding: 0.55rem 0.6rem;
+  border-bottom: 1px solid var(--admin-border);
+  white-space: nowrap;
+}
+
+.inv-table th {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--admin-muted);
+}
+
+.inv-row--overdue td {
+  background: #fdf1f0;
+}
+
+.inv-number {
+  font-weight: 600;
+}
+
+.inv-col-num {
+  text-align: right !important;
+}
+
+.inv-col-check {
+  width: 2rem;
+}
+
+.inv-col-actions {
+  text-align: right !important;
+}
+
+.inv-col-actions .btn + .btn {
+  margin-left: 0.35rem;
+}
+
+.btn-small {
+  padding: 0.3rem 0.65rem;
+  font-size: 0.8rem;
+}
+
+/* Status badges */
+
+.inv-badge {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.inv-badge--overdue {
+  background: #fbdcda;
+  color: #8f1d16;
+}
+
+.inv-badge--paid {
+  background: #d9f2dd;
+  color: #1d6b2c;
+}
+
+.inv-badge--sent {
+  background: #dde9fb;
+  color: #1c4e94;
+}
+
+.inv-badge--draft {
+  background: #eeeae6;
+  color: #5c564f;
+}
+
+.inv-badge--partial {
+  background: #fdeccc;
+  color: #8a5a0d;
+}
+
+/* Create form */
+
+.inv-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.inv-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.inv-field--grow {
+  flex: 1;
+  min-width: 220px;
+}
+
+.inv-field label,
+.inv-line-items > label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.inv-field input,
+.inv-field select {
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  font: inherit;
+  background: #fff;
+}
+
+.inv-line-items {
+  margin-bottom: 1rem;
+}
+
+.inv-line-items > label {
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.inv-line-row {
+  display: grid;
+  grid-template-columns: 1fr 5rem 7rem 6rem 2rem;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.inv-line-row input {
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  font: inherit;
+}
+
+.line-amount {
+  text-align: right;
+  font-size: 0.85rem;
+  color: var(--admin-muted);
+}
+
+.inv-line-remove {
+  border: none;
+  background: transparent;
+  font-size: 1.1rem;
+  color: var(--admin-muted);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.inv-line-remove:hover {
+  color: #b3261e;
+}
+
+.inv-form-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--admin-border);
+}
+
+.inv-form-total {
+  font-size: 0.95rem;
+}
+
+.inv-send-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.inv-send-toggle select {
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 400;
+  background: #fff;
+}
+
+@media (max-width: 640px) {
+  .inv-line-row {
+    grid-template-columns: 1fr 4rem 5.5rem 2rem;
+  }
+
+  .line-amount {
+    display: none;
+  }
+
+  .inv-send-toggle {
+    margin-left: 0;
+  }
+}

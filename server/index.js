@@ -12,6 +12,8 @@ import { normalizeWebsiteUrl, scrapeWebsiteText } from "./scrape.js";
 import { evaluateLeadSuitability, preflightLogCode } from "./preflight.js";
 import { generateRedesignHtml } from "./redesign-claude.js";
 import { registerAdminRoutes, runPreviewGeneration } from "./admin.js";
+import { registerZohoRoutes } from "./zoho.js";
+import { handleAdminLogin, verifySessionToken } from "./auth.js";
 import { registerCheckoutRoutes } from "./checkout.js";
 import {
   assertStripeKeyMatchesSession,
@@ -544,11 +546,26 @@ function verifyCronSecret(req) {
   const query = req.query.secret;
 
   if (bearer !== secret && header !== secret && query !== secret) {
+    // Admin pages authenticate with a signed session token from /api/admin/login.
+    if (bearer && verifySessionToken(bearer)) {
+      return;
+    }
     const err = new Error("Unauthorized cron request.");
     err.statusCode = 401;
     throw err;
   }
 }
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => ipKeyGenerator(req.ip),
+  message: { ok: false, error: "Too many login attempts. Try again in 15 minutes." },
+});
+
+app.post("/api/admin/login", loginLimiter, handleAdminLogin);
 
 async function handleNurtureCron(req, res) {
   try {
@@ -585,6 +602,7 @@ app.post("/api/cron/process-nurture-emails", handleNurtureCron);
 app.post("/api/cron/warm-leads-nurture", handleWarmLeadNurtureCron);
 
 registerAdminRoutes(app, { verifyCronSecret });
+registerZohoRoutes(app, { verifyCronSecret });
 registerCheckoutRoutes(app, { siteOriginFromRequest });
 
 app.post("/api/audit", async (req, res) => {
