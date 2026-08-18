@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /invoices/
+Disallow: /intake/
+Disallow: /preview-view/
+Disallow: /success/
+
+Sitemap: https://usetoolcrate.com/sitemap.xml
