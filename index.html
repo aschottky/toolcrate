@@ -552,217 +552,6 @@
       pointer-events: auto;
     }
 
-    /* Rachel Challenge: modal + dismiss-into floating button */
-    @keyframes rachel-modal-in {
-      from { opacity: 0; transform: scale(0.94) translateY(16px); }
-      to { opacity: 1; transform: scale(1) translateY(0); }
-    }
-    @keyframes rachel-pill-in {
-      from { opacity: 0; transform: translateY(12px) scale(0.88); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    .rachel-fab {
-      position: fixed;
-      right: 1.25rem;
-      bottom: 1.25rem;
-      z-index: 90;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.75rem 1.1rem;
-      border: 0;
-      border-radius: 9999px;
-      background: #F28C38;
-      color: #0a0a0a;
-      font-family: inherit;
-      font-size: 0.875rem;
-      font-weight: 800;
-      line-height: 1.2;
-      cursor: pointer;
-      box-shadow: 0 8px 28px rgba(242, 140, 56, 0.4);
-      opacity: 0;
-      pointer-events: none;
-      transform: translateY(12px) scale(0.88);
-      transition: filter 0.2s ease;
-    }
-    .rachel-fab.is-visible {
-      opacity: 1;
-      pointer-events: auto;
-      animation: rachel-pill-in 0.38s ease-out both;
-    }
-    .rachel-fab:hover { filter: brightness(1.06); }
-    .rachel-fab:focus-visible {
-      outline: 2px solid #fff;
-      outline-offset: 3px;
-    }
-    @media (max-width: 640px) {
-      .rachel-fab {
-        right: 0.75rem;
-        bottom: 0.75rem;
-        font-size: 0.8125rem;
-        padding: 0.7rem 0.95rem;
-      }
-    }
-    .rachel-modal {
-      position: fixed;
-      inset: 0;
-      z-index: 100;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      padding: 0;
-      background: rgba(0, 0, 0, 0.72);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.35s ease-out;
-    }
-    .rachel-modal.is-open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-    .rachel-modal.is-dismissing {
-      opacity: 0;
-      pointer-events: none;
-    }
-    .rachel-modal__panel {
-      position: relative;
-      width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
-      box-sizing: border-box;
-      background: #0a0a0a;
-      color: #e4e4e7;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 1.25rem 1.25rem 0 0;
-      padding: 1.5rem 1.25rem 1.25rem;
-      box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.45);
-      transform-origin: bottom right;
-      transition: transform 0.38s ease-out, opacity 0.38s ease-out;
-    }
-    .rachel-modal.is-open .rachel-modal__panel {
-      animation: rachel-modal-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-    .rachel-modal.is-dismissing .rachel-modal__panel {
-      animation: none;
-      opacity: 0;
-      transform: translate(28%, 42%) scale(0.28);
-    }
-    .rachel-modal__close {
-      position: absolute;
-      top: 0.75rem;
-      right: 0.75rem;
-      width: 2.5rem;
-      height: 2.5rem;
-      border: 0;
-      border-radius: 9999px;
-      background: rgba(255, 255, 255, 0.08);
-      color: #fafafa;
-      font-size: 1.5rem;
-      line-height: 1;
-      cursor: pointer;
-    }
-    .rachel-modal__close:hover { background: rgba(255, 255, 255, 0.14); }
-    .rachel-modal__badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      margin: 0 0 0.75rem;
-      padding: 0.4rem 0.75rem;
-      border-radius: 9999px;
-      background: rgba(242, 140, 56, 0.15);
-      border: 1px solid rgba(242, 140, 56, 0.45);
-      color: #F28C38;
-      font-size: 0.7rem;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-    .rachel-modal__title {
-      margin: 0 2.5rem 0.75rem 0;
-      font-family: "Archivo Black", "Inter", sans-serif;
-      font-size: clamp(1.4rem, 4vw, 1.85rem);
-      line-height: 1.15;
-      letter-spacing: -0.03em;
-      color: #fafafa;
-    }
-    .rachel-modal__body {
-      margin: 0 0 0.65rem;
-      font-size: 0.975rem;
-      line-height: 1.6;
-      color: #a1a1aa;
-    }
-    .rachel-modal__body strong { color: #fafafa; }
-    .rachel-modal__challenge {
-      margin: 0 0 0.85rem;
-      font-size: 0.975rem;
-      line-height: 1.6;
-      color: #d4d4d8;
-    }
-    .rachel-modal__challenge strong { color: #fafafa; }
-    .rachel-modal__phone-prefix {
-      font-size: 0.75em;
-      font-weight: 600;
-      color: #a1a1aa;
-      margin-right: 0.15em;
-    }
-    .rachel-modal__prize {
-      margin: 0 0 1.15rem;
-      padding: 0.85rem 1rem;
-      border-radius: 0.85rem;
-      background: rgba(242, 140, 56, 0.08);
-      border: 1px solid rgba(242, 140, 56, 0.28);
-      font-size: 0.9375rem;
-      line-height: 1.55;
-      color: #e4e4e7;
-    }
-    .rachel-modal__prize strong { color: #F28C38; }
-    .rachel-modal__cta {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      box-sizing: border-box;
-      padding: 1rem 1.25rem;
-      border-radius: 0.85rem;
-      background: #F28C38;
-      color: #0a0a0a;
-      font-size: 1.0625rem;
-      font-weight: 800;
-      text-decoration: none;
-      transition: filter 0.2s ease, transform 0.2s ease;
-    }
-    .rachel-modal__cta:hover {
-      filter: brightness(1.05);
-      transform: translateY(-1px);
-    }
-    .rachel-modal__hint {
-      display: none;
-      margin: 0.65rem 0 0;
-      text-align: center;
-      color: #71717a;
-      font-size: 0.8125rem;
-    }
-    @media (max-width: 639px) {
-      .rachel-modal__hint { display: block; }
-    }
-    @media (min-width: 640px) {
-      .rachel-modal {
-        align-items: center;
-        padding: 1.25rem;
-      }
-      .rachel-modal__panel {
-        max-width: 30rem;
-        max-height: 90vh;
-        overflow-y: auto;
-        border-radius: 1.25rem;
-        padding: 1.65rem 1.5rem 1.35rem;
-      }
-      .rachel-modal.is-dismissing .rachel-modal__panel {
-        transform: translate(42%, 48%) scale(0.22);
-      }
-    }
   </style>
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-1JPM7QNHFN"></script>
@@ -802,7 +591,7 @@
           ring.
         </h1>
         <p class="hero-subhead">
-          I’m Alexander. I’ve spent 15 years auditing sites that should be printing money but are just burning it. I don’t use generic templates—I personally hand-vet every conversion leak to ensure your phone stays busy.
+          I’m Alexander, in Springfield. I’ve been building sites since 2009 for people whose next job comes from a phone call. No templates, no account managers — I build it, and you deal with me.
         </p>
         <div id="hero-intro" class="hero-panel" style="width:100%;">
           <div class="hero-cta-block">
@@ -826,10 +615,10 @@
   <!-- ═══════ TRUST STRIP ═══════ -->
   <section style="background:#09090b;border-top:1px solid rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.05);">
     <div style="max-width:72rem;margin:0 auto;padding:3rem 1.5rem;display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;text-align:center;">
-      <div><div style="font-size:2.25rem;font-weight:900;color:white;" data-counter="15" data-suffix="+">0+</div><div style="font-size:0.875rem;color:#71717a;margin-top:0.25rem;">Years Experience</div></div>
-      <div><div style="font-size:2.25rem;font-weight:900;color:white;" data-counter="200" data-suffix="+">0+</div><div style="font-size:0.875rem;color:#71717a;margin-top:0.25rem;">Sites Launched</div></div>
-      <div><div style="font-size:2.25rem;font-weight:900;color:white;" data-counter="3" data-suffix="x">0x</div><div style="font-size:0.875rem;color:#71717a;margin-top:0.25rem;">Avg. Lead Increase</div></div>
-      <div><div style="font-size:2.25rem;font-weight:900;color:white;" data-counter="48" data-suffix="hr">0hr</div><div style="font-size:0.875rem;color:#71717a;margin-top:0.25rem;">Turnaround</div></div>
+      <div><div style="font-size:2.25rem;font-weight:900;color:white;">2009</div><div style="font-size:0.875rem;color:#71717a;margin-top:0.25rem;">Building sites since</div></div>
+      <div><div style="font-size:2.25rem;font-weight:900;color:white;" data-counter="48" data-suffix="hr">0hr</div><div style="font-size:0.875rem;color:#71717a;margin-top:0.25rem;">Typical turnaround</div></div>
+      <div><div style="font-size:2.25rem;font-weight:900;color:white;">$0</div><div style="font-size:0.875rem;color:#71717a;margin-top:0.25rem;">To see your redesign first</div></div>
+      <div><div style="font-size:2.25rem;font-weight:900;color:white;">417</div><div style="font-size:0.875rem;color:#71717a;margin-top:0.25rem;">Springfield local, not an agency</div></div>
     </div>
   </section>
 
@@ -1011,10 +800,10 @@
           <div style="margin-top:2rem;font-size:1.125rem;color:#52525b;line-height:1.7;">
             <p style="margin-bottom:1.25rem;">I'm a developer turned conversion specialist. Since 2009, I've built sites for high-stakes service providers — contractors and heavy trades first, plus specialized professional firms when every lead is worth real money.</p>
             <p style="margin-bottom:1.25rem;">Every font choice, every button color, every word on your site is there for one reason: <strong style="color:#18181b;">to make someone pick up the phone and call you.</strong></p>
-            <p>No big agency overhead. No account managers. No runaround. Just me, doing what I've done for 15+ years — building sites that make the phone ring.</p>
+            <p>No big agency overhead. No account managers. No runaround. Just me, in Springfield, doing what I've done since 2009 — building sites that make the phone ring.</p>
           </div>
           <div style="display:flex;flex-wrap:wrap;gap:0.75rem;margin-top:2rem;">
-            <span style="background:#eff6ff;color:#1d4ed8;padding:0.5rem 1rem;border-radius:9999px;font-size:0.875rem;font-weight:600;">200+ Sites Built</span>
+            <span style="background:#eff6ff;color:#1d4ed8;padding:0.5rem 1rem;border-radius:9999px;font-size:0.875rem;font-weight:600;">Springfield, Missouri</span>
             <span style="background:#eff6ff;color:#1d4ed8;padding:0.5rem 1rem;border-radius:9999px;font-size:0.875rem;font-weight:600;">Conversion Obsessed</span>
             <span style="background:#eff6ff;color:#1d4ed8;padding:0.5rem 1rem;border-radius:9999px;font-size:0.875rem;font-weight:600;">48hr Turnaround</span>
             <span style="background:#eff6ff;color:#1d4ed8;padding:0.5rem 1rem;border-radius:9999px;font-size:0.875rem;font-weight:600;">Direct Access to Me</span>
@@ -1153,7 +942,6 @@
     </div>
   </footer>
 
-
   <!-- mobile call bar -->
   <a href="tel:+14174091721" class="mobile-call-bar" aria-label="Call ToolCrate at 4 1 7, 4 0 9, 1 7 2 1">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
@@ -1173,30 +961,6 @@
 
   <div class="copy-toast" id="copy-toast" role="status" aria-live="polite" hidden></div>
 
-  <button type="button" class="rachel-fab" id="rachelFab" aria-haspopup="dialog" aria-controls="rachelModal" hidden>
-    Win a Site →
-  </button>
-
-  <div class="rachel-modal" id="rachelModal" role="dialog" aria-modal="true" aria-labelledby="rachelModalTitle" hidden>
-    <div class="rachel-modal__panel" role="document">
-      <button type="button" class="rachel-modal__close" id="rachelModalClose" aria-label="Close">×</button>
-      <p class="rachel-modal__badge">Winner Announced Every Monday</p>
-      <h2 class="rachel-modal__title" id="rachelModalTitle">Can You Outsmart the Machine?</h2>
-      <p class="rachel-modal__body">
-        Meet Rachel, our determined, Missouri-friendly AI assistant. She's convinced she's human... and we've turned it into a game.
-      </p>
-      <p class="rachel-modal__challenge">
-        Call <strong><span class="rachel-modal__phone-prefix">+1</span> (818) 869-9928</strong> and try to get her to admit she's a robot. It's harder than it sounds.
-      </p>
-      <p class="rachel-modal__prize">
-        If you get the admission, you're entered to win a <strong>FREE Toolcrate site + hosting for an entire year.</strong>
-        We pick one winner every single Monday.
-      </p>
-      <a class="rachel-modal__cta" href="tel:+18188699928">Call Rachel Now</a>
-      <p class="rachel-modal__hint">(Mobile only: tap to call)</p>
-    </div>
-  </div>
-
   <script type="module" src="./scripts/homepage.js"></script>
 
   <style>
@@ -1208,7 +972,6 @@
       .nav-cta { font-size: 0.8125rem !important; padding: 0.5rem 1rem !important; }
       .mobile-call-bar { display: flex !important; }
       body { padding-bottom: 64px; }
-      .rachel-fab { bottom: 76px !important; }
       [style*="grid-template-columns: repeat(3"] { grid-template-columns: 1fr !important; }
       [style*="grid-template-columns:repeat(3"] { grid-template-columns: 1fr !important; }
       [style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }

@@ -1,9 +1,6 @@
 /** Marketing homepage: scroll effects, FAQ, pricing. */
 
-import { initRachelChallenge } from "./rachel-challenge.js";
 import { renderPricingCards } from "./pricing.js";
-
-initRachelChallenge();
 
 renderPricingCards(document.getElementById("pricing-cards"));
 

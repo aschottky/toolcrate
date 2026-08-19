@@ -20,6 +20,7 @@ import { DEFAULT_PUBLIC_REDESIGN_ENGINE } from "./anthropic-models.js";
 import {
   completeRedesign,
   deleteRedesignById,
+  deleteAuditById,
   deleteAllRedesignsForDomain,
   fetchAllRedesignsForDomain,
   fetchAuditById,
@@ -77,6 +78,13 @@ export async function listAudits(req) {
   const limit = Number(req.query.limit) || 50;
   const audits = await fetchRecentAudits(limit);
   return { ok: true, audits };
+}
+
+export async function deleteAudit(req) {
+  requireSupabase();
+  await fetchAuditById(req.params.id); // 404s if it never existed
+  await deleteAuditById(req.params.id);
+  return { ok: true, deleted: req.params.id };
 }
 
 export async function sendAuditNurture(req) {
@@ -1047,6 +1055,7 @@ export function registerAdminRoutes(app, { verifyCronSecret }) {
 
   app.get("/api/admin/audits", guard(listAudits));
   app.get("/api/admin/audits/:id", guard(getAuditDetail));
+  app.delete("/api/admin/audits/:id", guard(deleteAudit));
   app.post("/api/admin/audits/:id/send-nurture", guard(sendAuditNurture));
   app.post("/api/admin/audits/:id/generate-script", guard(generateScript));
   app.post("/api/admin/generate-script", guard(generateScript));

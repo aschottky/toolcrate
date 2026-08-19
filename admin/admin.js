@@ -301,6 +301,7 @@ function renderAudits(audits) {
           <td class="cell-actions">
             <button type="button" class="btn btn-small" data-action="open">View</button>
             <button type="button" class="btn btn-small" data-action="order-redesign">Order redesign</button>
+            <button type="button" class="btn btn-small btn-danger" data-action="delete">Delete</button>
             <button type="button" class="btn btn-small" data-action="preview" data-day="2">Preview D2</button>
             <button type="button" class="btn btn-small" data-action="preview" data-day="4">Preview D4</button>
             <button type="button" class="btn btn-small" data-action="preview" data-day="7">Preview D7</button>
@@ -1025,6 +1026,20 @@ async function handleTableClick(event) {
     event.preventDefault();
     event.stopPropagation();
     await openAuditDetail(auditId);
+    return;
+  }
+
+  if (action === "delete") {
+    const label = audit.website_url || audit.email || auditId;
+    if (!window.confirm(`Delete this lead permanently?\n\n${label}`)) return;
+    button.disabled = true;
+    try {
+      await adminFetch(`/api/admin/audits/${auditId}`, { method: "DELETE" });
+      await loadAudits();
+    } catch (error) {
+      button.disabled = false;
+      window.alert(`Could not delete: ${error.message}`);
+    }
     return;
   }
 

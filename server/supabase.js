@@ -232,6 +232,18 @@ export async function fetchAuditDetailById(auditId) {
   return data;
 }
 
+export async function deleteAuditById(auditId) {
+  const supabase = getSupabaseAdmin();
+
+  const { error } = await supabase.from("audits").delete().eq("id", auditId);
+
+  if (error) {
+    throw new Error(error.message || "Failed to delete audit.");
+  }
+
+  return { id: auditId };
+}
+
 export async function saveCallScript(auditId, script) {
   const supabase = getSupabaseAdmin();
   const now = new Date().toISOString();
