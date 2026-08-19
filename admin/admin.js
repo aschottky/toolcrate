@@ -1291,6 +1291,55 @@ function renderDemos(demos) {
     });
     link.append(open, document.createElement("br"), copy);
 
+    // Dial: which digit to press once the bridge line answers
+    const dial = document.createElement("td");
+    if (demo.bridge_digit) {
+      dial.innerHTML = `<span class="demo-digit">${demo.bridge_digit}</span>`;
+    } else {
+      dial.innerHTML = '<span class="admin-hint">\u2014</span>';
+    }
+
+    // Follow-up email: opens the default mail client with a draft ready
+    const email = document.createElement("td");
+    const templates = demo.emails || {};
+    const templateKeys = Object.keys(templates);
+    if (templateKeys.length) {
+      const to = document.createElement("input");
+      to.type = "email";
+      to.placeholder = "their email";
+      to.value = saved.email || demo.email_to || "";
+      to.addEventListener("change", () => updateDemoState(demo.slug, { email: to.value }));
+
+      const which = document.createElement("select");
+      const LABELS = { after_call: "After the call", voicemail: "Left a voicemail" };
+      templateKeys.forEach((key) => {
+        const option = document.createElement("option");
+        option.value = key;
+        option.textContent = LABELS[key] || key;
+        if ((saved.template || templateKeys[0]) === key) option.selected = true;
+        which.appendChild(option);
+      });
+      which.addEventListener("change", () => updateDemoState(demo.slug, { template: which.value }));
+
+      const draft = document.createElement("button");
+      draft.type = "button";
+      draft.className = "btn btn-secondary";
+      draft.textContent = "Draft email";
+      draft.addEventListener("click", () => {
+        const tpl = templates[which.value];
+        if (!tpl) return;
+        const href =
+          `mailto:${encodeURIComponent(to.value.trim())}` +
+          `?subject=${encodeURIComponent(tpl.subject)}` +
+          `&body=${encodeURIComponent(tpl.body)}`;
+        window.location.href = href;
+        updateDemoState(demo.slug, { email: to.value, template: which.value });
+      });
+
+      email.append(to, which, draft);
+    }
+
+
     const status = document.createElement("td");
     const select = document.createElement("select");
     ["Not sent", "Sent", "Opened", "Replied", "Won", "Passed"].forEach((label) => {
@@ -1322,7 +1371,7 @@ function renderDemos(demos) {
     note.addEventListener("change", () => updateDemoState(demo.slug, { note: note.value }));
     notes.appendChild(note);
 
-    row.append(business, hook, phone, link, status, notes);
+    row.append(business, hook, phone, dial, link, email, status, notes);
     demosBody.appendChild(row);
   });
 }
@@ -1341,6 +1390,12 @@ async function loadDemos() {
       return;
     }
     renderDemos(demos);
+    if (data.bridge_number) {
+      const tel = document.getElementById("bridge-tel");
+      tel.textContent = data.bridge_number;
+      tel.href = `tel:${data.bridge_number.replace(/[^\d]/g, "")}`;
+      document.getElementById("bridge-hint").hidden = false;
+    }
     demosStatus.textContent = `${demos.length} demo site${demos.length === 1 ? "" : "s"} live · manifest updated ${data.updated}`;
     demosTableWrap.hidden = false;
   } catch (error) {
