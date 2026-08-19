@@ -1228,3 +1228,128 @@ if (saved) {
   loadWarmLeads();
   loadRedesigns();
 }
+
+/* ── Demo sites ──────────────────────────────────────────────────────────────
+   Static spec builds served from this domain at /<slug>/. The manifest is a
+   file in the repo (public/demos.json); per-demo outreach state is local to
+   this browser so it needs no backend. */
+const DEMO_STATE_KEY = "toolcrate_demo_state";
+const demosStatus = document.getElementById("demos-status");
+const demosTableWrap = document.getElementById("demos-table-wrap");
+const demosBody = document.getElementById("demos-body");
+const refreshDemosBtn = document.getElementById("refresh-demos");
+
+function readDemoState() {
+  try {
+    return JSON.parse(localStorage.getItem(DEMO_STATE_KEY) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function writeDemoState(state) {
+  localStorage.setItem(DEMO_STATE_KEY, JSON.stringify(state));
+}
+
+function updateDemoState(slug, patch) {
+  const state = readDemoState();
+  state[slug] = { ...(state[slug] || {}), ...patch };
+  writeDemoState(state);
+}
+
+function renderDemos(demos) {
+  const state = readDemoState();
+  demosBody.innerHTML = "";
+
+  demos.forEach((demo) => {
+    const saved = state[demo.slug] || {};
+    const row = document.createElement("tr");
+
+    const business = document.createElement("td");
+    business.innerHTML = `<strong>${demo.business}</strong><br /><span class="admin-hint">${demo.trade} · ${demo.city}</span>`;
+
+    const hook = document.createElement("td");
+    hook.textContent = demo.hook;
+
+    const phone = document.createElement("td");
+    phone.innerHTML = `<a href="tel:${demo.phone.replace(/[^\d]/g, "")}">${demo.phone}</a>`;
+
+    const link = document.createElement("td");
+    const open = document.createElement("a");
+    open.href = demo.url;
+    open.target = "_blank";
+    open.rel = "noopener";
+    open.textContent = "Open";
+    const copy = document.createElement("button");
+    copy.type = "button";
+    copy.className = "btn btn-secondary";
+    copy.textContent = "Copy link";
+    copy.addEventListener("click", async () => {
+      await navigator.clipboard.writeText(demo.url);
+      copy.textContent = "Copied";
+      setTimeout(() => (copy.textContent = "Copy link"), 1500);
+    });
+    link.append(open, document.createElement("br"), copy);
+
+    const status = document.createElement("td");
+    const select = document.createElement("select");
+    ["Not sent", "Sent", "Opened", "Replied", "Won", "Passed"].forEach((label) => {
+      const option = document.createElement("option");
+      option.value = label;
+      option.textContent = label;
+      if ((saved.status || "Not sent") === label) option.selected = true;
+      select.appendChild(option);
+    });
+    select.addEventListener("change", () => {
+      updateDemoState(demo.slug, {
+        status: select.value,
+        changedAt: new Date().toISOString(),
+      });
+      stamp.textContent = `updated ${new Date().toLocaleDateString()}`;
+    });
+    const stamp = document.createElement("div");
+    stamp.className = "admin-hint";
+    stamp.textContent = saved.changedAt
+      ? `updated ${new Date(saved.changedAt).toLocaleDateString()}`
+      : `built ${demo.updated}`;
+    status.append(select, stamp);
+
+    const notes = document.createElement("td");
+    const note = document.createElement("textarea");
+    note.rows = 2;
+    note.placeholder = "Who you spoke to, what they said…";
+    note.value = saved.note || "";
+    note.addEventListener("change", () => updateDemoState(demo.slug, { note: note.value }));
+    notes.appendChild(note);
+
+    row.append(business, hook, phone, link, status, notes);
+    demosBody.appendChild(row);
+  });
+}
+
+async function loadDemos() {
+  demosStatus.hidden = false;
+  demosStatus.textContent = "Loading demo sites…";
+  try {
+    const response = await fetch(`/demos.json?ts=${Date.now()}`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    const demos = data.demos || [];
+    if (!demos.length) {
+      demosStatus.textContent = "No demo sites yet.";
+      demosTableWrap.hidden = true;
+      return;
+    }
+    renderDemos(demos);
+    demosStatus.textContent = `${demos.length} demo site${demos.length === 1 ? "" : "s"} live · manifest updated ${data.updated}`;
+    demosTableWrap.hidden = false;
+  } catch (error) {
+    demosTableWrap.hidden = true;
+    demosStatus.textContent = `Could not load demo sites: ${error.message}`;
+  }
+}
+
+if (refreshDemosBtn) {
+  refreshDemosBtn.addEventListener("click", loadDemos);
+  loadDemos();
+}

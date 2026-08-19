@@ -1,0 +1,44 @@
+{
+  "updated": "2026-08-19",
+  "demos": [
+    {
+      "slug": "mcfarland-garage-doors",
+      "business": "McFarland Enterprises",
+      "trade": "Garage doors",
+      "city": "Springfield, MO",
+      "phone": "(417) 886-7138",
+      "hook": "Counter price sheet \u2014 1984 lineage, Safe-Way + LiftMaster",
+      "url": "https://usetoolcrate.com/mcfarland-garage-doors/",
+      "updated": "2026-08-19",
+      "status": "ready",
+      "size_kb": 378,
+      "sent": false
+    },
+    {
+      "slug": "eee-plumbing",
+      "business": "EEE Plumbing LLC",
+      "trade": "Plumbing",
+      "city": "Springfield, MO",
+      "phone": "(417) 414-3676",
+      "hook": "Signed letter from Michael \u2014 free second opinion on a quote",
+      "url": "https://usetoolcrate.com/eee-plumbing/",
+      "updated": "2026-08-19",
+      "status": "ready",
+      "size_kb": 350,
+      "sent": false
+    },
+    {
+      "slug": "affordable-heights-tree",
+      "business": "Affordable Heights Tree Service",
+      "trade": "Tree service",
+      "city": "Springfield, MO",
+      "phone": "(417) 887-8948",
+      "hook": "24/7 dispatch board \u2014 no Google Business Profile exists yet",
+      "url": "https://usetoolcrate.com/affordable-heights-tree/",
+      "updated": "2026-08-19",
+      "status": "ready",
+      "size_kb": 404,
+      "sent": false
+    }
+  ]
+}

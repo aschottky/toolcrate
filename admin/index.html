@@ -88,6 +88,33 @@
         <p id="preview-status" class="admin-status" hidden></p>
       </section>
 
+      <section class="admin-demos card">
+        <div class="admin-audits-header">
+          <h2>Demo sites</h2>
+          <button type="button" id="refresh-demos" class="btn btn-secondary">Refresh</button>
+        </div>
+        <p>
+          Spec builds hosted on this domain at <code>usetoolcrate.com/&lt;business&gt;</code>.
+          Send the link, then mark it here. Notes and send status are stored in this browser.
+        </p>
+        <p id="demos-status" class="admin-status">Loading…</p>
+        <div class="admin-table-wrap" id="demos-table-wrap" hidden>
+          <table class="admin-table" id="demos-table">
+            <thead>
+              <tr>
+                <th>Business</th>
+                <th>Angle</th>
+                <th>Phone</th>
+                <th>Link</th>
+                <th>Status</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody id="demos-body"></tbody>
+          </table>
+        </div>
+      </section>
+
       <section class="admin-warm-leads card">
         <div class="admin-audits-header">
           <h2>Warm leads</h2>
