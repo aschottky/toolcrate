@@ -56,7 +56,7 @@ export const posts = [
 
       <h2>Stop Guessing. Start Converting.</h2>
       <p>You don't need a $10,000 band-aid. You need a conversion-focused architecture that treats every visitor as a potential customer.</p>
-      <p>I've solved these conversion problems hundreds of times. I know what works, and more importantly, I know what’s just expensive noise.</p>
+      <p>I've solved these conversion problems many times over. I know what works, and more importantly, I know what’s just expensive noise.</p>
       <p>I offer a <strong>Free Expert Preview</strong>: a functional redesign of a key section of your site, created by me. I’ll show you the immediate conversion leaks and the missed revenue opportunities. No cost. No commitment. Just expert analysis.</p>
       <p><strong><a href="/try/">Get your Free Expert Review here and stop the leaks today.</a></strong></p>
     `,
@@ -90,7 +90,7 @@ export const posts = [
       <p>A pro site converts at ~3%. A slow, free-builder site often converts below 1%. If you have 1,000 visitors a month, that "free" site just cost you 20 customers. If your average lead is worth $500, that’s $10,000 in lost revenue <em>this month</em>.</p>
 
       <h3>2. The Mobile Friction Gap</h3>
-      <p>I’ve audited hundreds of these "AI-powered" builders. They promise a "mobile-responsive" design. What they actually give you is a desktop site that’s been shoved through a meat grinder to fit a phone screen.</p>
+      <p>I’ve pulled apart plenty of these "AI-powered" builders. They promise a "mobile-responsive" design. What they actually give you is a desktop site that’s been shoved through a meat grinder to fit a phone screen.</p>
       <p>If your mobile site feels like a chore to navigate—tiny buttons, microscopic text, overlapping images—you are effectively telling 70% of your potential revenue to go buy from your competitor.</p>
 
       <h2>The Blindfold Effect: Looking Through "Free" Glasses</h2>
@@ -108,7 +108,7 @@ export const posts = [
 
       <h2>Stop Flushing Your Marketing Budget</h2>
       <p>If you are spending money on ads to drive traffic to a "free" or cheap website, you are effectively burning cash. You are paying for the privilege of losing customers.</p>
-      <p><strong>I’ve cracked open hundreds of sites. I know exactly where the money is hiding.</strong></p>
+      <p><strong>I’ve cracked open a lot of small business sites. The money hides in the same few places every time.</strong></p>
       <p>I offer a <strong>Free Expert Preview</strong>. Give me your URL, and I will personally create a functional redesign preview of your existing website. I’ll show you the conversion leaks, the missed revenue opportunities, and exactly how we would fix the locks on your revenue vault.</p>
       <p>No cost. No commitment. Just expert-led analysis that shows you what’s really happening with your traffic.</p>
       <p><strong><a href="/try/">Click here to get your Free Expert Preview and stop the leaks today.</a></strong></p>
@@ -117,10 +117,10 @@ export const posts = [
   {
     id: "website-revenue-leaks-audit",
     title:
-      "I Audited 200+ Small Business Websites Last Year. Here’s Why They Are Leaking Revenue.",
+      "Why Small Business Websites Leak Revenue — The Same Three Failures, Over and Over",
     date: "2026-07-14",
     excerpt:
-      "98% of small business sites fail the same 3 tests. After 200+ audits, I've identified the specific leaks costing you money—and how to fix them.",
+      "Most small business sites fail the same three tests. Here are the leaks costing you calls — and how to fix them.",
     category: "UX",
     imageUrl: "/blog/website-revenue-leaks-1.webp",
     content: `
@@ -129,7 +129,7 @@ export const posts = [
       <p>Every month, you write checks for Google Ads, Facebook campaigns, and SEO "experts." You work tirelessly to get people to your site, and for a fleeting second, you have their attention.</p>
       <p>Then, they see your website. And they leave.</p>
       <p>In the last 12 months, I have personally audited over 200 small business websites. I’ve looked under the hood of local service providers, e-commerce giants, and high-ticket consultants.</p>
-      <p>The reality is grim. 98% of these sites failed the exact same tests.</p>
+      <p>The reality is grim: nearly all of them fail the exact same tests.</p>
       <p>They weren't "bad" looking. Most were actually quite "pretty." But a pretty website that doesn’t convert is just an expensive digital business card.</p>
       <p>I’m Alexander Schottky. I’ve spent 15 years in the trenches of UX and conversion design. I’m not here to talk about "vibes" or color palettes.</p>
       <p>I’m here to tell you why your website is leaking revenue and how to plug the holes.</p>
@@ -198,7 +198,7 @@ export const posts = [
       <h2>The Agitation: Where the Revenue Is Leaking</h2>
       <p>You’re spending money on marketing. You’re running ads, posting on social, and grinding out content.</p>
       <p>You send that traffic to your site, and then… nothing. Silence.</p>
-      <p>98% of your visitors are walking right back out the door without leaving a name, an email, or a cent.</p>
+      <p>Nearly every visitor walks right back out the door without leaving a name, an email, or a cent.</p>
       <p><strong>That’s not a traffic problem. That’s a broken lock.</strong></p>
       <img src="/blog/decorators-3.webp" alt="Digital Locksmith plugging a massive revenue leak in a digital pipe" />
       <p>Here is where the "Decorators" fumbled the bag and left your vault wide open:</p>
@@ -243,7 +243,7 @@ export const posts = [
       <p>Every visitor who leaves your site without converting is a dollar you’ll never see again.</p>
       <p>You can keep working with "Decorators" who make things look nice while your business plateaus.</p>
       <p>Or, you can hire a Digital Locksmith to secure your funnel and start capturing the leads you deserve.</p>
-      <p><strong>I’ve cracked open 200+ websites. I know exactly where the money is hiding.</strong></p>
+      <p><strong>I’ve cracked open a lot of websites. I know exactly where the money is hiding.</strong></p>
       <p>Are you ready to see the truth about your site?</p>
       <p><a href="/try/">Get your Free Expert Preview now.</a></p>
     `,
