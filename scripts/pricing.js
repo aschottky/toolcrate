@@ -50,7 +50,7 @@ function renderPartnership() {
     <h3 class="pricing-tier-title display">The Partnership</h3>
     <p class="pricing-tier-desc">Bigger jobs — booking, multiple locations, ongoing changes.</p>
     <div class="pricing-price-row">
-      <span class="pricing-price display"><span style="font-size:0.45em;font-weight:700;color:#a1a1aa;vertical-align:middle;margin-right:0.15em;">from</span>$2,497</span>
+      <span class="pricing-price display"><span class="pricing-price-from">from</span>$2,497</span>
       <span class="pricing-price-sub">quoted per job + $199/mo</span>
     </div>
     <ul class="pricing-features">
