@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="index, follow" />
+    <title>Blog — ToolCrate</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/favicon.svg" />
+  <meta name="theme-color" content="#09090b" />
+    <meta
+      name="description"
+      content="Expert insights on conversion, UX, and high-authority websites for home-service businesses."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1JPM7QNHFN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-1JPM7QNHFN");
+    </script>
+    <style>
+      body.blog-page {
+        min-height: 100vh;
+        margin: 0;
+        background: #0a0a0a !important;
+        color: #e4e4e7 !important;
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      body.blog-page .display {
+        font-family: "Archivo Black", "Inter", sans-serif;
+        letter-spacing: -0.03em;
+      }
+
+      /* Match homepage sticky nav exactly */
+      body.blog-page > .site-nav {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 50;
+        background: rgba(9, 9, 11, 0.8);
+        backdrop-filter: blur(16px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      body.blog-page > .site-nav .site-nav__inner {
+        max-width: 80rem;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+      }
+
+      body.blog-page > .site-nav .site-nav__logo {
+        text-decoration: none;
+        font-size: 1.5rem;
+        font-weight: 400;
+        color: #fff;
+      }
+
+      body.blog-page > .site-nav .site-nav__logo-accent {
+        color: #f97316;
+      }
+
+      body.blog-page > .site-nav .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      body.blog-page > .site-nav .nav-links a {
+        font-size: 0.875rem;
+        color: #a1a1aa;
+        text-decoration: none;
+        font-weight: 400;
+        transition: color 0.2s ease;
+      }
+
+      body.blog-page > .site-nav .nav-links a:hover,
+      body.blog-page > .site-nav .nav-links a.is-current {
+        color: #e4e4e7;
+      }
+
+      body.blog-page > .site-nav .site-nav__actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      body.blog-page > .site-nav .nav-cta {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.625rem 1.25rem;
+        border-radius: 9999px;
+        background: #f8fafc;
+        color: #0f172a;
+        font-size: 0.875rem;
+        font-weight: 700;
+        text-decoration: none;
+        border: 2px solid #f8fafc;
+        box-shadow: 0 0 24px rgba(248, 250, 252, 0.15);
+        white-space: nowrap;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      body.blog-page > .site-nav .nav-cta:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 0 32px rgba(248, 250, 252, 0.25);
+      }
+
+      .hamburger {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+        gap: 5px;
+        background: none;
+        border: 0;
+        padding: 0;
+      }
+
+      .hamburger span {
+        width: 25px;
+        height: 2px;
+        background: #e4e4e7;
+        transition: all 0.3s ease;
+      }
+
+      .hamburger.active span:nth-child(1) {
+        transform: rotate(45deg) translate(7px, 7px);
+      }
+
+      .hamburger.active span:nth-child(2) {
+        opacity: 0;
+      }
+
+      .hamburger.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(6px, -6px);
+      }
+
+      .blog-main {
+        padding: 6.5rem 24px 5rem;
+      }
+
+      .blog-main .container {
+        max-width: 960px;
+        margin: 0 auto;
+      }
+
+      .blog-intro {
+        max-width: 40rem;
+        margin: 0 0 3rem;
+      }
+
+      .blog-intro .eyebrow {
+        display: inline-block;
+        margin: 0 0 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #e85d2a;
+      }
+
+      .blog-intro h1 {
+        font-family: "Instrument Serif", Georgia, serif;
+        font-size: clamp(2rem, 4.5vw, 2.85rem);
+        font-weight: 400;
+        color: #fafafa;
+        margin: 0 0 0.85rem;
+        line-height: 1.15;
+      }
+
+      .blog-intro p {
+        margin: 0;
+        color: #a1a1aa;
+        font-size: 1.0625rem;
+        line-height: 1.7;
+      }
+
+      .blog-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+      }
+
+      .post-card {
+        display: grid;
+        grid-template-columns: 1fr;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.02);
+        text-decoration: none;
+        color: inherit;
+        transition: border-color 0.2s ease, background 0.2s ease;
+      }
+
+      @media (min-width: 720px) {
+        .post-card {
+          grid-template-columns: 240px 1fr;
+          min-height: 200px;
+        }
+      }
+
+      .post-card:hover {
+        border-color: rgba(232, 93, 42, 0.45);
+        background: rgba(255, 255, 255, 0.035);
+      }
+
+      .post-card__media {
+        position: relative;
+        overflow: hidden;
+        aspect-ratio: 16 / 10;
+        background: #111113;
+      }
+
+      @media (min-width: 720px) {
+        .post-card__media {
+          aspect-ratio: auto;
+          min-height: 100%;
+        }
+      }
+
+      .post-card__media img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.45s ease;
+      }
+
+      .post-card:hover .post-card__media img {
+        transform: scale(1.05);
+      }
+
+      .post-card__media--placeholder {
+        display: grid;
+        place-items: center;
+        background:
+          linear-gradient(145deg, rgba(232, 93, 42, 0.12), transparent 55%),
+          #111113;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      @media (min-width: 720px) {
+        .post-card__media--placeholder {
+          border-bottom: none;
+          border-right: 1px solid rgba(255, 255, 255, 0.06);
+        }
+      }
+
+      .post-card__media--placeholder span {
+        font-family: "Instrument Serif", Georgia, serif;
+        font-size: 1.25rem;
+        color: #e4e4e7;
+        letter-spacing: 0.02em;
+      }
+
+      .post-card__media--placeholder span span {
+        color: #e85d2a;
+      }
+
+      .post-card--no-image:hover .post-card__media--placeholder {
+        background:
+          linear-gradient(145deg, rgba(232, 93, 42, 0.18), transparent 55%),
+          #141416;
+      }
+
+      .post-card__body {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1.35rem 1.35rem 1.5rem;
+      }
+
+      @media (min-width: 720px) {
+        .post-card__body {
+          padding: 1.5rem 1.5rem 1.6rem;
+          justify-content: center;
+        }
+      }
+
+      .post-card__meta {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.75rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: #71717a;
+      }
+
+      .post-card__category {
+        color: #e85d2a;
+        font-weight: 600;
+      }
+
+      .post-card__title {
+        margin: 0;
+        font-family: "Instrument Serif", Georgia, serif;
+        font-size: clamp(1.2rem, 2.4vw, 1.4rem);
+        font-weight: 400;
+        line-height: 1.25;
+        color: #fafafa;
+      }
+
+      .post-card__excerpt {
+        margin: 0;
+        flex: 1;
+        font-size: 0.9375rem;
+        line-height: 1.65;
+        color: #a1a1aa;
+      }
+
+      .post-card__link {
+        margin-top: 0.15rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #e4e4e7;
+      }
+
+      .post-card:hover .post-card__link {
+        color: #e85d2a;
+      }
+
+      .post-view {
+        max-width: 40rem;
+      }
+
+      .post-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-bottom: 1.75rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #a1a1aa;
+        text-decoration: none;
+      }
+
+      .post-back:hover {
+        color: #e4e4e7;
+      }
+
+      .post-view__meta {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.85rem;
+        font-size: 0.75rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: #71717a;
+      }
+
+      .post-view__category {
+        color: #e85d2a;
+        font-weight: 600;
+      }
+
+      .post-view__title {
+        margin: 0 0 1.75rem;
+        font-family: "Instrument Serif", Georgia, serif;
+        font-size: clamp(1.85rem, 4vw, 2.5rem);
+        font-weight: 400;
+        line-height: 1.15;
+        color: #fafafa;
+      }
+
+      .post-prose {
+        font-size: 1.0625rem;
+        line-height: 1.75;
+        color: #d4d4d8;
+      }
+
+      .post-prose p {
+        margin: 0 0 1.25rem;
+      }
+
+      .post-prose h2 {
+        margin: 2rem 0 0.85rem;
+        font-family: "Instrument Serif", Georgia, serif;
+        font-size: 1.5rem;
+        font-weight: 400;
+        line-height: 1.25;
+        color: #fafafa;
+      }
+
+      .post-prose h3 {
+        margin: 1.5rem 0 0.65rem;
+        font-size: 1.0625rem;
+        font-weight: 700;
+        line-height: 1.35;
+        color: #fafafa;
+      }
+
+      .post-prose img {
+        display: block;
+        width: 100%;
+        height: auto;
+        margin: 0 0 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .post-prose ul {
+        margin: 0 0 1.25rem;
+        padding-left: 1.25rem;
+      }
+
+      .post-prose li {
+        margin-bottom: 0.45rem;
+      }
+
+      .post-prose a {
+        color: #e85d2a;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+
+      .post-prose em {
+        font-style: italic;
+        color: #e4e4e7;
+      }
+
+      .post-prose strong {
+        color: #fafafa;
+        font-weight: 600;
+      }
+
+      .post-cta {
+        margin-top: 3rem;
+        padding: 1.75rem 1.5rem;
+        border: 1px solid rgba(232, 93, 42, 0.35);
+        background: rgba(232, 93, 42, 0.06);
+      }
+
+      .post-cta h2 {
+        margin: 0 0 0.5rem;
+        font-family: "Instrument Serif", Georgia, serif;
+        font-size: 1.5rem;
+        font-weight: 400;
+        color: #fafafa;
+      }
+
+      .post-cta p {
+        margin: 0 0 1.25rem;
+        color: #a1a1aa;
+        font-size: 0.975rem;
+        line-height: 1.6;
+      }
+
+      .post-cta__btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.75rem 1.35rem;
+        background: #e85d2a;
+        color: #fff;
+        font-size: 0.9375rem;
+        font-weight: 700;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: background 0.2s ease;
+      }
+
+      .post-cta__btn:hover {
+        background: #cf4f22;
+      }
+
+      .blog-empty,
+      .blog-missing {
+        color: #a1a1aa;
+        font-size: 1rem;
+      }
+
+      .blog-missing a {
+        color: #e85d2a;
+      }
+
+      @media (max-width: 768px) {
+        body.blog-page > .site-nav .nav-links {
+          position: fixed;
+          top: 65px;
+          left: 0;
+          right: 0;
+          background: rgba(9, 9, 11, 0.98);
+          backdrop-filter: blur(12px);
+          flex-direction: column;
+          padding: 2rem;
+          gap: 1.5rem;
+          display: none;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        body.blog-page > .site-nav .nav-links.active {
+          display: flex;
+        }
+
+        body.blog-page > .site-nav .hamburger {
+          display: flex;
+        }
+
+        body.blog-page > .site-nav .nav-cta {
+          font-size: 0.8125rem;
+          padding: 0.5rem 1rem;
+        }
+      }
+    </style>
+    <script type="module" crossorigin src="/assets/blog-DgZqDAAu.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
+    <link rel="stylesheet" crossorigin href="/assets/main-Cb5R8Q6c.css">
+  </head>
+  <body class="blog-page">
+    <script>
+      if (new URLSearchParams(location.search).has("post")) {
+        document.body.classList.add("blog-post-view");
+      }
+    </script>
+    <nav class="site-nav" aria-label="Primary">
+      <div class="site-nav__inner">
+        <a href="/" class="display site-nav__logo">Tool<span class="site-nav__logo-accent">Crate</span></a>
+        <div class="nav-links" id="navLinks">
+          <a href="/#work">What You Get</a>
+          <a href="/#results">Results</a>
+          <a href="/#pricing">Pricing</a>
+          <a href="/#about">About</a>
+          <a href="/blog/" class="is-current" aria-current="page">Blog</a>
+        </div>
+        <div class="site-nav__actions">
+          <a href="/try/" class="nav-cta">Get My Free Preview.</a>
+          <button type="button" class="hamburger" id="hamburger" aria-label="Open menu">
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <main class="blog-main">
+      <div class="container" id="blog-root"></div>
+    </main>
+
+  </body>
+</html>

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Apply for Founding Membership | ToolCrate</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/favicon.svg" />
+  <meta name="theme-color" content="#09090b" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1JPM7QNHFN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-1JPM7QNHFN');
+    </script>
+    <style>
+      body.apply-page {
+        min-height: 100vh;
+        margin: 0;
+        background: #0a0a0a;
+        color: #e4e4e7;
+        font-family: "DM Sans", system-ui, sans-serif;
+      }
+
+      header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: rgba(10, 10, 10, 0.8);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 0;
+        max-width: 1200px;
+        width: 100%;
+        margin: 0 auto;
+        padding-left: 24px;
+        padding-right: 24px;
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+
+      /* Higher specificity than main.css (loaded after this block in production) */
+      body.apply-page header nav a.logo {
+        display: inline-flex;
+        align-items: baseline;
+        text-decoration: none;
+        font-size: 24px;
+        font-weight: 800;
+        letter-spacing: normal;
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        color: transparent;
+      }
+
+      body.apply-page header nav a.logo .logo-tagline {
+        font-size: 11px;
+        color: #71717a;
+        -webkit-text-fill-color: #71717a;
+        font-weight: 400;
+        margin-left: 8px;
+        letter-spacing: 0.5px;
+        background: none;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 32px;
+        align-items: center;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .nav-links a {
+        color: #a1a1aa;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: color 0.3s ease;
+      }
+
+      .nav-links a:hover {
+        color: #e4e4e7;
+      }
+
+      .hamburger {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+        gap: 5px;
+      }
+
+      .hamburger span {
+        width: 25px;
+        height: 2px;
+        background: #e4e4e7;
+        transition: all 0.3s ease;
+      }
+
+      .hamburger.active span:nth-child(1) {
+        transform: rotate(45deg) translate(7px, 7px);
+      }
+
+      .hamburger.active span:nth-child(2) {
+        opacity: 0;
+      }
+
+      .hamburger.active span:nth-child(3) {
+        transform: rotate(-45deg) translate(6px, -6px);
+      }
+
+      .apply-main {
+        padding: 7rem 24px 4rem;
+        display: flex;
+        justify-content: center;
+      }
+
+      .apply-container {
+        width: 100%;
+        max-width: 600px;
+      }
+
+      .apply-container h1 {
+        font-family: "Instrument Serif", Georgia, serif;
+        font-size: clamp(2rem, 5vw, 2.5rem);
+        font-weight: 400;
+        margin: 0 0 1rem;
+        line-height: 1.2;
+      }
+
+      .apply-subheading {
+        margin: 0 0 2rem;
+        color: #a1a1aa;
+        line-height: 1.7;
+        font-size: 1.0625rem;
+      }
+
+      #apply-form {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .form-field {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .form-field label {
+        color: #ffffff;
+        font-weight: 500;
+        margin-bottom: 6px;
+        display: block;
+      }
+
+      .form-field input,
+      .form-field textarea,
+      .form-field select {
+        width: 100%;
+        box-sizing: border-box;
+        background: #1a1a2e;
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        padding: 12px;
+        font: inherit;
+      }
+
+      .form-field textarea {
+        resize: vertical;
+        min-height: 120px;
+      }
+
+      .form-field input:focus,
+      .form-field textarea:focus,
+      .form-field select:focus {
+        outline: none;
+        border-color: #6366f1;
+      }
+
+      .form-field select {
+        cursor: pointer;
+      }
+
+      .apply-submit {
+        display: block;
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        color: #ffffff;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 40px rgba(59, 130, 246, 0.3);
+      }
+
+      .apply-submit:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 50px rgba(59, 130, 246, 0.4);
+      }
+
+      .apply-submit:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+
+      .apply-message {
+        margin: 0;
+        padding: 1rem 1.25rem;
+        border-radius: 8px;
+        line-height: 1.6;
+      }
+
+      #success-msg {
+        background: rgba(52, 211, 153, 0.1);
+        border: 1px solid rgba(52, 211, 153, 0.3);
+        color: #e4e4e7;
+      }
+
+      #error-msg {
+        background: rgba(248, 113, 113, 0.1);
+        border: 1px solid rgba(248, 113, 113, 0.3);
+        color: #e4e4e7;
+      }
+
+      @media (max-width: 768px) {
+        .nav-links {
+          position: fixed;
+          top: 71px;
+          left: 0;
+          right: 0;
+          background: rgba(10, 10, 10, 0.98);
+          backdrop-filter: blur(12px);
+          flex-direction: column;
+          padding: 32px;
+          gap: 24px;
+          display: none;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-links.active {
+          display: flex;
+        }
+
+        .hamburger {
+          display: flex;
+        }
+      }
+    </style>
+    <script type="module" crossorigin src="/assets/apply-DP1E5NGb.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
+    <link rel="modulepreload" crossorigin href="/assets/api-config-CdUoY1ko.js">
+    <link rel="stylesheet" crossorigin href="/assets/main-Cb5R8Q6c.css">
+  </head>
+  <body class="apply-page">
+    <header>
+        <nav>
+            <a href="/" class="logo">
+                ToolCrate
+                <span class="logo-tagline">AI done right.</span>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/#problem">The Problem</a></li>
+                <li><a href="/#about">Who Built This</a></li>
+                <li><a href="/#products">Pricing</a></li>
+                <li><a href="/blog/">Blog</a></li>
+                <li><a href="/#cta">Get Started</a></li>
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <main class="apply-main">
+      <div class="apply-container">
+        <h1>Apply for Founding Membership</h1>
+        <p class="apply-subheading">
+          Conversion OS is limited to a small number of founding members. Tell us about your business and Alexander will reach out within 24 hours.
+        </p>
+
+        <form id="apply-form">
+          <div class="form-field">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" placeholder="Your full name" required />
+          </div>
+
+          <div class="form-field">
+            <label for="website">Business Website</label>
+            <input type="text" id="website" name="website" placeholder="yourbusiness.com" inputmode="url" autocomplete="url" required />
+          </div>
+
+          <div class="form-field">
+            <label for="businessType">What type of business do you run?</label>
+            <input type="text" id="businessType" name="businessType" placeholder="e.g. Plumber, HVAC, Real Estate Agent" required />
+          </div>
+
+          <div class="form-field">
+            <label for="frustration">What's your biggest website frustration right now?</label>
+            <textarea id="frustration" name="frustration" rows="4" placeholder="Be honest - the more specific the better" required></textarea>
+          </div>
+
+          <div class="form-field">
+            <label for="timeline">What's your timeline to get started?</label>
+            <select id="timeline" name="timeline" required>
+              <option value="Immediately">Immediately</option>
+              <option value="Within 30 days">Within 30 days</option>
+              <option value="Within 90 days">Within 90 days</option>
+              <option value="Just exploring">Just exploring</option>
+            </select>
+          </div>
+
+          <button type="submit" class="apply-submit">Submit My Application</button>
+        </form>
+
+        <p id="success-msg" class="apply-message" hidden>
+          Application received. Alexander will be in touch within 24 hours.
+        </p>
+
+        <p id="error-msg" class="apply-message" hidden>
+          Something went wrong. Please email alexander@usetoolcrate.com directly.
+        </p>
+      </div>
+    </main>
+
+    <script>
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('navLinks');
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+    </script>
+  </body>
+</html>

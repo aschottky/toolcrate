@@ -1,0 +1,11 @@
+import"./modulepreload-polyfill-B5Qt9EMX.js";/* empty css             */import{a as d}from"./api-config-CdUoY1ko.js";const u=new Set(["the","a","an","and","but","or","to","at","for","with","in","of"]),c=120;function s(t){var r;const e=String(t??"").trim().replace(/[.!?…]+$/,"");if(!e)return!1;const n=(r=e.split(/\s+/).pop())==null?void 0:r.toLowerCase().replace(/[^a-z']/g,"");return!!(n&&u.has(n))}function f(t){return/[.!?]$/.test(t)?t:`${t}.`}function h(t){let e=String(t??"").trim().replace(/\s+/g," ");if(!e||s(e))return null;if(e.length>c){const n=e.slice(0,c),r=Math.max(n.lastIndexOf("."),n.lastIndexOf("!"),n.lastIndexOf("?"));if(r>=40)e=n.slice(0,r+1);else return null}return s(e)||(/[.!?]$/.test(e)||(e=f(e)),s(e))?null:e}function p(t,e=6){return Array.isArray(t)?t.map(n=>typeof n=="string"?n:(n==null?void 0:n.text)||"").map(n=>h(n)).filter(Boolean).slice(0,e):[]}var l;const o=(l=new URLSearchParams(window.location.search).get("t"))==null?void 0:l.trim(),m="Our AI had trouble reading that site. Double-check the URL and try again.";function i(t,e){document.body.innerHTML=`
+    <div class="roast-page">
+      <div class="roast-shell">
+        <a href="../" class="roast-logo">ToolCrate</a>
+        <div class="roast-card roast-card--error">
+          <h1>${t}</h1>
+          <p>${e}</p>
+        </div>
+      </div>
+    </div>
+  `}function g(t){const e=document.getElementById("roast-list");e.innerHTML="",p(t,6).forEach(r=>{const a=document.createElement("li");a.textContent=r,e.appendChild(a)})}function w(t){document.getElementById("loader").hidden=!0,document.getElementById("roast-results").hidden=!1,t!=null&&t.length?g(t):document.getElementById("roast-list").innerHTML=`<li class="roast-fallback">${m}</li>`,document.getElementById("preview-cta").href=`../preview-view/?t=${encodeURIComponent(o)}`}async function y(){if(!o){i("Missing link","This link looks incomplete. Please use the exact link you were sent.");return}try{const t=await fetch(d(`/api/preview-status?t=${encodeURIComponent(o)}`));if(!t.ok){i("Preview not found","This link does not exist or has expired.");return}const e=await t.json();if(e.status!=="ready"){window.location.replace(`../preview/?t=${encodeURIComponent(o)}`);return}w(e.roast_bullets)}catch{i("Could not load results","The server may be waking up. Please refresh in 30 seconds.")}}y();

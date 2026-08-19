@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>document.documentElement.classList.add("js");</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ToolCrate — Websites That Make The Phone Ring</title>
+  <meta name="description" content="Websites for Springfield, Missouri trades and service businesses — garage doors, plumbing, tree work, excavation, HVAC. Built by Alexander. See it before you pay." />
+  <link rel="canonical" href="https://usetoolcrate.com/" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/favicon.svg" />
+  <meta name="theme-color" content="#09090b" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="ToolCrate" />
+  <meta property="og:url" content="https://usetoolcrate.com/" />
+  <meta property="og:title" content="ToolCrate — Websites That Make The Phone Ring" />
+  <meta property="og:description" content="Conversion websites for contractors and service businesses in Springfield, Missouri and the Ozarks. See your new design before you pay a dime." />
+  <meta property="og:image" content="https://usetoolcrate.com/og-image.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ToolCrate — Websites That Make The Phone Ring" />
+  <meta name="twitter:description" content="Conversion websites for contractors and service businesses in Springfield, Missouri and the Ozarks." />
+  <meta name="twitter:image" content="https://usetoolcrate.com/og-image.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Archivo:wght@500;600;700;800;900&family=Hanken+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; -webkit-font-smoothing: antialiased; margin: 0; background: #09090b; color: #f4f4f5; }
+    .display { font-family: 'Archivo Black', 'Inter', sans-serif; letter-spacing: -0.03em; }
+    /* Progressive enhancement: sections are visible by default and only start
+       hidden when JS is running to animate them back in. If homepage.js fails
+       to load, the page still shows all its content. */
+    .fade-in { opacity: 1; transform: none; }
+    .js .fade-in { opacity: 0; transform: translateY(48px); transition: opacity 1s, transform 1s; }
+    .js .fade-in.visible { opacity: 1; transform: translateY(0); }
+    @media (prefers-reduced-motion: reduce) {
+      .js .fade-in { opacity: 1; transform: none; transition: none; }
+    }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+    .anim-bounce { animation: bounce 2s ease-in-out infinite; }
+    .btn-primary {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 1rem 2rem; border-radius: 0.75rem;
+      background: #f8fafc; color: #0f172a;
+      font-weight: 700; font-size: 1.125rem; text-decoration: none;
+      border: 2px solid #f8fafc;
+      box-shadow: 0 0 24px rgba(248, 250, 252, 0.15);
+      white-space: nowrap; cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 0 32px rgba(248, 250, 252, 0.25); }
+    .copy-toast {
+      position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+      background: #18181b; color: #e4e4e7; border: 1px solid #3f3f46;
+      padding: 0.625rem 1rem; border-radius: 0.5rem; font-size: 0.875rem;
+      z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.25s;
+    }
+    .copy-toast.is-visible { opacity: 1; }
+    .hero-shell {
+      position: relative;
+      z-index: 10;
+      width: min(100% - 2rem, 72rem);
+      margin: 0 auto;
+      padding: 0 0 3.5rem;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      align-items: center;
+    }
+    @media (min-width: 900px) {
+      .hero-shell {
+        grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+        gap: 3.5rem;
+        padding: 0 0 4rem;
+      }
+    }
+    .hero-copy {
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(255,255,255,0.06); backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.1); border-radius: 9999px;
+      padding: 0.5rem 1.25rem; margin-bottom: 1.5rem;
+    }
+    .hero-eyebrow-dot { width: 8px; height: 8px; border-radius: 50%; background: #F28C38; }
+    .hero-eyebrow-text {
+      font-size: 0.75rem; color: #d4d4d8; letter-spacing: 0.14em; text-transform: uppercase;
+    }
+    .hero-headline {
+      font-size: clamp(2rem, 5vw, 3.75rem);
+      color: #fafafa; line-height: 1.12; margin: 0 0 1.35rem;
+      text-transform: uppercase; letter-spacing: -0.04em;
+      max-width: 14ch;
+    }
+    .hero-headline-accent {
+      color: #F28C38;
+      font-weight: 900;
+    }
+    .hero-subhead {
+      font-size: 1.0625rem; color: #a1a1aa; max-width: 34rem;
+      margin: 0 0 1.75rem; line-height: 1.7;
+    }
+    .hero-section {
+      position: relative;
+      min-height: 100vh;
+      min-height: 100svh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      overflow: hidden;
+      background: #09090b;
+      /* Fixed nav (~72px) + 80px breathing room */
+      padding-top: 152px;
+      box-sizing: border-box;
+    }
+    .hero-portrait {
+      position: relative;
+      width: 100%;
+      max-width: 28rem;
+      margin: 0 auto;
+      justify-self: center;
+    }
+    @media (min-width: 900px) {
+      .hero-portrait {
+        max-width: none;
+        justify-self: end;
+        width: 100%;
+      }
+    }
+    .hero-portrait__frame {
+      position: relative;
+      border-radius: 1.5rem;
+      overflow: hidden;
+      aspect-ratio: 4 / 5;
+      background: #1a1512;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow:
+        0 0 30px rgba(242, 140, 56, 0.15),
+        0 30px 80px rgba(0, 0, 0, 0.45);
+    }
+    .hero-portrait__frame img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 18%;
+    }
+    .hero-portrait__glow {
+      position: absolute;
+      inset: auto -12% -18% -12%;
+      height: 45%;
+      background: radial-gradient(ellipse at center, rgba(242, 140, 56, 0.28), transparent 70%);
+      pointer-events: none;
+      z-index: -1;
+    }
+    .hero-panel[hidden] { display: none !important; }
+    .hero-form-row {
+      display: flex; flex-wrap: wrap; gap: 0.75rem;
+      width: 100%; max-width: 36rem; margin: 0 0 0.85rem;
+      justify-content: flex-start;
+      align-items: center;
+    }
+    .hero-cta-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: fit-content;
+      max-width: 100%;
+      margin: 0 0 0.85rem;
+    }
+    .hero-cta-block .hero-form-row {
+      margin: 0 0 0.75rem;
+      justify-content: center;
+    }
+    .hero-cta-block .hero-vetted {
+      margin: 0;
+    }
+    .hero-input {
+      flex: 1; min-width: min(100%, 220px); padding: 1rem 1.25rem; border-radius: 0.75rem;
+      background: rgba(9,9,11,0.75); backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.14); color: white; font-size: 1rem; outline: none;
+      text-align: center;
+    }
+    .hero-input::placeholder { color: #71717a; }
+    .hero-input:focus { border-color: rgba(242,140,56,0.55); box-shadow: 0 0 0 3px rgba(242,140,56,0.12); }
+    .btn-roast {
+      background: #F28C38; color: #0a0a0a; border: 2px solid #F28C38;
+      box-shadow: 0 0 28px rgba(242,140,56,0.35), 0 4px 14px rgba(0,0,0,0.25);
+      font-size: 1.1rem;
+      padding: 1.05rem 1.85rem;
+      animation: hero-cta-pulse 3s ease-in-out infinite;
+    }
+    .btn-roast:hover {
+      background: #f5a05a; border-color: #f5a05a;
+      box-shadow: 0 0 40px rgba(242,140,56,0.45), 0 6px 20px rgba(0,0,0,0.3);
+      animation: none;
+    }
+    @keyframes hero-cta-pulse {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 28px rgba(242,140,56,0.35), 0 4px 14px rgba(0,0,0,0.25); }
+      50% { transform: scale(1.03); box-shadow: 0 0 40px rgba(242,140,56,0.5), 0 6px 18px rgba(0,0,0,0.3); }
+    }
+    .hero-vetted {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin: 0 0 0.85rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      background: rgba(242, 140, 56, 0.1);
+      border: 1px solid rgba(242, 140, 56, 0.35);
+      color: #F28C38;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .hero-vetted::before {
+      content: "";
+      width: 0.45rem;
+      height: 0.45rem;
+      border-radius: 50%;
+      background: #F28C38;
+      box-shadow: 0 0 0 3px rgba(242, 140, 56, 0.2);
+    }
+    .hero-form-error, .hero-contact-error {
+      font-size: 0.875rem; color: #f87171; margin: 0 auto 1rem; max-width: 32rem; text-align: center;
+    }
+    .hero-form-error[hidden], .hero-contact-error[hidden] { display: none; }
+    .hero-blueprint-link { font-size: 0.875rem; color: #a1a1aa; margin-bottom: 0.75rem; text-align: center; }
+    .hero-blueprint-link a { color: #F28C38; text-decoration: none; font-weight: 600; }
+    .hero-blueprint-link a:hover { text-decoration: underline; }
+    .hero-fine-print { font-size: 0.875rem; color: #71717a; margin: 0; text-align: left; }
+    @media (max-width: 899px) {
+      .hero-copy { text-align: center; align-items: center; }
+      .hero-headline { max-width: none; }
+      .hero-form-row { justify-content: center; }
+      .hero-cta-block { margin-left: auto; margin-right: auto; }
+      .hero-fine-print { text-align: center; }
+      .hero-portrait { order: -1; max-width: 16rem; }
+      .hero-portrait__frame { aspect-ratio: 1 / 1; border-radius: 9999px; }
+      .hero-portrait__frame img { object-position: center 15%; }
+    }
+    .hero-processing-box {
+      width: 100%; max-width: 32rem; margin: 0 auto; padding: 2rem; border-radius: 1rem;
+      background: rgba(9,9,11,0.75); border: 1px solid rgba(255,255,255,0.1);
+      text-align: center;
+    }
+    .hero-processing-title { font-size: 1.125rem; color: #e4e4e7; margin: 0 0 1.25rem; }
+    .hero-processing-title strong { color: #fff; }
+    .hero-spinner {
+      width: 2.5rem; height: 2.5rem; border: 3px solid rgba(255,255,255,0.15);
+      border-top-color: #f97316; border-radius: 50%; margin: 0 auto;
+      animation: hero-spin 0.8s linear infinite;
+    }
+    @keyframes hero-spin { to { transform: rotate(360deg); } }
+    .hero-contact-box { width: 100%; max-width: 32rem; margin: 0 auto; text-align: center; }
+    .hero-contact-box p { font-size: 1rem; color: #d4d4d8; margin: 0 0 1.25rem; line-height: 1.6; }
+    .hero-contact-fields { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem; }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .btn-primary.is-loading { opacity: 0.75; pointer-events: none; }
+    .faq-item.open .faq-answer { max-height: 30rem !important; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-toggle {
+      width: 100%; display: flex; justify-content: space-between; align-items: center;
+      padding: 1.5rem 0; text-align: left; background: none; border: none; cursor: pointer;
+    }
+    .faq-toggle-text { font-size: 1.125rem; font-weight: 600; color: #18181b; }
+    .faq-icon { font-size: 1.5rem; color: #a1a1aa; transition: transform 0.3s; flex-shrink: 0; }
+    .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+    .faq-answer p { color: #52525b; line-height: 1.7; padding-bottom: 1.5rem; margin: 0; }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2rem;
+      align-items: stretch;
+    }
+    @media (min-width: 768px) {
+      .pricing-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    .pricing-card {
+      min-width: 0;
+      border-radius: 1.5rem; background: #18181b; border: 1px solid #27272a;
+      padding: 2.5rem; position: relative; display: flex; flex-direction: column;
+    }
+    .pricing-card-featured {
+      border: 1px solid rgba(249, 115, 22, 0.45);
+      box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.1), 0 24px 64px rgba(249, 115, 22, 0.1);
+      transform: scale(1.02);
+      z-index: 1;
+    }
+    @media (max-width: 767px) {
+      .pricing-card-featured { transform: none; }
+    }
+    .pricing-popular-badge {
+      position: absolute; top: -0.75rem; left: 50%; transform: translateX(-50%);
+      background: #f97316; color: #0a0a0a; font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase; padding: 0.375rem 1rem;
+      border-radius: 9999px; white-space: nowrap;
+    }
+    .pricing-card-partnership {
+      background: #111113;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 24px 64px rgba(0, 0, 0, 0.5);
+    }
+    .pricing-tier-label {
+      font-size: 0.8125rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.12em; color: #71717a;
+    }
+    .pricing-tier-title {
+      font-size: 1.5rem; font-weight: 700; color: #fafafa; margin: 0.75rem 0 0; line-height: 1.15;
+    }
+    .pricing-tier-title.display { font-size: 1.75rem; letter-spacing: -0.03em; }
+    .pricing-tier-desc { color: #a1a1aa; margin-top: 0.75rem; line-height: 1.65; font-size: 0.9375rem; }
+    .pricing-price-row { margin-top: 2rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem; }
+    .pricing-price { font-size: clamp(2.5rem, 8vw, 3.75rem); overflow-wrap: anywhere; font-weight: 900; color: #fafafa; line-height: 1; }
+    .pricing-price-sub { color: #71717a; font-size: 1rem; }
+    .pricing-features { margin-top: 2rem; list-style: none; padding: 0; flex: 1; }
+    .pricing-feature {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      color: #a1a1aa; margin-bottom: 1rem; font-size: 0.9375rem; line-height: 1.5;
+    }
+    .pricing-feature::before {
+      content: "✓"; color: #52525b; font-size: 1rem; flex-shrink: 0; margin-top: 0.1rem;
+    }
+    .pricing-feature:last-child { margin-bottom: 0; }
+    .pricing-cta { display: block; margin-top: 2.5rem; text-align: center; width: 100%; box-sizing: border-box; }
+    .pricing-cta-outline { background: transparent; color: #fafafa; border: 1px solid #3f3f46; box-shadow: none; }
+    .pricing-cta-outline:hover { border-color: #52525b; box-shadow: none; }
+    @media (max-width: 768px) {
+      .pricing-grid { grid-template-columns: minmax(0, 1fr) !important; }
+    }
+    .problem-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;
+    }
+    .problem-card {
+      background: #fafafa; border-radius: 1.5rem; padding: 2rem; border: 1px solid #f4f4f5;
+    }
+    .problem-index {
+      font-family: 'Archivo Black', 'Inter', sans-serif;
+      font-size: 2.75rem; line-height: 1; letter-spacing: -0.04em;
+      color: rgba(24, 24, 27, 0.12); margin-bottom: 1.25rem;
+    }
+    .problem-index--accent { color: #f97316; opacity: 0.85; }
+    .problem-card h3 {
+      font-size: 1.25rem; font-weight: 700; color: #18181b; margin: 0 0 0.75rem; line-height: 1.25;
+    }
+    .problem-card p { color: #71717a; line-height: 1.7; margin: 0; }
+    /* Anatomy / What You Actually Get */
+    #work {
+      --ink: #0c0f14;
+      --ink2: #12161d;
+      --panel: #171c25;
+      --line: #252c38;
+      --paper: #f4f1ea;
+      --paper2: #e7e2d6;
+      --amber: #ff7a1a;
+      --amber2: #ffb347;
+      --mute: #9aa4b2;
+      --mute2: #c6ccd6;
+      --green: #3ecf8e;
+      background: var(--ink);
+      color: var(--paper);
+      font-family: "Hanken Grotesk", system-ui, sans-serif;
+      font-size: 17px;
+      line-height: 1.6;
+      padding: 0;
+      overflow: hidden;
+    }
+    #work h2, #work h3 {
+      font-family: Anton, sans-serif;
+      font-weight: 400;
+      letter-spacing: 0.01em;
+      line-height: 0.98;
+      text-transform: uppercase;
+      margin: 0;
+    }
+    #work .anatomy-eyebrow {
+      font-family: Archivo, sans-serif;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      font-size: 12px;
+      color: var(--amber);
+    }
+    #work .anatomy-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    #work .anatomy-amber { color: var(--amber); }
+    #work .anatomy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: Archivo, sans-serif;
+      font-weight: 800;
+      font-size: 15px;
+      letter-spacing: 0.01em;
+      padding: 16px 26px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+    #work .anatomy-btn--primary {
+      background: var(--amber);
+      color: #1a0e03;
+      box-shadow: 0 10px 30px -8px rgba(255, 122, 26, 0.55);
+    }
+    #work .anatomy-btn--primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 40px -10px rgba(255, 122, 26, 0.7);
+      background: var(--amber2);
+    }
+    #work .anatomy-btn .arrow { transition: transform 0.15s ease; }
+    #work .anatomy-btn:hover .arrow { transform: translateX(4px); }
+    #work .anatomy-block { padding: 100px 0; }
+    #work .anatomy-center {
+      text-align: center;
+      max-width: 680px;
+      margin: 0 auto 64px;
+    }
+    #work .anatomy-center h2 { font-size: clamp(36px, 5.2vw, 64px); }
+    #work .anatomy-center p {
+      color: var(--mute2);
+      font-size: 18px;
+      margin-top: 16px;
+    }
+    #work .anatomy-pillars {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    #work .anatomy-pillar {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 36px 30px;
+      position: relative;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    #work .anatomy-pillar:hover {
+      border-color: rgba(255, 122, 26, 0.35);
+      transform: translateY(-3px);
+    }
+    #work .anatomy-pillar .num {
+      font-family: Anton, sans-serif;
+      font-size: 44px;
+      color: var(--amber);
+      opacity: 0.9;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    #work .anatomy-pillar h3 { font-size: 24px; margin-bottom: 10px; }
+    #work .anatomy-pillar p {
+      color: var(--mute);
+      font-size: 15.5px;
+      line-height: 1.65;
+      margin: 0;
+    }
+    #work .anatomy-pillar .tag {
+      display: inline-block;
+      margin-top: 14px;
+      font-family: Archivo, sans-serif;
+      font-weight: 800;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--amber2);
+      background: rgba(255, 122, 26, 0.1);
+      padding: 5px 10px;
+      border-radius: 4px;
+    }
+    @media (max-width: 800px) {
+      #work .anatomy-pillars { grid-template-columns: 1fr; }
+      #work .anatomy-block { padding: 72px 0; }
+    }
+    #work .anatomy-quote {
+      background: var(--ink2);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 80px 0;
+    }
+    #work .anatomy-quote .anatomy-wrap {
+      max-width: 800px;
+      text-align: center;
+    }
+    #work .anatomy-quote p {
+      font-family: Archivo, sans-serif;
+      font-weight: 700;
+      font-size: clamp(22px, 3.2vw, 34px);
+      line-height: 1.35;
+      color: var(--paper2);
+      text-transform: none;
+      letter-spacing: -0.01em;
+      margin: 0;
+    }
+    #work .anatomy-quote .mark {
+      color: var(--amber);
+      font-family: Anton, sans-serif;
+      font-size: 48px;
+      line-height: 0.5;
+      vertical-align: -12px;
+    }
+    #work .anatomy-quote .who {
+      margin-top: 28px;
+      font-family: Archivo, sans-serif;
+      font-weight: 800;
+      font-size: 15px;
+    }
+    #work .anatomy-quote .who small {
+      display: block;
+      color: var(--mute);
+      font-weight: 600;
+      margin-top: 4px;
+    }
+    #work .anatomy-cta {
+      padding: 90px 0;
+      text-align: center;
+    }
+    #work .anatomy-cta h2 { font-size: clamp(34px, 5vw, 60px); }
+    #work .anatomy-cta p {
+      color: var(--mute2);
+      font-size: 18px;
+      max-width: 560px;
+      margin: 18px auto 28px;
+    }
+    #work .anatomy-reassure {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      color: var(--mute);
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 18px;
+    }
+    #work .anatomy-reassure span {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    #work .anatomy-reassure .ck { color: var(--green); }
+
+    /* Nav CTA: hidden until scroll */
+    .nav-cta-short { display: none; }
+    .nav-cta {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease-out;
+    }
+    .nav-cta.is-visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+  </style>
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-1JPM7QNHFN"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-1JPM7QNHFN');</script>
+  <script type="module" crossorigin src="/assets/main-DTkaxyvU.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
+</head>
+<body>
+
+  <!-- ═══════ STICKY NAV ═══════ -->
+  <nav style="position:fixed;top:0;width:100%;z-index:50;background:rgba(9,9,11,0.8);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.05);">
+    <div style="max-width:80rem;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;">
+      <a href="/" style="text-decoration:none;font-size:1.5rem;font-weight:400;color:white;" class="display">Tool<span style="color:#f97316;">Crate</span></a>
+      <div style="display:flex;align-items:center;gap:2rem;" class="nav-links">
+        <a href="#work" style="font-size:0.875rem;color:#a1a1aa;text-decoration:none;">What You Get</a>
+        <a href="#results" style="font-size:0.875rem;color:#a1a1aa;text-decoration:none;">Results</a>
+        <a href="#pricing" style="font-size:0.875rem;color:#a1a1aa;text-decoration:none;">Pricing</a>
+        <a href="#about" style="font-size:0.875rem;color:#a1a1aa;text-decoration:none;">About</a>
+        <a href="/blog/" style="font-size:0.875rem;color:#a1a1aa;text-decoration:none;">Blog</a>
+      </div>
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <a href="tel:+14174091721" class="nav-phone" style="margin-right:0.25rem;font-size:0.9375rem;font-weight:700;color:#fff;text-decoration:none;white-space:nowrap;">(417) 409-1721</a>
+        <a href="/try/" id="navCta" class="btn-primary nav-cta" style="font-size:0.875rem;padding:0.625rem 1.25rem;border-radius:9999px;"><span class="nav-cta-long">Get YOUR Free Website Preview</span><span class="nav-cta-short">Free Preview</span></a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══════ HERO ═══════ -->
+  <section id="hero" class="hero-section">
+    <div class="hero-shell">
+      <div class="hero-copy">
+        <div class="hero-eyebrow">
+          <span class="hero-eyebrow-dot" aria-hidden="true"></span>
+          <span class="hero-eyebrow-text">Springfield, Missouri — Trades &amp; Service Businesses</span>
+        </div>
+        <h1 class="display hero-headline">
+          I build websites that<br />
+          <span class="hero-headline-accent">make the phone</span><br />
+          ring.
+        </h1>
+        <p class="hero-subhead">
+          I’m Alexander, in Springfield. I’ve been building sites since 2009 for people whose next job comes from a phone call. No templates, no account managers — I build it, and you deal with me.
+        </p>
+        <div id="hero-intro" class="hero-panel" style="width:100%;">
+          <div class="hero-cta-block">
+            <div class="hero-form-row">
+              <a href="/try/" class="btn-primary btn-roast">Get YOUR Free Website Preview</a>
+            </div>
+            <p class="hero-vetted">Hand-vetted by Alexander</p>
+          </div>
+          <p class="hero-fine-print">See your new design before you pay a dime. 100% Free. No commitment.</p>
+        </div>
+      </div>
+      <div class="hero-portrait">
+        <div class="hero-portrait__glow" aria-hidden="true"></div>
+        <div class="hero-portrait__frame">
+          <img src="/alexander.jpg" alt="Alexander Schottky, conversion specialist" width="800" height="1000" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ TRUST STRIP ═══════ -->
+  <section style="background:#09090b;border-top:1px solid rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.05);">
+    <div style="max-width:72rem;margin:0 auto;padding:3rem 1.5rem;display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;text-align:center;">
+      <div><div style="font-size:2.25rem;font-weight:900;color:white;">2009</div><div style="font-size:0.875rem;color:#71717a;margin-top:0.25rem;">Building sites since</div></div>
+      <div><div style="font-size:2.25rem;font-weight:900;color:white;" data-counter="48" data-suffix="hr">0hr</div><div style="font-size:0.875rem;color:#71717a;margin-top:0.25rem;">Typical turnaround</div></div>
+      <div><div style="font-size:2.25rem;font-weight:900;color:white;">$0</div><div style="font-size:0.875rem;color:#71717a;margin-top:0.25rem;">To see your redesign first</div></div>
+      <div><div style="font-size:2.25rem;font-weight:900;color:white;">417</div><div style="font-size:0.875rem;color:#71717a;margin-top:0.25rem;">Springfield local, not an agency</div></div>
+    </div>
+  </section>
+
+  <!-- ═══════ THE PROBLEM — WHITE ═══════ -->
+  <section class="fade-in" style="background:white;padding:7rem 0;">
+    <div style="max-width:72rem;margin:0 auto;padding:0 1.5rem;">
+      <div style="text-align:center;margin-bottom:4rem;">
+        <span style="font-size:0.875rem;font-weight:700;letter-spacing:0.2em;color:#2563eb;text-transform:uppercase;">The Problem</span>
+        <h2 style="font-size:clamp(2rem,5vw,3.75rem);font-weight:900;color:#18181b;margin-top:1rem;line-height:1.1;">
+          Your website looks <span style="font-style:italic;color:#a1a1aa;">"fine."</span><br />That's the problem.
+        </h2>
+        <p style="font-size:1.25rem;color:#71717a;margin-top:1.5rem;max-width:42rem;margin-left:auto;margin-right:auto;">"Fine" doesn't generate leads. "Fine" doesn't make the phone ring. Here's what's actually happening with your site right now.</p>
+      </div>
+      <div class="problem-grid">
+        <div class="problem-card">
+          <div class="problem-index display" aria-hidden="true">01</div>
+          <h3>Visitors Leave in 8 Seconds</h3>
+          <p>They land, glance around, and bounce. No call, no form, no sale. Your site is a digital ghost town — and you're paying for traffic that vanishes.</p>
+        </div>
+        <div class="problem-card">
+          <div class="problem-index display" aria-hidden="true">02</div>
+          <h3>You Paid $5K for a Business Card</h3>
+          <p>That 'professional' agency site looks nice. But it doesn't convert. It's an expensive brochure nobody reads — meanwhile your competitor is getting all the calls.</p>
+        </div>
+        <div class="problem-card">
+          <div class="problem-index problem-index--accent display" aria-hidden="true">03</div>
+          <h3>DIY is Killing Your Business</h3>
+          <p>Every hour you spend tweaking Wix is an hour you're not making money. Your competitor hired someone who knows what they're doing. Three months ago.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ WHAT YOU ACTUALLY GET ═══════ -->
+  <section id="work" class="fade-in" aria-label="What you actually get">
+    <div class="anatomy-block">
+      <div class="anatomy-wrap">
+        <div class="anatomy-center">
+          <div class="anatomy-eyebrow">What You Actually Get</div>
+          <h2>A site built to<br><span class="anatomy-amber">earn its keep.</span></h2>
+          <p>Not a brochure. Not art. Equipment that either works or gets replaced. Here's what that means in practice:</p>
+        </div>
+        <div class="anatomy-pillars">
+          <div class="anatomy-pillar">
+            <div class="num">01</div>
+            <h3>Conversion Architecture</h3>
+            <p>Your phone number and primary action are visible in under a second. No buried contact pages. No "learn more" dead ends. Every page has one job: make the visitor call, book, or buy.</p>
+            <div class="tag">Not decoration</div>
+          </div>
+          <div class="anatomy-pillar">
+            <div class="num">02</div>
+            <h3>Mobile-First Build</h3>
+            <p>Most of your traffic is on a phone. We build for that screen first, then scale up. Thumb-friendly buttons. Fast scroll. No pinching, no zooming, no frustration.</p>
+            <div class="tag">Thumb-tested</div>
+          </div>
+          <div class="anatomy-pillar">
+            <div class="num">03</div>
+            <h3>Speed, Not Bloat</h3>
+            <p>Built on Vite, deployed on edge hosting. No WordPress plugin graveyard. No third-party trackers slowing you down. Fast sites rank better and convert better.</p>
+            <div class="tag">No template fat</div>
+          </div>
+          <div class="anatomy-pillar">
+            <div class="num">04</div>
+            <h3>Expert-Led Review</h3>
+            <p>Every build is personally reviewed before it goes live. Not handed off to a junior or a generator. If it wouldn't make the phone ring, it doesn't ship.</p>
+            <div class="tag">Alexander reviews every one</div>
+          </div>
+          <div class="anatomy-pillar">
+            <div class="num">05</div>
+            <h3>Built For Your Market</h3>
+            <p>No recycled templates. We look at your actual competition and your actual customers. A roofer in Austin needs different proof than a family lawyer in St. Louis.</p>
+            <div class="tag">Market-specific</div>
+          </div>
+          <div class="anatomy-pillar">
+            <div class="num">06</div>
+            <h3>Clear Monthly Care</h3>
+            <p>You know exactly what your site costs to host and maintain. No surprise invoices. No "we need to rebuild everything" ambush in six months.</p>
+            <div class="tag">No retainer traps</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="anatomy-quote">
+      <div class="anatomy-wrap">
+        <p><span class="mark">"</span>A website should earn its keep. If it's not making the phone ring, it's a hole in your pocket.<span class="mark">"</span></p>
+        <div class="who">Alexander Schottky<small>Founder, Toolcrate — reviewing every site since 2009</small></div>
+      </div>
+    </div>
+
+    <div class="anatomy-cta">
+      <div class="anatomy-wrap">
+        <h2>See what yours<br>should look like.</h2>
+        <p>Hand me your current site. I'll show you exactly what's leaking calls and what it should look like instead. Free. No card required.</p>
+        <a class="anatomy-btn anatomy-btn--primary" href="/try/" style="font-size:17px;padding:18px 32px">Get My Free Roast <span class="arrow">→</span></a>
+        <div class="anatomy-reassure">
+          <span><span class="ck">✓</span> Personally reviewed</span>
+          <span><span class="ck">✓</span> No card required</span>
+          <span><span class="ck">✓</span> No obligation</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ RESULTS ═══════ -->
+  <section id="results" class="fade-in" style="position:relative;overflow:hidden;">
+    <div style="position:absolute;inset:0;">
+      <img src="/results.webp" alt="" style="width:100%;height:100%;object-fit:cover;" />
+      <div style="position:absolute;inset:0;background:rgba(9,9,11,0.8);backdrop-filter:blur(4px);"></div>
+    </div>
+    <div style="position:relative;z-index:10;max-width:72rem;margin:0 auto;padding:7rem 1.5rem;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;">
+        <div>
+          <span style="font-size:0.875rem;font-weight:700;letter-spacing:0.2em;color:#34d399;text-transform:uppercase;">Real Results</span>
+          <h2 style="font-size:clamp(2rem,4vw,3rem);font-weight:900;color:white;margin-top:1rem;line-height:1.1;">
+            Agencies charge $15K.<br /><span style="color:#34d399;">I deliver better results</span><br />for a fraction.
+          </h2>
+          <p style="font-size:1.125rem;color:#a1a1aa;margin-top:1.5rem;line-height:1.7;">Big agencies have account managers, project managers, designers, developers — and they all need to get paid. That's why they charge $10K–$25K for a website. I don't have that overhead. You work directly with me, get agency-quality results, and keep thousands in your pocket.</p>
+        </div>
+        <div>
+          <div style="border-radius:1rem;padding:2rem;border:1px solid rgba(239,68,68,0.2);background:rgba(239,68,68,0.1);margin-bottom:1.5rem;">
+            <div style="font-size:0.875rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:#f87171;margin-bottom:0.5rem;">Average agency website</div>
+            <div style="font-size:2.25rem;font-weight:900;color:white;">$10,000 – $25,000</div>
+            <div style="font-size:0.875rem;color:#71717a;margin-top:0.5rem;">Plus $300–$500/mo maintenance</div>
+          </div>
+          <div style="border-radius:1rem;padding:2rem;border:1px solid rgba(16,185,129,0.2);background:rgba(16,185,129,0.1);margin-bottom:1.5rem;">
+            <div style="font-size:0.875rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:#34d399;margin-bottom:0.5rem;">ToolCrate full build</div>
+            <div style="font-size:2.25rem;font-weight:900;color:white;">$299 &ndash; $497</div>
+            <div style="font-size:0.875rem;color:#71717a;margin-top:0.5rem;">Plus $29&ndash;$79/mo hosting &amp; updates</div>
+          </div>
+          <div style="text-align:center;"><span style="font-size:1.125rem;font-weight:700;color:white;">You save <span style="color:#34d399;">$9,500+</span> on day one.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ HOW IT WORKS ═══════ -->
+  <section class="fade-in" style="background:#09090b;padding:7rem 0;">
+    <div style="max-width:72rem;margin:0 auto;padding:0 1.5rem;">
+      <div style="text-align:center;margin-bottom:5rem;">
+        <span style="font-size:0.875rem;font-weight:700;letter-spacing:0.2em;color:#60a5fa;text-transform:uppercase;">How It Works</span>
+        <h2 style="font-size:clamp(2rem,5vw,3.75rem);font-weight:900;color:white;margin-top:1rem;line-height:1.1;">
+          Three steps. One week.<br /><span style="background:linear-gradient(to right,#60a5fa,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Your phone starts ringing.</span>
+        </h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:3rem;position:relative;">
+        <div style="display:none;position:absolute;top:3rem;left:16.67%;right:16.67%;height:1px;background:linear-gradient(to right,#3b82f6,#a855f7,#10b981);opacity:0.3;" class="conn-line"></div>
+        <div style="text-align:center;">
+          <div style="width:6rem;height:6rem;border-radius:1.5rem;margin:0 auto 2rem;display:flex;align-items:center;justify-content:center;font-size:1.875rem;font-weight:900;background:linear-gradient(to bottom right,#2563eb,#3b82f6);color:white;box-shadow:0 10px 30px rgba(59,130,246,0.25);">01</div>
+          <h3 style="font-size:1.5rem;font-weight:700;color:white;margin-bottom:1rem;">Drop Your URL</h3>
+          <p style="color:#a1a1aa;line-height:1.7;">Enter your website above. I'll personally tear it apart — what's working, what's broken, and exactly what's costing you customers. Takes me 30 minutes, saves you thousands.</p>
+        </div>
+        <div style="text-align:center;">
+          <div style="width:6rem;height:6rem;border-radius:1.5rem;margin:0 auto 2rem;display:flex;align-items:center;justify-content:center;font-size:1.875rem;font-weight:900;background:linear-gradient(to bottom right,#9333ea,#a855f7);color:white;box-shadow:0 10px 30px rgba(139,92,246,0.25);">02</div>
+          <h3 style="font-size:1.5rem;font-weight:700;color:white;margin-bottom:1rem;">See the Difference</h3>
+          <p style="color:#a1a1aa;line-height:1.7;">Within 48 hours, Alexander delivers an expert-led conversion audit and an Alexander-verified redesign concept. You'll see exactly how your site should look and perform before you spend a dime.</p>
+        </div>
+        <div style="text-align:center;">
+          <div style="width:6rem;height:6rem;border-radius:1.5rem;margin:0 auto 2rem;display:flex;align-items:center;justify-content:center;font-size:1.875rem;font-weight:900;background:linear-gradient(to bottom right,#059669,#10b981);color:white;box-shadow:0 10px 30px rgba(16,185,129,0.25);">03</div>
+          <h3 style="font-size:1.5rem;font-weight:700;color:white;margin-bottom:1rem;">Go Live & Grow</h3>
+          <p style="color:#a1a1aa;line-height:1.7;">Love it? I'll build and launch the whole thing. You go back to running your business while your website does what it was always supposed to do — bring you customers.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ ABOUT ALEXANDER — WHITE ═══════ -->
+  <section id="about" class="fade-in" style="background:white;padding:7rem 0;overflow:hidden;">
+    <div style="max-width:72rem;margin:0 auto;padding:0 1.5rem;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;">
+        <div style="position:relative;">
+          <div style="position:absolute;inset:-1rem;background:linear-gradient(to bottom right,#dbeafe,#cffafe);border-radius:1.5rem;transform:rotate(-3deg);"></div>
+          <img src="/alexander.jpg" alt="Alexander Schottky" style="position:relative;border-radius:1.5rem;width:100%;object-fit:cover;box-shadow:0 25px 50px rgba(0,0,0,0.15);" />
+          <div style="position:absolute;bottom:-1rem;right:-1rem;background:#2563eb;color:white;font-weight:700;padding:0.75rem 1.5rem;border-radius:1rem;box-shadow:0 10px 25px rgba(0,0,0,0.15);font-size:0.875rem;">Springfield, Missouri</div>
+        </div>
+        <div>
+          <span style="font-size:0.875rem;font-weight:700;letter-spacing:0.2em;color:#2563eb;text-transform:uppercase;">Meet Alexander</span>
+          <h2 style="font-size:clamp(2rem,4vw,3rem);font-weight:900;color:#18181b;margin-top:1rem;line-height:1.1;">I don't do "pretty<br />for pretty's sake."</h2>
+          <div style="margin-top:2rem;font-size:1.125rem;color:#52525b;line-height:1.7;">
+            <p style="margin-bottom:1.25rem;">I build websites for people whose next job comes from a phone call &mdash; garage doors, plumbing, tree work, excavation, HVAC. Trades where a customer with a problem right now picks whoever looks like they'll answer.</p>
+            <p style="margin-bottom:1.25rem;">So every choice on your site serves one job: <strong style="color:#18181b;">get that person to pick up the phone and call you.</strong> Your number big enough to tap with a work glove on. What you do, where you do it, when you answer. Nothing else fighting it for attention.</p>
+            <p>I'm one person here in Springfield. No account managers, no ticket queue, no &ldquo;we need to rebuild everything&rdquo; six months from now. You see the whole site before you pay me anything &mdash; if it's not better than what you've got, say so and we're done.</p>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:0.75rem;margin-top:2rem;">
+            <span style="background:#eff6ff;color:#1d4ed8;padding:0.5rem 1rem;border-radius:9999px;font-size:0.875rem;font-weight:600;">One person, not an agency</span>
+            <span style="background:#eff6ff;color:#1d4ed8;padding:0.5rem 1rem;border-radius:9999px;font-size:0.875rem;font-weight:600;">See it before you pay</span>
+            <span style="background:#eff6ff;color:#1d4ed8;padding:0.5rem 1rem;border-radius:9999px;font-size:0.875rem;font-weight:600;">You call me, I answer</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ PRICING ═══════ -->
+  <section id="pricing" class="fade-in" style="background:#09090b;padding:7rem 0;">
+    <div style="max-width:72rem;margin:0 auto;padding:0 1.5rem;">
+      <div style="text-align:center;margin-bottom:5rem;">
+        <span style="font-size:0.875rem;font-weight:700;letter-spacing:0.2em;color:#f97316;text-transform:uppercase;">Your Free Preview</span>
+        <h2 style="font-size:clamp(2rem,5vw,3.75rem);font-weight:900;color:white;margin-top:1rem;line-height:1.1;">
+          Agency quality.<br /><span style="background:linear-gradient(to right,#34d399,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Not agency prices.</span>
+        </h2>
+        <p style="font-size:1.125rem;color:#a1a1aa;margin-top:1.5rem;max-width:48rem;margin-left:auto;margin-right:auto;line-height:1.7;">Every ToolCrate project starts with a free website preview. Alexander personally designs a custom concept for you to see before you pay a dime. <strong style="color:#e4e4e7;font-weight:600;">100% Free. No commitment.</strong></p>
+      </div>
+      <div id="pricing-cards"></div>
+    </div>
+  </section>
+
+  <!-- ═══════ FAQ — WHITE ═══════ -->
+  <section class="fade-in" style="background:white;padding:7rem 0;">
+    <div style="max-width:48rem;margin:0 auto;padding:0 1.5rem;">
+      <div style="text-align:center;margin-bottom:4rem;">
+        <span style="font-size:0.875rem;font-weight:700;letter-spacing:0.2em;color:#2563eb;text-transform:uppercase;">FAQ</span>
+        <h2 style="font-size:clamp(2rem,4vw,3rem);font-weight:900;color:#18181b;margin-top:1rem;">Got questions? Good.</h2>
+      </div>
+      <div>
+        <div class="faq-item" style="border-bottom:1px solid #e4e4e7;">
+          <button type="button" class="faq-toggle" aria-expanded="false">
+            <span class="faq-toggle-text">What if I don't have a website yet?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>Good — <a href="/try/" style="color:#2563eb;font-weight:600;text-decoration:none;">ask for your free preview</a> and I'll build the page from scratch. Most people I work with either have no site at all or have one that isn't bringing in a single call. Either way, you see the finished page before you pay me anything.</p>
+          </div>
+        </div>
+        <div class="faq-item" style="border-bottom:1px solid #e4e4e7;">
+          <button type="button" class="faq-toggle" aria-expanded="false">
+            <span class="faq-toggle-text">How long does a site build take?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>Most sites go live within 5-7 business days. If you need it faster, I can usually turn something around in 48-72 hours for a rush fee.</p>
+          </div>
+        </div>
+        <div class="faq-item" style="border-bottom:1px solid #e4e4e7;">
+          <button type="button" class="faq-toggle" aria-expanded="false">
+            <span class="faq-toggle-text">What if I don't like the redesign?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>That's what the free website preview is for. You'll see exactly what I'd do before spending a dime. Plus The Build comes with a 30-day money-back guarantee.</p>
+          </div>
+        </div>
+        <div class="faq-item" style="border-bottom:1px solid #e4e4e7;">
+          <button type="button" class="faq-toggle" aria-expanded="false">
+            <span class="faq-toggle-text">Do I own my website?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>100%. You own everything — the design, the code, the content. If you ever want to leave, I'll hand over all the files. No hostage situations.</p>
+          </div>
+        </div>
+        <div class="faq-item" style="border-bottom:1px solid #e4e4e7;">
+          <button type="button" class="faq-toggle" aria-expanded="false">
+            <span class="faq-toggle-text">What industries do you work with?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>Trades and contractors are my core — garage doors, plumbing, tree work, excavation, HVAC, roofing, electrical. Anyone whose next job starts with the phone ringing. I also build for local professional practices when word of mouth and phone calls are what bring the work in.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button type="button" class="faq-toggle" aria-expanded="false">
+            <span class="faq-toggle-text">What's included in the monthly fee?</span>
+            <span class="faq-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>Hosting, SSL, monthly updates, security patches, backups, and minor content changes. Basically everything you need to keep your site fast, secure, and converting.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ FINAL CTA ═══════ -->
+  <section id="cta" style="position:relative;overflow:hidden;background:#09090b;">
+    <div style="position:absolute;inset:0;background:#09090b url('/hero-bg.webp') center 42% / cover no-repeat;"></div>
+    <div style="position:absolute;inset:0;background:rgba(9,9,11,0.82);"></div>
+    <div style="position:relative;z-index:10;max-width:56rem;margin:0 auto;padding:7rem 1.5rem;text-align:center;">
+      <h2 class="display" style="font-size:clamp(2rem,5vw,3.75rem);color:white;line-height:1.1;">Ready to stop losing<br />customers to your website?</h2>
+      <p style="font-size:1.125rem;color:#a1a1aa;margin-top:1.5rem;max-width:36rem;margin-left:auto;margin-right:auto;">See your new design before you pay a dime. Whether you have a site today or you're starting fresh, Alexander maps the path to more calls.</p>
+      <div style="margin:2rem auto 0;display:flex;flex-direction:column;align-items:center;gap:0.75rem;">
+        <a href="/try/" class="btn-primary btn-roast">Get YOUR Free Website Preview</a>
+        <p style="font-size:0.875rem;color:#71717a;margin:0;">100% Free. No commitment.</p>
+      </div>
+      <p style="font-size:0.875rem;color:#71717a;margin-top:1rem;">Questions? Call <a href="tel:+14174091721" style="color:#f97316;text-decoration:none;font-weight:600;">(417) 409-1721</a> or email <a href="mailto:support@usetoolcrate.com" style="color:#f97316;text-decoration:none;font-weight:600;">support@usetoolcrate.com</a></p>
+    </div>
+  </section>
+
+  <!-- ═══════ FOOTER ═══════ -->
+  <footer style="background:#09090b;border-top:1px solid rgba(255,255,255,0.05);padding:4rem 0;">
+    <div style="max-width:72rem;margin:0 auto;padding:0 1.5rem;">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:3rem;">
+        <div>
+          <span style="font-size:1.5rem;font-weight:900;color:white;">Tool<span style="color:#f97316;">Crate</span></span>
+          <p style="color:#71717a;margin-top:1rem;line-height:1.7;">Conversion websites for contractors, heavy trades and specialized professional firms — built in Springfield, Missouri, for businesses across the Ozarks.</p>
+        </div>
+        <div>
+          <h4 style="font-weight:700;color:white;margin-bottom:1rem;">Quick Links</h4>
+          <div style="display:flex;flex-direction:column;gap:0.75rem;">
+            <a href="#work" style="color:#71717a;text-decoration:none;">What You Get</a>
+            <a href="#pricing" style="color:#71717a;text-decoration:none;">Pricing</a>
+            <a href="#about" style="color:#71717a;text-decoration:none;">About</a>
+            <a href="/blog/" style="color:#71717a;text-decoration:none;">Blog</a>
+            <a href="/privacy/" style="color:#71717a;text-decoration:none;">Privacy</a>
+            <a href="/terms/" style="color:#71717a;text-decoration:none;">Terms</a>
+          </div>
+        </div>
+        <div>
+          <h4 style="font-weight:700;color:white;margin-bottom:1rem;">Get In Touch</h4>
+          <div style="display:flex;flex-direction:column;gap:0.75rem;">
+            <a href="tel:+14174091721" style="color:#f4f4f5;text-decoration:none;font-weight:700;font-size:1.125rem;">(417) 409-1721</a>
+            <a href="mailto:support@usetoolcrate.com" style="color:#71717a;text-decoration:none;">support@usetoolcrate.com</a>
+            <span style="color:#71717a;">Springfield, Missouri — serving the Ozarks</span>
+          </div>
+        </div>
+      </div>
+      <div style="border-top:1px solid rgba(255,255,255,0.05);margin-top:3rem;padding-top:2rem;text-align:center;color:#52525b;font-size:0.875rem;">
+        © 2026 ToolCrate. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- mobile call bar -->
+  <a href="tel:+14174091721" class="mobile-call-bar" aria-label="Call ToolCrate at 4 1 7, 4 0 9, 1 7 2 1">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+    <span>Call (417) 409-1721</span>
+  </a>
+
+  <style>
+    .mobile-call-bar {
+      display: none;
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+      align-items: center; justify-content: center; gap: 0.5rem;
+      padding: 1rem; background: #f97316; color: #0b0b0d;
+      font-weight: 800; font-size: 1.0625rem; text-decoration: none;
+      box-shadow: 0 -6px 24px rgba(0,0,0,0.45);
+    }
+  </style>
+
+  <div class="copy-toast" id="copy-toast" role="status" aria-live="polite" hidden></div>
+
+
+  <style>
+    @media (max-width: 768px) {
+      .nav-links { display: none !important; }
+      .nav-phone { display: none !important; }
+      .nav-cta-long { display: none !important; }
+      .nav-cta-short { display: inline !important; }
+      .nav-cta { font-size: 0.8125rem !important; padding: 0.5rem 1rem !important; }
+      .mobile-call-bar { display: flex !important; }
+      body { padding-bottom: 64px; }
+      [style*="grid-template-columns: repeat(3"] { grid-template-columns: 1fr !important; }
+      [style*="grid-template-columns:repeat(3"] { grid-template-columns: 1fr !important; }
+      [style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
+      [style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
+      [style*="grid-template-columns:repeat(4"] { grid-template-columns: repeat(2, 1fr) !important; }
+    }
+  </style>
+</body>
+</html>

@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1JPM7QNHFN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-1JPM7QNHFN');
+    </script>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Submission Confirmed — ToolCrate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0a0a0f;
+        --surface: rgba(255, 255, 255, 0.04);
+        --border: rgba(255, 255, 255, 0.1);
+        --accent: #8b5cf6;
+        --accent-glow: rgba(139, 92, 246, 0.35);
+        --orange: #f97316;
+        --text: #f4f4f5;
+        --muted: #a1a1aa;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(circle at 50% -20%, rgba(59, 130, 246, 0.12), transparent 55%);
+        pointer-events: none;
+      }
+
+      .preview-loader {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        text-align: center;
+      }
+      .spinner {
+        width: 44px;
+        height: 44px;
+        margin: 0 auto 1.25rem;
+        border: 4px solid rgba(255, 255, 255, 0.12);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.9s linear infinite;
+      }
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      .preview-loader h1 {
+        font-size: 1.15rem;
+        font-weight: 600;
+        margin: 0 0 0.5rem;
+      }
+      .preview-loader p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+      .preview-loader.error h1 {
+        color: #fca5a5;
+      }
+
+      #confirmed {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 1.5rem;
+      }
+      .confirmed-shell {
+        width: 100%;
+        max-width: 560px;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+      }
+
+      .queue-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        padding: 0.45rem 0.875rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: #c4b5fd;
+        background: rgba(139, 92, 246, 0.12);
+        border: 1px solid rgba(139, 92, 246, 0.28);
+        border-radius: 999px;
+      }
+      .queue-badge-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #a78bfa;
+        box-shadow: 0 0 8px rgba(167, 139, 250, 0.8);
+        animation: pulse-dot 2s ease-in-out infinite;
+      }
+      @keyframes pulse-dot {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.45; }
+      }
+
+      .confirmed-founder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.75rem;
+      }
+      .confirmed-founder img {
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        object-fit: cover;
+        object-position: center 20%;
+        border: 3px solid rgba(249, 115, 22, 0.35);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 0 24px rgba(249, 115, 22, 0.12);
+      }
+      .confirmed-founder-caption {
+        margin: 0;
+        font-size: 0.8125rem;
+        color: var(--muted);
+        max-width: 320px;
+        line-height: 1.5;
+      }
+
+      .confirmed-title {
+        font-size: clamp(1.75rem, 5vw, 2.35rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        margin: 0 0 1.25rem;
+        background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .confirmed-copy {
+        margin: 0 0 1rem;
+        color: var(--muted);
+        font-size: 1.05rem;
+        line-height: 1.65;
+        text-align: center;
+      }
+      .confirmed-copy strong {
+        color: #e4e4e7;
+        font-weight: 600;
+      }
+      .confirmed-email {
+        color: #c4b5fd;
+        word-break: break-word;
+      }
+      .confirmed-company {
+        color: #c4b5fd;
+      }
+
+      .strategy-card {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        text-align: center;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 1rem;
+        backdrop-filter: blur(8px);
+      }
+      .strategy-bridge {
+        margin: 0 0 0.5rem;
+        color: var(--muted);
+        font-size: 0.9875rem;
+        line-height: 1.6;
+        text-align: center;
+      }
+      .strategy-note {
+        margin: 0 0 1.125rem;
+        font-size: 0.875rem;
+        color: #71717a;
+        line-height: 1.5;
+      }
+      .strategy-kicker {
+        margin: 0 0 0.35rem;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: rgba(249, 115, 22, 0.75);
+      }
+
+      .strategy-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        justify-content: center;
+      }
+      .strategy-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 0.65rem 1.125rem;
+        font-family: inherit;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-decoration: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        border: none;
+      }
+      .strategy-btn--primary {
+        color: #fff;
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        box-shadow: 0 8px 24px var(--accent-glow);
+      }
+      .strategy-btn--primary:hover {
+        transform: translateY(-1px);
+      }
+      .strategy-btn--secondary {
+        color: #e4e4e7;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+      }
+      .strategy-btn--secondary:hover {
+        background: rgba(255, 255, 255, 0.09);
+      }
+      .strategy-btn--call-mobile {
+        display: none;
+      }
+
+      .confirmed-footer {
+        margin-top: 2rem;
+        font-size: 0.8125rem;
+        color: #71717a;
+        line-height: 1.5;
+      }
+      .confirmed-footer a {
+        color: #a1a1aa;
+        text-decoration: none;
+      }
+      .confirmed-footer a:hover {
+        color: #e4e4e7;
+      }
+
+      .no-strings-box {
+        margin-top: 1.75rem;
+        padding: 1.5rem;
+        text-align: left;
+        background: rgba(52, 211, 153, 0.08);
+        border: 1px solid rgba(52, 211, 153, 0.22);
+        border-radius: 1rem;
+      }
+
+      .no-strings-box h2 {
+        margin: 0 0 0.65rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #e4e4e7;
+      }
+
+      .no-strings-box p {
+        margin: 0;
+        font-size: 0.9375rem;
+        color: #a1a1aa;
+        line-height: 1.65;
+      }
+
+      .unavailable-title {
+        color: #fca5a5;
+        -webkit-text-fill-color: #fca5a5;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      .confirmed-back {
+        display: inline-block;
+        margin-top: 1.5rem;
+        font-size: 0.9375rem;
+        font-weight: 500;
+        color: #a1a1aa;
+        text-decoration: none;
+      }
+      .confirmed-back:hover {
+        color: #e4e4e7;
+      }
+
+      @media (max-width: 480px) {
+        .strategy-actions {
+          flex-direction: column;
+        }
+        .strategy-btn {
+          width: 100%;
+        }
+        .strategy-btn--call-mobile {
+          display: inline-flex;
+        }
+      }
+    </style>
+    <script type="module" crossorigin src="/assets/preview-BPImJ3b_.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
+    <link rel="modulepreload" crossorigin href="/assets/api-config-CdUoY1ko.js">
+  </head>
+  <body>
+    <div class="preview-loader" id="loader">
+      <div class="spinner" aria-hidden="true"></div>
+      <h1>Confirming your details</h1>
+      <p>Alexander is reviewing your submission…</p>
+    </div>
+
+    <main id="confirmed" hidden>
+      <div class="confirmed-shell">
+        <div class="queue-badge" id="queue-badge" hidden>
+          <span class="queue-badge-dot" aria-hidden="true"></span>
+          <span id="queue-badge-text">Currently reviewing: 3 sites ahead of you</span>
+        </div>
+
+        <div class="confirmed-founder">
+          <img src="/alexander.jpg" alt="Alexander Schottky" width="96" height="96" />
+          <p class="confirmed-founder-caption">Every request is reviewed by Alexander personally — no bots, no instant junk previews.</p>
+        </div>
+
+        <h1 class="confirmed-title" id="confirmed-title">Your Blueprint is in the works.</h1>
+
+        <p class="confirmed-copy" id="confirmed-copy">
+          Alexander has received your request and is personally reviewing your goals. You'll receive your custom visual concept shortly.
+        </p>
+        <p class="confirmed-copy strategy-bridge" id="confirmed-bridge">
+          Questions or a tight deadline? Email <a href="mailto:support@usetoolcrate.com" style="color:#c4b5fd;font-weight:600;text-decoration:none;">support@usetoolcrate.com</a> — Alexander reads every message personally.
+        </p>
+
+        <div class="no-strings-box" id="no-strings-box">
+          <h2>What happens next?</h2>
+          <p>You'll get a link to your Blueprint. If you love it, we can move forward with a build. If not, the strategy and concept are yours to keep. No hard sales, no automated billing, no strings attached.</p>
+        </div>
+
+        <p class="confirmed-footer">
+          You can close this tab — we'll email you when your Blueprint is ready.
+        </p>
+        <a class="confirmed-back" href="/">← Back to ToolCrate</a>
+      </div>
+    </main>
+
+  </body>
+</html>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Say voice="alice">Connecting you to Anderson Construction.</Say>
+  <Dial callerId="+14174091721" timeout="30" answerOnBridge="true">+14177248880</Dial>
+</Response>

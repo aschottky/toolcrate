@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1JPM7QNHFN"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-1JPM7QNHFN');
+    </script>
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Checkout — ToolCrate</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/favicon.svg" />
+  <meta name="theme-color" content="#09090b" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body.checkout-page {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 2.5rem 1.25rem 3rem;
+      }
+
+      .checkout-shell {
+        width: min(100%, 640px);
+        text-align: center;
+      }
+
+      .checkout-logo {
+        display: inline-block;
+        margin-bottom: 2rem;
+        font-weight: 700;
+        font-size: 1.125rem;
+        letter-spacing: 0.02em;
+        color: var(--text);
+        text-decoration: none;
+      }
+
+      .checkout-logo:hover {
+        color: var(--accent);
+      }
+
+      #checkout-loading {
+        margin: 0 0 1.5rem;
+        color: var(--text-muted);
+        font-size: 0.95rem;
+      }
+
+      #checkout {
+        min-height: 420px;
+        text-align: left;
+      }
+
+      .checkout-error {
+        margin: 0;
+        padding: 1rem 1.25rem;
+        border-radius: var(--radius);
+        background: rgba(232, 93, 42, 0.08);
+        border: 1px solid rgba(232, 93, 42, 0.25);
+        color: var(--text);
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+    </style>
+    <script type="module" crossorigin src="/assets/checkout-DBKD1-jO.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/modulepreload-polyfill-B5Qt9EMX.js">
+    <link rel="modulepreload" crossorigin href="/assets/api-config-CdUoY1ko.js">
+    <link rel="stylesheet" crossorigin href="/assets/main-Cb5R8Q6c.css">
+  </head>
+  <body class="checkout-page">
+    <div class="checkout-shell">
+      <a href="../" class="checkout-logo">ToolCrate</a>
+      <p id="checkout-loading">Preparing your checkout...</p>
+      <div id="checkout"></div>
+    </div>
+
+  </body>
+</html>
