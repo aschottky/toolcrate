@@ -255,13 +255,14 @@
 
 .inv-line-row {
   display: grid;
-  grid-template-columns: 1fr 5rem 7rem 6rem 2rem;
+  grid-template-columns: minmax(0, 1fr) 5rem 7rem 6rem 2rem;
   gap: 0.5rem;
   align-items: center;
   margin-bottom: 0.5rem;
 }
 
 .inv-line-row input {
+  min-width: 0;
   padding: 0.5rem 0.65rem;
   border: 1px solid var(--admin-border);
   border-radius: 8px;
@@ -320,7 +321,7 @@
 
 @media (max-width: 640px) {
   .inv-line-row {
-    grid-template-columns: 1fr 4rem 5.5rem 2rem;
+    grid-template-columns: minmax(0, 1fr) 4rem 5.5rem 2rem;
   }
 
   .line-amount {

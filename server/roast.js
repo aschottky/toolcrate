@@ -14,7 +14,7 @@ function getAnthropic() {
   return anthropicClient;
 }
 
-const ROAST_EMOJIS = ["⚠️", "📵", "🐌", "👻", "🔍", "📉"];
+const ROAST_EMOJIS = ["1.", "2.", "3.", "4.", "5.", "6."];
 
 function currentDateLabel() {
   return new Date().toLocaleDateString("en-US", {

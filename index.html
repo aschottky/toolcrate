@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>document.documentElement.classList.add("js");</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ToolCrate — Websites That Make The Phone Ring</title>
@@ -28,8 +29,15 @@
     html { scroll-behavior: smooth; }
     body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; -webkit-font-smoothing: antialiased; margin: 0; background: #09090b; color: #f4f4f5; }
     .display { font-family: 'Archivo Black', 'Inter', sans-serif; letter-spacing: -0.03em; }
-    .fade-in { opacity: 0; transform: translateY(48px); transition: opacity 1s, transform 1s; }
-    .fade-in.visible { opacity: 1; transform: translateY(0); }
+    /* Progressive enhancement: sections are visible by default and only start
+       hidden when JS is running to animate them back in. If homepage.js fails
+       to load, the page still shows all its content. */
+    .fade-in { opacity: 1; transform: none; }
+    .js .fade-in { opacity: 0; transform: translateY(48px); transition: opacity 1s, transform 1s; }
+    .js .fade-in.visible { opacity: 1; transform: translateY(0); }
+    @media (prefers-reduced-motion: reduce) {
+      .js .fade-in { opacity: 1; transform: none; transition: none; }
+    }
     @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
     .anim-bounce { animation: bounce 2s ease-in-out infinite; }
     .btn-primary {

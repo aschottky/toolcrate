@@ -105,13 +105,13 @@ Website Tear Down`;
 }
 
 const DEFAULT_EMAIL_ROAST_BULLETS = [
-  { emoji: "⚠️", text: "No phone number visible above the fold" },
-  { emoji: "📵", text: "No reviews or social proof on the homepage" },
-  { emoji: "🐌", text: "Headline doesn't explain what you actually do" },
-  { emoji: "👻", text: "Site likely loads slowly on mobile" },
+  { emoji: "1.", text: "No phone number visible above the fold" },
+  { emoji: "2.", text: "No reviews or social proof on the homepage" },
+  { emoji: "3.", text: "Headline doesn't explain what you actually do" },
+  { emoji: "4.", text: "Site likely loads slowly on mobile" },
 ];
 
-const EMAIL_ROAST_EMOJIS = ["⚠️", "📵", "🐌", "👻"];
+const EMAIL_ROAST_EMOJIS = ["1.", "2.", "3.", "4."];
 
 function trimBulletWords(text, maxWords = 12) {
   const words = String(text ?? "")
@@ -155,7 +155,7 @@ function resolveEmailRoastBullets(stored) {
     const emoji =
       (typeof bullet === "object" && bullet?.emoji) ||
       EMAIL_ROAST_EMOJIS[index] ||
-      "⚠️";
+      "•";
 
     return {
       emoji,
