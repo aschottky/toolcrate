@@ -25,8 +25,8 @@ export function generateAuditPDF(reportData, websiteUrl) {
       size: "LETTER",
       margins: { top: 54, bottom: 54, left: 54, right: 54 },
       info: {
-        Title: "Website Tear Down Audit",
-        Author: "Website Tear Down",
+        Title: "ToolCrate Website Review",
+        Author: "ToolCrate",
         Subject: `Audit for ${websiteUrl}`,
       },
     });
@@ -62,7 +62,7 @@ function contentWidth(doc) {
 function drawHeader(doc, websiteUrl) {
   doc.fillColor(BRAND.accent).fontSize(10).text("WEBSITE TEAR DOWN", { align: "left" });
   doc.moveDown(0.4);
-  doc.fillColor(BRAND.primary).fontSize(26).text("Website Tear Down Audit", { align: "left" });
+  doc.fillColor(BRAND.primary).fontSize(26).text("Website Review", { align: "left" });
   doc.moveDown(0.6);
   doc.fillColor(BRAND.muted).fontSize(11).text("Audited website", { continued: false });
   doc
@@ -327,7 +327,7 @@ function drawFooter(doc) {
     .fillColor(BRAND.muted)
     .fontSize(8)
     .text(
-      "Website Tear Down · Confidential audit for the site owner. Scores are AI-assisted estimates — verify critical changes with a developer.",
+      "ToolCrate · Confidential review for the site owner. Scores are AI-assisted estimates — verify critical changes with a developer.",
       doc.page.margins.left,
       footerY,
       {

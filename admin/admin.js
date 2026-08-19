@@ -1,9 +1,19 @@
 import { apiUrl, normalizeClientError } from "../scripts/api-config.js";
 
-const SECRET_KEY = "toolcrate_admin_secret";
+// Session token from POST /api/admin/login — the same login as /invoices, so
+// one email+password unlocks both pages.
+const TOKEN_KEY = "toolcrate_admin_token";
+const TOKEN_EMAIL_KEY = "toolcrate_admin_email";
 
-const secretInput = document.getElementById("cron-secret");
-const saveSecretBtn = document.getElementById("save-secret");
+const loginCard = document.getElementById("login-card");
+const loginForm = document.getElementById("login-form");
+const loginEmail = document.getElementById("login-email");
+const loginPassword = document.getElementById("login-password");
+const loginSubmitBtn = document.getElementById("login-submit");
+const sessionCard = document.getElementById("session-card");
+const adminTools = document.getElementById("admin-tools");
+const sessionEmail = document.getElementById("session-email");
+const logoutBtn = document.getElementById("logout-btn");
 const authStatus = document.getElementById("auth-status");
 const previewEmail = document.getElementById("preview-email");
 const previewAudit = document.getElementById("preview-audit");
@@ -76,25 +86,61 @@ function serverConfigHint(errorMessage) {
 }
 
 function getSecret() {
-  return (
-    // Session token from the email+password login on /invoices — one login
-    // unlocks both admin pages.
-    localStorage.getItem("toolcrate_admin_token") ||
-    sessionStorage.getItem(SECRET_KEY) ||
-    secretInput.value.trim()
-  );
+  return localStorage.getItem(TOKEN_KEY);
 }
 
-function saveSecret() {
-  const value = secretInput.value.trim();
-  if (!value) {
-    setAuthStatus("Enter your CRON_SECRET first.", true);
-    return;
-  }
-  sessionStorage.setItem(SECRET_KEY, value);
-  setAuthStatus("Secret saved for this browser session.", false);
+function loadSignedInData() {
   loadAudits();
   loadWarmLeads();
+  loadRedesigns();
+}
+
+function showLoggedIn() {
+  loginCard.hidden = true;
+  sessionCard.hidden = false;
+  adminTools.hidden = false;
+  sessionEmail.textContent = localStorage.getItem(TOKEN_EMAIL_KEY) || "";
+}
+
+function showLoggedOut(message = "", isError = false) {
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(TOKEN_EMAIL_KEY);
+  loginCard.hidden = false;
+  sessionCard.hidden = true;
+  adminTools.hidden = true;
+  if (message) setAuthStatus(message, isError);
+}
+
+async function login(event) {
+  event.preventDefault();
+  loginSubmitBtn.disabled = true;
+  setAuthStatus("", false);
+  authStatus.hidden = true;
+
+  try {
+    const response = await fetch(apiUrl("/api/admin/login"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: loginEmail.value.trim(),
+        password: loginPassword.value,
+      }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || !data.token) {
+      throw new Error(data.error || `Login failed (HTTP ${response.status}).`);
+    }
+
+    localStorage.setItem(TOKEN_KEY, data.token);
+    localStorage.setItem(TOKEN_EMAIL_KEY, data.email);
+    loginPassword.value = "";
+    showLoggedIn();
+    loadSignedInData();
+  } catch (error) {
+    setAuthStatus(serverConfigHint(error.message), true);
+  } finally {
+    loginSubmitBtn.disabled = false;
+  }
 }
 
 function setAuthStatus(message, isError) {
@@ -153,7 +199,7 @@ function renderScriptMarkdown(text) {
 async function adminFetch(path, options = {}) {
   const secret = getSecret();
   if (!secret) {
-    throw new Error("Enter and save your admin secret (CRON_SECRET).");
+    throw new Error("Sign in first.");
   }
 
   const { timeoutMs = 30000, signal, ...fetchOptions } = options;
@@ -197,6 +243,13 @@ async function adminFetch(path, options = {}) {
     data = await response.json();
   } catch {
     throw new Error("Server returned an unexpected response.");
+  }
+
+  // An expired or revoked session token must drop the user back to the login
+  // form, otherwise every panel just shows a confusing generic error.
+  if (response.status === 401) {
+    showLoggedOut("Your session expired — sign in again.", true);
+    throw new Error("Your session expired — sign in again.");
   }
 
   if (!response.ok || !data.ok) {
@@ -1157,7 +1210,8 @@ async function resetRateLimit() {
 }
 
 resetRateLimitBtn.addEventListener("click", resetRateLimit);
-saveSecretBtn.addEventListener("click", saveSecret);
+loginForm.addEventListener("submit", login);
+logoutBtn.addEventListener("click", () => showLoggedOut("Signed out.", false));
 refreshBtn.addEventListener("click", loadAudits);
 refreshWarmLeadsBtn.addEventListener("click", loadWarmLeads);
 refreshRedesignsBtn.addEventListener("click", loadRedesigns);
@@ -1235,13 +1289,11 @@ regenerateScriptBtn.addEventListener("click", (event) => {
 });
 cancelScriptBtn.addEventListener("click", cancelScriptGeneration);
 
-const saved = sessionStorage.getItem(SECRET_KEY);
-if (saved) {
-  secretInput.value = saved;
-  setAuthStatus("Secret loaded from session.", false);
-  loadAudits();
-  loadWarmLeads();
-  loadRedesigns();
+if (getSecret()) {
+  showLoggedIn();
+  loadSignedInData();
+} else {
+  showLoggedOut();
 }
 
 /* ── Demo sites ──────────────────────────────────────────────────────────────

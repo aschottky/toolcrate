@@ -62,16 +62,16 @@ export async function sendAuditReportEmail(customerEmail, websiteUrl, pdfBuffer)
 
   const html = `
     <p>Hi there!</p>
-    <p>Thanks for purchasing your <strong>$17 Website Tear Down</strong>.</p>
+    <p>Here's the website review you asked for.</p>
     <p>Your AI-generated audit for <a href="${websiteUrl}">${websiteUrl}</a> is attached below as <strong>Website-Audit.pdf</strong>.</p>
     <p>Inside you'll find scores across 7 areas — SEO, lead capture, mobile, trust, messaging, performance, and tech security — plus three specific fixes you can tackle right away.</p>
     <p>If anything looks off or you want a second pair of eyes on the recommendations, just reply to this email.</p>
-    <p>— Alexander<br>Website Tear Down</p>
+    <p>— Alexander<br>ToolCrate</p>
   `.trim();
 
   const text = `Hi there!
 
-Thanks for purchasing your $17 Website Tear Down.
+Here's the website review you asked for.
 
 Your AI-generated audit for ${websiteUrl} is attached below (Website-Audit.pdf).
 
@@ -80,12 +80,12 @@ Inside you'll find scores across 7 areas — SEO, lead capture, mobile, trust, m
 If anything looks off or you want a second pair of eyes on the recommendations, just reply to this email.
 
 — Alexander
-Website Tear Down`;
+ToolCrate`;
 
   const { data, error } = await resend.emails.send({
     from,
     to: [to],
-    subject: `Your Website Tear Down audit — ${siteLabel}`,
+    subject: `Your website review — ${siteLabel}`,
     html,
     text,
     attachments: [
@@ -254,7 +254,7 @@ ${bodyHtml}
 }
 
 /**
- * Post-purchase welcome email for Full Build or Conversion OS checkout.
+ * Post-purchase welcome email for a build or a monthly care plan.
  *
  * @param {string} email
  * @param {string|null|undefined} name
@@ -303,27 +303,27 @@ Questions? Just reply to this email.
 
 — Alexander`;
   } else {
-    subject = "Welcome to Conversion OS - founding member confirmed";
+    subject = "You're all set — Alexander at ToolCrate";
     html = welcomeEmailShell(`
   <p>Hey ${greeting}, Alexander here.</p>
-  <p>Your founding membership is confirmed — you're one of a very small group getting in at this price, and I don't take that lightly.</p>
+  <p>Your payment went through and your monthly plan is active. Thanks for trusting me with it.</p>
   <p>Here's what's next:</p>
   <p>[1] Intake form coming your way within the hour.<br>
-  [2] Onboarding call scheduled within 48 hours to map your first 30 days.<br>
-  [3] Month 1 kicks off immediately after our call.</p>
-  <p>This is going to be good.</p>
+  [2] I'll call you within 48 hours to go over the first month.<br>
+  [3] Work starts right after that call.</p>
+  <p>Any questions before then, call me at (417) 409-1721.</p>
   <p>— Alexander</p>
     `);
     text = `Hey ${greeting}, Alexander here.
 
-Your founding membership is confirmed - you're one of a very small group getting in at this price, and I don't take that lightly.
+Your payment went through and your monthly plan is active. Thanks for trusting me with it.
 
 Here's what's next:
 [1] Intake form coming your way within the hour.
-[2] Onboarding call scheduled within 48 hours to map your first 30 days.
-[3] Month 1 kicks off immediately after our call.
+[2] I'll call you within 48 hours to go over the first month.
+[3] Work starts right after that call.
 
-This is going to be good.
+Any questions before then, call me at (417) 409-1721.
 
 — Alexander`;
   }
@@ -609,27 +609,27 @@ export async function sendFreeAuditEmail(customerEmail, websiteUrl, pdfBuffer) {
 
   const html = `
     <p>Hi there,</p>
-    <p>Per our conversation, attached is the free website teardown I ran for your business.</p>
+    <p>Per our conversation, attached is the free review I ran on your website.</p>
     <p>Your audit for <a href="${websiteUrl}">${websiteUrl}</a> is attached as <strong>Website-Audit.pdf</strong>.</p>
     <p>Let me know if you have any questions about the fixes!</p>
-    <p>— Alexander<br>Website Tear Down</p>
+    <p>— Alexander<br>ToolCrate</p>
   `.trim();
 
   const text = `Hi there,
 
-Per our conversation, attached is the free website teardown I ran for your business.
+Per our conversation, attached is the free review I ran on your website.
 
 Your audit for ${websiteUrl} is attached (Website-Audit.pdf).
 
 Let me know if you have any questions about the fixes!
 
 — Alexander
-Website Tear Down`;
+ToolCrate`;
 
   const { data, error } = await resend.emails.send({
     from,
     to: [to],
-    subject: `Your free website teardown — ${siteLabel}`,
+    subject: `Your free website review — ${siteLabel}`,
     html,
     text,
     attachments: [

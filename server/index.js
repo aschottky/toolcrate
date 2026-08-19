@@ -637,7 +637,7 @@ app.post("/api/audit", async (req, res) => {
   }
 });
 
-// Standalone redesign mockup — separate follow-up step after the teardown audit.
+// Standalone redesign mockup — separate follow-up step after the free review.
 async function handleRedesign(req, res, { websiteUrl, asHtml, generate, logPrefix, body }) {
   const blueprintRequest = normalizeBlueprintRequest(body ?? {});
 

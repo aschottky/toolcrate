@@ -3,8 +3,6 @@ import { defineConfig, loadEnv } from "vite";
 
 /** MPAs live in subfolders; bare paths like /success must map to /success/index.html */
 const MPA_ROUTES = [
-  "scan",
-  "audit-test",
   "app",
   "admin",
   "preview",
@@ -77,8 +75,6 @@ export default defineConfig(({ mode }) => {
     rollupOptions: {
       input: {
         main: resolve(__dirname, "index.html"),
-        scan: resolve(__dirname, "scan/index.html"),
-        auditTest: resolve(__dirname, "audit-test/index.html"),
         app: resolve(__dirname, "app/index.html"),
         admin: resolve(__dirname, "admin/index.html"),
         preview: resolve(__dirname, "preview/index.html"),

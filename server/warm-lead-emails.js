@@ -26,15 +26,15 @@ async function sendWarmLeadEmail({ to, subject, bodyText }) {
   return data;
 }
 
-/** Step 2 — 2 days after free audit. */
+/** Step 2 — 2 days after the free review. */
 export async function sendWarmLeadFollowUp2Email(lead) {
   const bodyText = `Hi there,
 
-Just making sure you received the PDF website teardown I sent over? If you want, I can actually implement all of those fixes for you, plus set up an automated Missed-Call text system so you stop losing leads. I run a 'Conversion OS' package for $300/mo that handles it all. Let me know if you want to chat.`;
+Just making sure the PDF review I sent came through? If you want, I can build the fixed version of the page for you — you see it finished before you pay anything. Builds start at $299. Give me a call at (417) 409-1721 if it's easier.`;
 
   return sendWarmLeadEmail({
     to: lead.email,
-    subject: "Did you get your website teardown?",
+    subject: "Did you get the review I sent?",
     bodyText,
   });
 }

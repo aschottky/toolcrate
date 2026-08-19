@@ -57,13 +57,13 @@ export async function sendNurtureDay2Email(audit) {
   const websiteUrl = audit.website_url;
   const bodyText = `Hi there,
 
-A couple of days ago, you ran a tear-down of ${websiteUrl}. If you looked at page 2 of the report, you likely noticed the 'Performance & Bloat' score.
+A couple of days ago I sent over the review of ${websiteUrl}. The part worth looking at is the speed score.
 
-Most local business websites are loaded down with excessive scripts and unoptimized images. When a customer clicks your site on their phone and it takes 4+ seconds to load, they hit the back button and call your competitor.
+Most small business sites are carrying a lot of dead weight — extra scripts, photos straight off a phone at full size. Someone taps your site while standing in their driveway, it takes a few seconds to come up, and they go back and call the next name on the list.
 
-I don't do hourly 'patch jobs' to fix this because it just breaks again next month. Instead, I migrate my clients to my 'Conversion OS'—a lightning-fast, mobile-optimized system designed specifically to capture leads.
+I don't do patch jobs by the hour, because the same thing breaks again in a month. I build the page over, clean, so it loads fast on a phone and puts your number where a thumb lands.
 
-If you are tired of losing traffic to slow load times, reply to this email and let's talk about getting your site on a secure, modern foundation.
+If that's worth ten minutes, reply here or call me at (417) 409-1721.
 
 Best,
 Alexander`;
@@ -84,13 +84,13 @@ export async function sendNurtureDay4Email(audit) {
 
   const bodyText = `Hi there,
 
-Alexander here. One of the biggest leaks I see in websites like ${websiteUrl} is how contact information is handled. The audit usually catches this under 'Lead Capture'.
+Alexander here. The thing I see most often on sites like ${websiteUrl} is that the phone number is hard to find, or it isn't tappable on a phone — you have to pinch, zoom, and read it out loud to yourself.
 
-If your phone number is buried, or if you simply miss a call because you are busy on a job site, that lead is gone. 60% of contractors don't answer the phone on the first ring.
+You're on a job. Somebody's standing in their kitchen trying to give you money. That should take one tap.
 
-My Conversion OS system includes an automated Missed-Call Text-Back feature. If someone calls you and you can't answer, the system immediately texts them: 'Hi, this is ${company}. We're on a job site, how can we help?'
+I can build ${company} a page where the number is the first thing you see and it dials when you touch it. You look at the finished page before you pay me anything.
 
-This one feature saves my clients thousands of dollars a month. Want to see how it works? Reply to this email and I'll send you a quick demo.
+Reply here or call me at (417) 409-1721.
 
 Best,
 Alexander`;
@@ -111,11 +111,11 @@ export async function sendNurtureDay7Email(audit) {
 
   const bodyText = `Hi there,
 
-It's been a week since you ran the audit on ${websiteUrl}. By now, you know exactly what is broken under the hood and why it's costing you leads.
+It's been about a week since I sent the review of ${websiteUrl}, so this is the last one from me.
 
-You can hand that PDF to your current web guy to try and fix the leaks, but if you want it done right the first time, let's talk.
+You're welcome to hand that PDF to whoever built the site and have them fix it — genuinely, that's a fine outcome. If you'd rather I just build the replacement, a one-page site is $299 and a full build is $497, and you see it finished before you pay.
 
-I'm taking on 3 new clients this month to install my Conversion OS lead capture system. If you want a website that actually makes your phone ring instead of just acting as a digital business card, click here to book a 15-minute call with me: ${bookingUrl}
+Easiest thing is to call me at (417) 409-1721. If you'd rather put something on the calendar: ${bookingUrl}
 
 Best,
 Alexander`;

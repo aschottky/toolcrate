@@ -13,7 +13,7 @@
     </script>
     <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>Nurture Admin — Website Tear Down</title>
+    <title>Admin — ToolCrate</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -26,41 +26,58 @@
   <body class="admin-page">
     <header class="site-header">
       <div class="container header-inner">
-        <a href="../" class="logo">Website Tear Down</a>
-        <span class="audit-badge">Nurture admin</span>
+        <a href="../" class="logo">ToolCrate</a>
+        <span class="audit-badge">Admin</span>
       </div>
     </header>
 
     <main class="container admin-main">
       <section class="admin-intro">
-        <h1>Audit admin</h1>
+        <h1>Admin</h1>
         <p>
-          Manage nurture emails and generate AI call scripts for paid audits. Protected by your
-          <code>CRON_SECRET</code> (same as the daily cron job).
+          Manage nurture emails and generate AI call scripts. Sign in with the same email and
+          password you use for Invoices — one login unlocks both pages.
         </p>
       </section>
 
-      <section class="admin-auth card">
-        <label for="cron-secret">Admin secret</label>
-        <div class="admin-auth-row">
-          <input
-            id="cron-secret"
-            type="text"
-            placeholder="CRON_SECRET from Render Environment (not local .env only)"
-            autocomplete="off"
-            spellcheck="false"
-          />
-          <button type="button" id="save-secret" class="btn btn-secondary">Save</button>
-        </div>
+      <section class="admin-auth card" id="login-card">
+        <h2>Sign in</h2>
+        <form id="login-form">
+          <div class="admin-auth-row">
+            <input
+              id="login-email"
+              type="email"
+              placeholder="Email"
+              autocomplete="username"
+              required
+            />
+            <input
+              id="login-password"
+              type="password"
+              placeholder="Password"
+              autocomplete="current-password"
+              required
+            />
+            <button type="submit" id="login-submit" class="btn btn-primary">Sign in</button>
+          </div>
+        </form>
         <p id="auth-status" class="admin-hint" hidden></p>
+      </section>
+
+      <section class="admin-auth card" id="session-card" hidden>
+        <p id="session-info" class="admin-hint">
+          Signed in as <strong id="session-email"></strong> &middot;
+          <button type="button" id="logout-btn" class="inv-linklike">Sign out</button>
+        </p>
         <div class="admin-auth-row">
           <button type="button" id="reset-rate-limit" class="btn btn-secondary">
-            🔄 Reset Rate Limit (testing)
+            Reset rate limit (testing)
           </button>
           <p id="rate-limit-status" class="admin-hint" hidden></p>
         </div>
       </section>
 
+      <div id="admin-tools" hidden>
       <section class="admin-preview card">
         <h2>Preview all templates</h2>
         <p>
@@ -275,6 +292,7 @@
           <article id="script-output" class="admin-script-output" hidden></article>
         </div>
       </section>
+      </div>
     </main>
 
     <script type="module" src="./admin.js"></script>

@@ -14,7 +14,7 @@ Authorization: Bearer YOUR_CRON_SECRET
 | Step | When | Email |
 |------|------|--------|
 | 1 | Manual — **Generate & Send Free Audit** | Free PDF audit |
-| 2 | 2 days after step 1 | “Did you get your website teardown?” + Conversion OS pitch |
+| 2 | 2 days after step 1 | “Did you get the review I sent?” + $299 build offer |
 | 3 | 4 days after step 2 | Final check-in; lead marked `completed` |
 
 ## Render cron setup
