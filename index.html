@@ -267,14 +267,15 @@
     .faq-answer p { color: #52525b; line-height: 1.7; padding-bottom: 1.5rem; margin: 0; }
     .pricing-grid {
       display: grid;
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
       gap: 2rem;
       align-items: stretch;
     }
     @media (min-width: 768px) {
-      .pricing-grid { grid-template-columns: repeat(3, 1fr); }
+      .pricing-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
     .pricing-card {
+      min-width: 0;
       border-radius: 1.5rem; background: #18181b; border: 1px solid #27272a;
       padding: 2.5rem; position: relative; display: flex; flex-direction: column;
     }
@@ -308,7 +309,7 @@
     .pricing-tier-title.display { font-size: 1.75rem; letter-spacing: -0.03em; }
     .pricing-tier-desc { color: #a1a1aa; margin-top: 0.75rem; line-height: 1.65; font-size: 0.9375rem; }
     .pricing-price-row { margin-top: 2rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem; }
-    .pricing-price { font-size: 3.75rem; font-weight: 900; color: #fafafa; line-height: 1; }
+    .pricing-price { font-size: clamp(2.5rem, 8vw, 3.75rem); overflow-wrap: anywhere; font-weight: 900; color: #fafafa; line-height: 1; }
     .pricing-price-sub { color: #71717a; font-size: 1rem; }
     .pricing-features { margin-top: 2rem; list-style: none; padding: 0; flex: 1; }
     .pricing-feature {
@@ -323,7 +324,7 @@
     .pricing-cta-outline { background: transparent; color: #fafafa; border: 1px solid #3f3f46; box-shadow: none; }
     .pricing-cta-outline:hover { border-color: #52525b; box-shadow: none; }
     @media (max-width: 768px) {
-      .pricing-grid { grid-template-columns: 1fr !important; }
+      .pricing-grid { grid-template-columns: minmax(0, 1fr) !important; }
     }
     .problem-grid {
       display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;
@@ -746,8 +747,8 @@
           </div>
           <div style="border-radius:1rem;padding:2rem;border:1px solid rgba(16,185,129,0.2);background:rgba(16,185,129,0.1);margin-bottom:1.5rem;">
             <div style="font-size:0.875rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:#34d399;margin-bottom:0.5rem;">ToolCrate full build</div>
-            <div style="font-size:2.25rem;font-weight:900;color:white;">$497</div>
-            <div style="font-size:0.875rem;color:#71717a;margin-top:0.5rem;">Plus $79/mo hosting & updates</div>
+            <div style="font-size:2.25rem;font-weight:900;color:white;">$299 &ndash; $497</div>
+            <div style="font-size:0.875rem;color:#71717a;margin-top:0.5rem;">Plus $29&ndash;$79/mo hosting &amp; updates</div>
           </div>
           <div style="text-align:center;"><span style="font-size:1.125rem;font-weight:700;color:white;">You save <span style="color:#34d399;">$9,500+</span> on day one.</span></div>
         </div>
@@ -792,7 +793,7 @@
         <div style="position:relative;">
           <div style="position:absolute;inset:-1rem;background:linear-gradient(to bottom right,#dbeafe,#cffafe);border-radius:1.5rem;transform:rotate(-3deg);"></div>
           <img src="/alexander.jpg" alt="Alexander Schottky" style="position:relative;border-radius:1.5rem;width:100%;object-fit:cover;box-shadow:0 25px 50px rgba(0,0,0,0.15);" />
-          <div style="position:absolute;bottom:-1rem;right:-1rem;background:#2563eb;color:white;font-weight:700;padding:0.75rem 1.5rem;border-radius:1rem;box-shadow:0 10px 25px rgba(0,0,0,0.15);font-size:0.875rem;">15+ Years Building Sites That Convert</div>
+          <div style="position:absolute;bottom:-1rem;right:-1rem;background:#2563eb;color:white;font-weight:700;padding:0.75rem 1.5rem;border-radius:1rem;box-shadow:0 10px 25px rgba(0,0,0,0.15);font-size:0.875rem;">Building sites since 2009</div>
         </div>
         <div>
           <span style="font-size:0.875rem;font-weight:700;letter-spacing:0.2em;color:#2563eb;text-transform:uppercase;">Meet Alexander</span>
