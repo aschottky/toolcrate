@@ -102,5 +102,17 @@
         }
       }
     }
+  ],
+  "extras": [
+    {
+      "title": "Lil Miss Do It All \u2014 draft two (Claude Design)",
+      "url": "https://usetoolcrate.com/lil-miss-do-it-all-v2/",
+      "note": "Comparison draft of the Krislyn page, exported from Claude Design"
+    },
+    {
+      "title": "Willadene's Quilts",
+      "url": "https://usetoolcrate.com/willadenes-quilts/",
+      "note": "Nonprofit site (7 pages) \u2014 donate form not yet wired to payments; noindex until launch"
+    }
   ]
 }
