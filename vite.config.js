@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { defineConfig, loadEnv } from "vite";
 
@@ -35,7 +36,9 @@ function mpaPathRewrite() {
       segment &&
       !segment.includes("/") &&
       !segment.includes(".") &&
-      MPA_ROUTES.includes(segment)
+      (MPA_ROUTES.includes(segment) ||
+        // demo sites live in public/<slug>/index.html (see demos.json)
+        existsSync(resolve(__dirname, "public", segment, "index.html")))
     ) {
       if (!pathname.endsWith("/")) {
         res.writeHead(302, { Location: `/${segment}/${search}` });

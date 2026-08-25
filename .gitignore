@@ -4,3 +4,4 @@ dist
 .env
 .env.local
 toolcrate-website/images/
+client-notes/

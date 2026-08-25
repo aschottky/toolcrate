@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lil Miss Do It All — Krislyn Barker | Odd jobs, all of 'em</title>
+<meta name="description" content="Krislyn Barker takes over the projects you can't get motivated to do — brush hogging, fences, hay, cleanouts, painting, drywall and more. Competitive pricing, quality work.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://usetoolcrate.com/lil-miss-do-it-all/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23fdf6da' stroke='%2323406b' stroke-width='2'/%3E%3Cpath d='M9 17 l5 5 L24 10' stroke='%23d4548a' stroke-width='3.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Permanent+Marker&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --paper:#fcf5d0;
+    --rule:rgba(96,136,178,.38);
+    --redline:#e59a9a;
+    --ink:#20304a;          /* ballpoint */
+    --pencil:#6f6a5c;
+    --marker:#1d4ed8;       /* blue sharpie */
+    --pink:#d4548a;
+    --navy:#23406b;
+    --desk:#7d6650;
+  }
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Work Sans',system-ui,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(1200px 500px at 50% -10%, rgba(255,255,255,.10), transparent 60%),
+      linear-gradient(175deg,#87705a 0%,#7d6650 45%,#6f5a46 100%);
+    min-height:100vh;
+  }
+
+  /* ---------- the pad ---------- */
+  .pad-wrap{max-width:900px;margin:0 auto;padding:56px 14px 0;position:relative}
+  .clip{display:block;margin:0 auto -34px;position:relative;z-index:3;width:150px;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35))}
+  .paper{
+    position:relative;z-index:1;
+    background:
+      linear-gradient(90deg, transparent 0 63px, var(--redline) 63px 65px, transparent 65px),
+      repeating-linear-gradient(to bottom, transparent 0 43px, var(--rule) 43px 44px),
+      var(--paper);
+    border-radius:3px 3px 5px 5px;
+    box-shadow:0 1px 0 #e8dfae inset, 0 14px 40px rgba(30,20,10,.45), 0 3px 8px rgba(30,20,10,.3);
+    padding:64px 56px 72px 96px;
+  }
+  .paper::after{ /* worn bottom edge */
+    content:"";position:absolute;left:8px;right:8px;bottom:-7px;height:7px;
+    background:linear-gradient(90deg,#e9e0b0,#d9cf9d 30%,#e9e0b0 60%,#d5ca97);
+    border-radius:0 0 6px 6px;filter:blur(.4px);z-index:-1;
+  }
+
+  /* ---------- masthead on the paper ---------- */
+  .mast{display:flex;align-items:center;gap:28px;flex-wrap:wrap;margin-bottom:30px}
+  .badge{flex:0 0 auto;width:168px;height:168px;transform:rotate(-4deg)}
+  .who{flex:1;min-width:230px}
+  .who .biz{font-family:'Permanent Marker',cursive;font-size:clamp(30px,5vw,44px);line-height:1.05;color:var(--navy);letter-spacing:.5px}
+  .who .biz .pink{color:var(--pink)}
+  .who .kris{font-family:'Caveat',cursive;font-size:26px;color:var(--ink);margin-top:6px}
+  .who .kris b{font-weight:700}
+  .phone-slot{
+    display:inline-block;margin-top:10px;padding:7px 14px;
+    border:2px dashed var(--pencil);border-radius:6px;transform:rotate(-1deg);
+    font-family:'Caveat',cursive;font-size:22px;color:var(--pencil);background:rgba(255,255,255,.35);
+  }
+  .phone-slot b{color:var(--navy)}
+
+  /* ---------- title ---------- */
+  .title{font-family:'Permanent Marker',cursive;color:var(--ink);font-size:clamp(34px,6vw,58px);line-height:1.12;margin:26px 0 4px}
+  .title u{text-decoration:none;background:linear-gradient(transparent 62%, rgba(212,84,138,.35) 62% 92%, transparent 92%)}
+  .tap-hint{font-family:'Caveat',cursive;font-size:25px;color:var(--pencil);margin-bottom:34px}
+  .tap-hint svg{vertical-align:-6px}
+
+  /* ---------- the list ---------- */
+  .todo{list-style:none}
+  .todo li{margin:0 0 26px}
+  .task{
+    display:flex;align-items:flex-start;gap:16px;width:100%;text-align:left;
+    background:none;border:none;cursor:pointer;padding:4px 6px 4px 0;border-radius:8px;
+    font:inherit;color:inherit;position:relative;
+  }
+  .task:hover{background:rgba(255,255,255,.35)}
+  .task:focus-visible{outline:3px solid var(--pink);outline-offset:3px}
+  .box{flex:0 0 34px;width:34px;height:34px;margin-top:6px}
+  .box .check{stroke-dasharray:60;stroke-dashoffset:60;transition:stroke-dashoffset .35s ease .05s}
+  .tt{position:relative;display:block;flex:1;min-width:0}
+  .tt .line1{position:relative;display:inline-block;font-family:'Caveat',cursive;font-weight:700;font-size:clamp(26px,3.6vw,34px);line-height:1.15;color:var(--ink)}
+  .tt .line2{display:block;font-family:'Work Sans',sans-serif;font-size:15px;color:var(--pencil);margin-top:3px;max-width:56ch}
+  .tt .line2 q{font-style:italic}
+  .strike{position:absolute;left:-6px;top:.55em;width:calc(100% + 12px);height:14px;transform:scaleX(0);transform-origin:left center;transition:transform .3s ease;pointer-events:none}
+  li.done .strike{transform:scaleX(1)}
+  li.done .box .check{stroke-dashoffset:0}
+  li.done .tt .line1{color:#5c6a80}
+  li.done .task{background:rgba(29,78,216,.05)}
+  .doodle{position:absolute;right:4px;top:-4px;font-family:'Caveat',cursive;color:var(--pink);font-size:21px;transform:rotate(-2deg);white-space:nowrap}
+  .doodle.blue{color:var(--marker)}
+  @media (max-width:1000px){.doodle{display:none}}
+
+  /* ---------- photos ---------- */
+  .photo{width:min(340px,86%);background:#fff;padding:12px 12px 14px;border-radius:2px;
+    box-shadow:0 6px 18px rgba(40,25,10,.28);position:relative;margin:34px auto 40px;transform:rotate(2deg)}
+  .photo.left{transform:rotate(-2.4deg)}
+  .photo::before,.photo::after{content:"";position:absolute;width:96px;height:30px;background:rgba(222,205,158,.8);
+    box-shadow:0 1px 2px rgba(0,0,0,.12);top:-14px}
+  .photo::before{left:-26px;transform:rotate(-38deg)}
+  .photo::after{right:-26px;transform:rotate(36deg)}
+  .photo img{display:block;width:100%;border-radius:1px}
+  .photo.missing img{display:none}
+  .photo .empty{display:none}
+  .photo.missing .empty{
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    aspect-ratio:3/4;border:2px dashed #b9ad8a;border-radius:2px;
+    font-family:'Caveat',cursive;font-size:22px;color:var(--pencil);padding:20px;line-height:1.3;
+  }
+  .photo figcaption{font-family:'Caveat',cursive;font-size:22px;text-align:center;color:var(--ink);margin-top:10px}
+
+  /* ---------- her note card ---------- */
+  .notecard{
+    background:#fff;border-radius:3px;box-shadow:0 8px 24px rgba(40,25,10,.25);
+    padding:30px 34px;margin:52px auto 8px;max-width:560px;transform:rotate(-1deg);position:relative;
+    background-image:repeating-linear-gradient(to bottom, transparent 0 31px, #dbe6f2 31px 32px);
+  }
+  .notecard::before{content:"";position:absolute;left:50%;top:-13px;width:110px;height:28px;margin-left:-55px;
+    background:rgba(222,205,158,.85);transform:rotate(-1deg);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+  .notecard .nc-head{font-family:'Permanent Marker',cursive;color:var(--navy);font-size:19px;letter-spacing:1px;margin-bottom:12px}
+  .notecard p{font-family:'Caveat',cursive;font-size:25px;line-height:32px;color:var(--ink)}
+  .notecard .sig{font-family:'Caveat',cursive;font-size:30px;color:var(--pink);text-align:right;margin-top:6px;transform:rotate(-2deg)}
+
+  /* ---------- sticky note ---------- */
+  .sticky{
+    position:fixed;right:22px;bottom:22px;z-index:50;width:230px;
+    background:linear-gradient(180deg,#ffd9e7 0%,#ffcce0 100%);
+    box-shadow:0 10px 24px rgba(40,10,25,.35);transform:rotate(-2deg);
+    padding:16px 16px 14px;border-radius:2px;
+  }
+  .sticky::before{content:"";position:absolute;left:0;right:0;top:0;height:26px;background:rgba(255,255,255,.35)}
+  .sticky h2{font-family:'Permanent Marker',cursive;font-size:17px;color:#8c2f57;letter-spacing:.5px;position:relative}
+  .sticky .count{font-family:'Caveat',cursive;font-size:21px;color:#5d3346;margin:4px 0 6px}
+  .sticky ul{list-style:none;max-height:132px;overflow:auto;margin-bottom:10px}
+  .sticky ul li{font-family:'Caveat',cursive;font-size:19px;line-height:1.25;color:#422332;padding-left:14px;position:relative}
+  .sticky ul li::before{content:"—";position:absolute;left:0;color:var(--pink)}
+  .sticky .idle{font-family:'Caveat',cursive;font-size:19px;color:#7c4a63;margin-bottom:10px}
+  .sticky a.hand{
+    display:block;text-align:center;text-decoration:none;font-family:'Permanent Marker',cursive;
+    font-size:15px;color:#fff;background:var(--pink);padding:11px 8px;border-radius:6px;
+    box-shadow:0 3px 0 #a63a6b;
+  }
+  .sticky a.hand:active{transform:translateY(2px);box-shadow:0 1px 0 #a63a6b}
+
+  /* ---------- corkboard flyer footer ---------- */
+  .cork{
+    margin-top:84px;padding:70px 14px 80px;
+    background:
+      radial-gradient(rgba(0,0,0,.14) 1px, transparent 1.6px),
+      radial-gradient(rgba(255,255,255,.05) 1px, transparent 1.6px),
+      linear-gradient(180deg,#a97e52,#966f47);
+    background-size:9px 9px, 13px 13px, 100% 100%;
+    background-position:0 0, 4px 6px, 0 0;
+    box-shadow:inset 0 10px 24px rgba(0,0,0,.25);
+  }
+  .flyer{
+    max-width:640px;margin:0 auto;background:#fffdf6;border-radius:2px;
+    box-shadow:0 14px 36px rgba(20,10,0,.45);position:relative;transform:rotate(.8deg);
+    padding:44px 40px 0;text-align:center;
+  }
+  .pin{position:absolute;top:-11px;left:50%;margin-left:-11px;width:22px;height:22px;border-radius:50%;
+    background:radial-gradient(circle at 34% 30%, #ff9db8, #d4548a 55%, #8c2f57);box-shadow:0 3px 5px rgba(0,0,0,.4)}
+  .flyer .fbadge{width:120px;height:120px;margin:0 auto 14px}
+  .flyer h2{font-family:'Permanent Marker',cursive;color:var(--navy);font-size:clamp(26px,4.5vw,38px);line-height:1.1}
+  .flyer h2 span{color:var(--pink)}
+  .flyer .services{font-family:'Work Sans',sans-serif;font-size:15.5px;color:#42506a;margin:14px auto 6px;max-width:46ch;line-height:1.55}
+  .flyer .area{font-family:'Caveat',cursive;font-size:22px;color:var(--pencil);margin-bottom:8px}
+  .flyer .list-cue{font-family:'Caveat',cursive;font-size:23px;color:var(--pink);margin-bottom:26px}
+  .tabs{display:flex;border-top:2px dashed #b9ad8a;margin:0 -40px}
+  .tab{
+    flex:1;min-width:0;padding:14px 2px 16px;border-right:2px dashed #d8d0b2;text-decoration:none;
+    writing-mode:vertical-rl;text-orientation:mixed;
+    font-family:'Permanent Marker',cursive;font-size:12.5px;letter-spacing:.6px;color:var(--navy);
+    display:flex;align-items:center;justify-content:center;min-height:150px;
+  }
+  .tab:nth-child(odd){transform:rotate(.7deg)}
+  .tab:nth-child(3n){transform:rotate(-.8deg)}
+  .tab:last-child{border-right:none}
+  .tab.gone{position:relative;color:transparent;pointer-events:none}
+  .tab.gone::before{content:"";position:absolute;left:6px;right:6px;top:0;height:26px;
+    background:#fffdf6;clip-path:polygon(0 0,100% 0,88% 100%,64% 55%,38% 92%,12% 48%);box-shadow:0 2px 3px rgba(0,0,0,.15)}
+  .tab.gone::after{content:"already taken";position:absolute;top:40px;left:0;right:0;
+    font-family:'Caveat',cursive;font-size:15px;color:#b9ad8a;writing-mode:vertical-rl}
+  .small-print{font-family:'Work Sans',sans-serif;font-size:12.5px;color:rgba(255,250,240,.75);text-align:center;margin-top:34px}
+
+  /* ---------- mobile ---------- */
+  @media (max-width:760px){
+    .pad-wrap{padding-top:40px}
+    .paper{padding:52px 22px 60px 44px;
+      background:
+        linear-gradient(90deg, transparent 0 27px, var(--redline) 27px 29px, transparent 29px),
+        repeating-linear-gradient(to bottom, transparent 0 43px, var(--rule) 43px 44px),
+        var(--paper);}
+    .mast{gap:16px}
+    .badge{width:120px;height:120px}
+    .sticky{right:0;bottom:0;left:0;width:auto;transform:none;border-radius:0;
+      display:flex;align-items:center;gap:12px;padding:10px 14px;box-shadow:0 -6px 18px rgba(40,10,25,.3)}
+    .sticky::before{display:none}
+    .sticky h2{font-size:14px;flex:0 0 auto}
+    .sticky .count{margin:0;font-size:18px;flex:1}
+    .sticky ul,.sticky .idle{display:none}
+    .sticky a.hand{flex:0 0 auto;font-size:13px;padding:10px 12px}
+    body{padding-bottom:64px}
+    .tabs{margin:0 -22px}
+    .flyer{padding:36px 22px 0}
+    .tab{min-height:120px;font-size:11px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .strike,.box .check{transition:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="pad-wrap">
+  <!-- clipboard clip -->
+  <svg class="clip" viewBox="0 0 150 56" aria-hidden="true">
+    <rect x="8" y="26" width="134" height="24" rx="9" fill="#8a8f96"/>
+    <rect x="8" y="26" width="134" height="10" rx="5" fill="#aab0b8"/>
+    <path d="M60 30 v-12 a15 15 0 0 1 30 0 v12" fill="none" stroke="#787d84" stroke-width="7" stroke-linecap="round"/>
+  </svg>
+
+  <main class="paper">
+    <header class="mast">
+      <!-- hand-painted badge logo -->
+      <svg class="badge" viewBox="0 0 200 200" role="img" aria-label="Lil Miss Do It All badge logo">
+        <defs><path id="ringpath" d="M100,22 a78,78 0 1,1 -0.01,0" fill="none"/></defs>
+        <circle cx="100" cy="100" r="97" fill="#fdf6da" stroke="#23406b" stroke-width="4"/>
+        <circle cx="100" cy="100" r="88" fill="none" stroke="#23406b" stroke-width="1.6" stroke-dasharray="3 6"/>
+        <text font-family="'Permanent Marker',cursive" font-size="16.5" fill="#23406b" letter-spacing="2.5">
+          <textPath href="#ringpath" startOffset="2%">LIL MISS DO IT ALL &#183; ODD JOBS. ALL OF &#8217;EM. &#183;</textPath>
+        </text>
+        <!-- rough check -->
+        <path d="M58 106 l26 28 c14 -34 34 -58 58 -74" fill="none" stroke="#d4548a" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M58 106 l26 28 c14 -34 34 -58 58 -74" fill="none" stroke="#23406b" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" opacity=".25" transform="translate(2,3)"/>
+        <!-- sparkles: her brand, drawn not typed -->
+        <path d="M52 62 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4 z" fill="#d4548a"/>
+        <path d="M148 138 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3 z" fill="#23406b" opacity=".8"/>
+      </svg>
+      <div class="who">
+        <div class="biz">Lil Miss <span class="pink">Do&nbsp;It&nbsp;All</span></div>
+        <div class="kris">that&#8217;s <b>Krislyn Barker</b> &mdash; and yes, she really does do it all</div>
+        <div class="phone-slot">call ya girl: <b>[ her number goes here ]</b></div>
+      </div>
+    </header>
+
+    <h1 class="title">Stuff you <u>swore</u> you&#8217;d get to.</h1>
+    <p class="tap-hint">
+      <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><path d="M4 16 C10 20, 16 20, 21 13 M21 13 l-1 7 M21 13 l-7 1" stroke="#6f6a5c" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      tap everything you&#8217;re tired of lookin&#8217; at &mdash; ya girl handles the rest
+    </p>
+
+    <ul class="todo" id="todo">
+      <li data-name="the brush pile">
+        <button class="task" type="button" aria-pressed="false">
+          <svg class="box" viewBox="0 0 34 34" aria-hidden="true">
+            <path d="M5 6 C14 4, 24 5, 29 6 C30 14, 30 23, 28 29 C19 30, 10 30, 5 28 C4 20, 4 12, 5 6 Z" fill="rgba(255,255,255,.5)" stroke="#20304a" stroke-width="2.2" stroke-linejoin="round"/>
+            <path class="check" d="M8 18 l8 9 c4 -11 10 -18 16 -23" fill="none" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+          <span class="tt">
+            <span class="line1">That brush pile. <svg class="strike" viewBox="0 0 300 14" preserveAspectRatio="none" aria-hidden="true"><path d="M2 8 C50 4, 105 11, 160 7 S 250 9, 298 5" stroke="#1d4ed8" stroke-width="5" fill="none" stroke-linecap="round"/></svg></span>
+            <span class="line2">The eyesore you&#8217;ve mowed around all summer. Gone.</span>
+          </span>
+        </button>
+      </li>
+
+      <li data-name="brush hog the field">
+        <button class="task" type="button" aria-pressed="false">
+          <svg class="box" viewBox="0 0 34 34" aria-hidden="true">
+            <path d="M6 5 C15 4, 25 5, 29 7 C29 15, 30 24, 28 29 C18 30, 9 29, 5 28 C5 19, 4 11, 6 5 Z" fill="rgba(255,255,255,.5)" stroke="#20304a" stroke-width="2.2" stroke-linejoin="round"/>
+            <path class="check" d="M8 18 l8 9 c4 -11 10 -18 16 -23" fill="none" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+          <span class="tt">
+            <span class="line1">The field you can&#8217;t see over. <svg class="strike" viewBox="0 0 300 14" preserveAspectRatio="none" aria-hidden="true"><path d="M2 6 C60 10, 120 4, 180 8 S 260 6, 298 8" stroke="#1d4ed8" stroke-width="5" fill="none" stroke-linecap="round"/></svg></span>
+            <span class="line2">Brush hogging up to 10 acres. <q>Weeds and grass as tall as you</q> &mdash; her words, she&#8217;s seen it.</span>
+          </span>
+          <span class="doodle">grass taller than you? she&#8217;s seen worse</span>
+        </button>
+      </li>
+    </ul>
+
+    <!-- tractor photo -->
+    <figure class="photo left">
+      <img src="krislyn-tractor.jpg" alt="View from the seat of Krislyn's tractor, a freshly brush-hogged strip cut through tall grass" onerror="this.closest('.photo').classList.add('missing')">
+      <div class="empty">photo slot &mdash; the view from her tractor seat, fresh-cut strip through the tall stuff<br>(save as krislyn-tractor.jpg)</div>
+      <figcaption>the view from the office &mdash; before it&#8217;s your turn</figcaption>
+    </figure>
+
+    <ul class="todo" id="todo2">
+      <li data-name="the fence">
+        <button class="task" type="button" aria-pressed="false">
+          <svg class="box" viewBox="0 0 34 34" aria-hidden="true">
+            <path d="M5 7 C13 5, 24 4, 29 6 C30 13, 29 22, 29 28 C20 30, 10 29, 5 29 C4 21, 4 13, 5 7 Z" fill="rgba(255,255,255,.5)" stroke="#20304a" stroke-width="2.2" stroke-linejoin="round"/>
+            <path class="check" d="M8 18 l8 9 c4 -11 10 -18 16 -23" fill="none" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+          <span class="tt">
+            <span class="line1">The fence that&#8217;s been &#8220;on the list.&#8221; <svg class="strike" viewBox="0 0 300 14" preserveAspectRatio="none" aria-hidden="true"><path d="M2 7 C45 10, 110 4, 170 8 S 255 10, 298 6" stroke="#1d4ed8" stroke-width="5" fill="none" stroke-linecap="round"/></svg></span>
+            <span class="line2">Fixed or redone &mdash; before the cold gets here, not after.</span>
+          </span>
+          <span class="doodle blue">before the cold!!</span>
+        </button>
+      </li>
+
+      <li data-name="hay in for winter">
+        <button class="task" type="button" aria-pressed="false">
+          <svg class="box" viewBox="0 0 34 34" aria-hidden="true">
+            <path d="M6 6 C14 5, 23 5, 28 6 C30 14, 29 22, 28 28 C19 29, 11 30, 6 28 C4 21, 5 12, 6 6 Z" fill="rgba(255,255,255,.5)" stroke="#20304a" stroke-width="2.2" stroke-linejoin="round"/>
+            <path class="check" d="M8 18 l8 9 c4 -11 10 -18 16 -23" fill="none" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+          <span class="tt">
+            <span class="line1">Hay &mdash; stacked and moved in. <svg class="strike" viewBox="0 0 300 14" preserveAspectRatio="none" aria-hidden="true"><path d="M2 8 C55 5, 115 10, 175 6 S 255 8, 298 7" stroke="#1d4ed8" stroke-width="5" fill="none" stroke-linecap="round"/></svg></span>
+            <span class="line2">In the barn before winter, not sitting in the weather.</span>
+          </span>
+        </button>
+      </li>
+
+      <li data-name="winterize the coop and pens">
+        <button class="task" type="button" aria-pressed="false">
+          <svg class="box" viewBox="0 0 34 34" aria-hidden="true">
+            <path d="M5 6 C13 4, 22 5, 29 6 C30 13, 30 21, 28 28 C21 30, 11 29, 5 28 C4 20, 4 12, 5 6 Z" fill="rgba(255,255,255,.5)" stroke="#20304a" stroke-width="2.2" stroke-linejoin="round"/>
+            <path class="check" d="M8 18 l8 9 c4 -11 10 -18 16 -23" fill="none" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+          <span class="tt">
+            <span class="line1">The coop. The goat pen. The etc. <svg class="strike" viewBox="0 0 300 14" preserveAspectRatio="none" aria-hidden="true"><path d="M2 6 C48 9, 108 5, 168 9 S 252 5, 298 8" stroke="#1d4ed8" stroke-width="5" fill="none" stroke-linecap="round"/></svg></span>
+            <span class="line2">Winterized before the first hard freeze. The animals will thank her.</span>
+          </span>
+        </button>
+      </li>
+
+      <li data-name="clean out the garage/shed">
+        <button class="task" type="button" aria-pressed="false">
+          <svg class="box" viewBox="0 0 34 34" aria-hidden="true">
+            <path d="M6 7 C14 5, 23 4, 28 6 C30 14, 29 23, 28 29 C19 30, 10 29, 5 28 C5 20, 5 13, 6 7 Z" fill="rgba(255,255,255,.5)" stroke="#20304a" stroke-width="2.2" stroke-linejoin="round"/>
+            <path class="check" d="M8 18 l8 9 c4 -11 10 -18 16 -23" fill="none" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+          <span class="tt">
+            <span class="line1">The garage you park <i>beside</i>. <svg class="strike" viewBox="0 0 300 14" preserveAspectRatio="none" aria-hidden="true"><path d="M2 7 C58 4, 118 10, 178 6 S 258 9, 298 5" stroke="#1d4ed8" stroke-width="5" fill="none" stroke-linecap="round"/></svg></span>
+            <span class="line2">Garages, kitchens, basements, sheds &mdash; cleaned out for real this time.</span>
+          </span>
+        </button>
+      </li>
+
+      <li data-name="paint the kiddo's room">
+        <button class="task" type="button" aria-pressed="false">
+          <svg class="box" viewBox="0 0 34 34" aria-hidden="true">
+            <path d="M5 5 C14 5, 24 4, 29 7 C29 15, 30 22, 28 28 C20 30, 10 30, 5 28 C4 19, 4 11, 5 5 Z" fill="rgba(255,255,255,.5)" stroke="#20304a" stroke-width="2.2" stroke-linejoin="round"/>
+            <path class="check" d="M8 18 l8 9 c4 -11 10 -18 16 -23" fill="none" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+          <span class="tt">
+            <span class="line1">The kiddo&#8217;s room. <svg class="strike" viewBox="0 0 300 14" preserveAspectRatio="none" aria-hidden="true"><path d="M2 8 C50 5, 108 9, 165 5 S 250 8, 298 6" stroke="#1d4ed8" stroke-width="5" fill="none" stroke-linecap="round"/></svg></span>
+            <span class="line2">Painted while they&#8217;re at school &mdash; the back-to-school surprise you get credit for.</span>
+          </span>
+        </button>
+      </li>
+
+      <li data-name="drywall">
+        <button class="task" type="button" aria-pressed="false">
+          <svg class="box" viewBox="0 0 34 34" aria-hidden="true">
+            <path d="M6 6 C15 4, 24 6, 29 6 C30 14, 29 23, 28 29 C18 30, 9 29, 5 28 C4 20, 5 12, 6 6 Z" fill="rgba(255,255,255,.5)" stroke="#20304a" stroke-width="2.2" stroke-linejoin="round"/>
+            <path class="check" d="M8 18 l8 9 c4 -11 10 -18 16 -23" fill="none" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+          <span class="tt">
+            <span class="line1">That hole in the wall. <svg class="strike" viewBox="0 0 300 14" preserveAspectRatio="none" aria-hidden="true"><path d="M2 6 C55 9, 112 5, 172 9 S 255 6, 298 8" stroke="#1d4ed8" stroke-width="5" fill="none" stroke-linecap="round"/></svg></span>
+            <span class="line2"><q>Heck, I can even throw up drywall.</q> &mdash; her, verbatim.</span>
+          </span>
+        </button>
+      </li>
+
+      <li data-name="the weird one">
+        <button class="task" type="button" aria-pressed="false">
+          <svg class="box" viewBox="0 0 34 34" aria-hidden="true">
+            <path d="M5 7 C14 4, 23 5, 28 5 C30 13, 30 22, 29 28 C20 30, 10 30, 6 29 C4 21, 4 13, 5 7 Z" fill="rgba(255,255,255,.5)" stroke="#20304a" stroke-width="2.2" stroke-linejoin="round"/>
+            <path class="check" d="M8 18 l8 9 c4 -11 10 -18 16 -23" fill="none" stroke="#1d4ed8" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+          <span class="tt">
+            <span class="line1">The weird one you think nobody&#8217;ll take. <svg class="strike" viewBox="0 0 300 14" preserveAspectRatio="none" aria-hidden="true"><path d="M2 7 C60 4, 125 10, 185 6 S 262 9, 298 5" stroke="#1d4ed8" stroke-width="5" fill="none" stroke-linecap="round"/></svg></span>
+            <span class="line2">&#8220;Work of any sort.&#8221; Try her.</span>
+          </span>
+          <span class="doodle">seriously, ask</span>
+        </button>
+      </li>
+    </ul>
+
+    <!-- hands photo -->
+    <figure class="photo">
+      <img src="krislyn-hands.jpg" alt="Krislyn grinning in her truck, holding up two palms covered in honest work dirt" onerror="this.closest('.photo').classList.add('missing')">
+      <div class="empty">photo slot &mdash; Krislyn, grinning, two hands of honest dirt<br>(save as krislyn-hands.jpg)</div>
+      <figcaption>dirt don&#8217;t lie &mdash; end of a workday</figcaption>
+    </figure>
+
+    <!-- her note -->
+    <aside class="notecard">
+      <div class="nc-head">FROM THE DESK OF LIL MISS DO IT ALL</div>
+      <p>Ya girl has some goals to reach, so I&#8217;m filling <b>all</b> of my free time with work of any sort. The projects you&#8217;re less than enthusiastic about? Those are my favorite kind. Competitive pricing. Quality work.</p>
+      <div class="sig">&mdash; Krislyn</div>
+    </aside>
+  </main>
+</div>
+
+<!-- sticky note -->
+<div class="sticky" role="status" aria-live="polite">
+  <h2>KRISLYN&#8217;S LIST</h2>
+  <div class="count" id="stickyCount">nothing yet</div>
+  <p class="idle" id="stickyIdle">tap a chore up there and watch it leave your life</p>
+  <ul id="stickyList"></ul>
+  <a class="hand" href="#flyer">Hand her the list</a>
+</div>
+
+<!-- corkboard flyer + tear-off tabs -->
+<footer class="cork">
+  <div class="flyer" id="flyer">
+    <span class="pin" aria-hidden="true"></span>
+    <svg class="fbadge" viewBox="0 0 200 200" aria-hidden="true">
+      <circle cx="100" cy="100" r="97" fill="#fdf6da" stroke="#23406b" stroke-width="4"/>
+      <path d="M58 106 l26 28 c14 -34 34 -58 58 -74" fill="none" stroke="#d4548a" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M52 62 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4 z" fill="#d4548a"/>
+    </svg>
+    <h2>LIL MISS <span>DO IT ALL</span></h2>
+    <p class="services">Brush pile removal &middot; brush hogging (up to 10 acres) &middot; fence repair &amp; rebuilds &middot; hay stacked and moved &middot; winterizing coops and pens &middot; cleanouts &middot; painting &middot; drywall &middot; and the weird one you think nobody&#8217;ll take</p>
+    <p class="area">Springfield, MO &amp; wherever the truck reaches <span style="font-size:17px;color:#b9ad8a">(service area to confirm)</span></p>
+    <p class="list-cue" id="flyerCue">grab a tab &mdash; she answers</p>
+    <div class="tabs" aria-label="tear-off phone tabs">
+      <a class="tab" href="#" onclick="return false">KRISLYN &mdash; number pending</a>
+      <a class="tab" href="#" onclick="return false">KRISLYN &mdash; number pending</a>
+      <a class="tab gone" href="#" onclick="return false" aria-hidden="true" tabindex="-1">x</a>
+      <a class="tab" href="#" onclick="return false">KRISLYN &mdash; number pending</a>
+      <a class="tab" href="#" onclick="return false">KRISLYN &mdash; number pending</a>
+      <a class="tab" href="#" onclick="return false">KRISLYN &mdash; number pending</a>
+      <a class="tab" href="#" onclick="return false">KRISLYN &mdash; number pending</a>
+    </div>
+  </div>
+  <p class="small-print">Lil Miss Do It All &middot; Krislyn Barker &middot; competitive pricing, quality work</p>
+</footer>
+
+<script>
+(function(){
+  var checked = [];
+  function refresh(){
+    var count = document.getElementById('stickyCount');
+    var list = document.getElementById('stickyList');
+    var idle = document.getElementById('stickyIdle');
+    var cue = document.getElementById('flyerCue');
+    list.innerHTML = '';
+    checked.forEach(function(n){
+      var li = document.createElement('li'); li.textContent = n; list.appendChild(li);
+    });
+    if(checked.length === 0){
+      count.textContent = 'nothing yet';
+      if(idle) idle.style.display = '';
+      cue.textContent = 'grab a tab — she answers';
+    } else {
+      count.textContent = checked.length + (checked.length === 1 ? ' thing off your plate' : ' things off your plate');
+      if(idle) idle.style.display = 'none';
+      cue.textContent = 'grab a tab — and read her your list of ' + checked.length;
+    }
+  }
+  document.querySelectorAll('.todo .task').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var li = btn.closest('li');
+      var name = li.getAttribute('data-name');
+      var on = li.classList.toggle('done');
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      if(on){ checked.push(name); }
+      else { checked = checked.filter(function(n){ return n !== name; }); }
+      refresh();
+    });
+  });
+  refresh();
+})();
+</script>
+</body>
+</html>
