@@ -12,6 +12,16 @@
           window.location.search +
           window.location.hash;
 
+        // Willadene's Quilts is a single-page app: deep links like
+        // /willadenes-quilts/our-story must load its index, which restores
+        // the path from ?p= on the client.
+        if (url.indexOf("/willadenes-quilts") === 0) {
+          window.location.replace(
+            "/willadenes-quilts/?p=" + encodeURIComponent(url)
+          );
+          return;
+        }
+
         if (
           url.indexOf("/tools/") !== -1 ||
           url.indexOf("/guides/") !== -1 ||
