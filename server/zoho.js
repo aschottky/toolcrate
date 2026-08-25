@@ -209,6 +209,44 @@ async function listContacts() {
   };
 }
 
+/**
+ * Resolve the addresses an invoice email should be sent to.
+ *
+ * Zoho does NOT fall back to the customer's stored addresses when the email body
+ * is empty. GET /invoices/{id}/email returns the contact persons with
+ * "selected": false, and a send with no recipients fails with
+ *   "The email address for this customer was not found in the customer's details."
+ * even though the contact has a perfectly good email on file.
+ *
+ * Recipients must therefore be passed explicitly as `to_mail_ids`, and Zoho wants
+ * EMAIL ADDRESSES there - passing contact_person_id values is rejected with
+ * "Invalid value passed for to_mail_ids".
+ */
+async function getInvoiceRecipients(invoiceId) {
+  const data = await zohoFetch(`/invoices/${invoiceId}/email`);
+  const emails = (data.data?.to_contacts || [])
+    .map((c) => c.email?.trim())
+    .filter(Boolean);
+  return [...new Set(emails)];
+}
+
+/** Email an invoice to every address Zoho knows for its customer. */
+async function sendInvoiceEmail(invoiceId) {
+  const to = await getInvoiceRecipients(invoiceId);
+  if (!to.length) {
+    const err = new Error(
+      "No email address on file for this customer in Zoho. Add one to the contact (Zoho → Contacts → Email) and try again."
+    );
+    err.statusCode = 422;
+    throw err;
+  }
+  await zohoFetch(`/invoices/${invoiceId}/email`, {
+    method: "POST",
+    body: { to_mail_ids: to },
+  });
+  return to;
+}
+
 async function createInvoice(req) {
   const { customer_id, line_items, date, due_date, notes, delivery } =
     req.body || {};
@@ -256,11 +294,7 @@ async function createInvoice(req) {
   if (invoice?.invoice_id && mode !== "draft") {
     try {
       if (mode === "email") {
-        // Empty body → Zoho uses the org's default email template + contact emails.
-        await zohoFetch(`/invoices/${invoice.invoice_id}/email`, {
-          method: "POST",
-          body: {},
-        });
+        await sendInvoiceEmail(invoice.invoice_id);
         emailed = true;
       } else if (mode === "open") {
         await zohoFetch(`/invoices/${invoice.invoice_id}/status/sent`, {
@@ -356,11 +390,8 @@ async function markInvoiceOpen(req) {
 }
 
 async function emailInvoice(req) {
-  await zohoFetch(`/invoices/${req.params.id}/email`, {
-    method: "POST",
-    body: {},
-  });
-  return { ok: true };
+  const to = await sendInvoiceEmail(req.params.id);
+  return { ok: true, sent_to: to };
 }
 
 // ---------------------------------------------------------------------------

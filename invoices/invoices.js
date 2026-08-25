@@ -437,14 +437,21 @@ async function loadContacts() {
     customerSelect.innerHTML =
       `<option value="">Select a customer…</option>` +
       data.contacts
-        .map(
-          (c) =>
-            `<option value="${c.contact_id}">${escapeHtml(c.contact_name)}${
-              c.company_name && c.company_name !== c.contact_name
-                ? ` — ${escapeHtml(c.company_name)}`
-                : ""
-            }</option>`
-        )
+        .map((c) => {
+          const company =
+            c.company_name && c.company_name !== c.contact_name
+              ? ` — ${escapeHtml(c.company_name)}`
+              : "";
+          // Show the address the invoice will actually be emailed to. Zoho refuses
+          // to send when a contact has none, so surface that before it is picked
+          // rather than after the send fails.
+          const email = c.email?.trim()
+            ? ` · ${escapeHtml(c.email.trim())}`
+            : " · ⚠ no email on file";
+          return `<option value="${c.contact_id}">${escapeHtml(
+            c.contact_name
+          )}${company}${email}</option>`;
+        })
         .join("");
     setStatus(contactsStatus, "");
   } catch (error) {
