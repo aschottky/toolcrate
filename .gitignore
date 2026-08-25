@@ -5,3 +5,4 @@ dist
 .env.local
 toolcrate-website/images/
 client-notes/
+site drafts/
