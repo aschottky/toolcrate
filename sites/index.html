@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Hosted Sites — ToolCrate</title>
+<link rel="icon" href="/favicon.svg">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,sans-serif;background:#09090b;color:#e7e7ea;min-height:100vh;padding:48px 20px 80px}
+  .wrap{max-width:880px;margin:0 auto}
+  h1{font-size:26px;font-weight:700;letter-spacing:-.02em}
+  h1 span{color:#f97316}
+  .sub{color:#9b9ba3;font-size:14px;margin:6px 0 34px}
+  h2{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:#9b9ba3;margin:36px 0 12px}
+  .card{background:#131316;border:1px solid #26262c;border-radius:12px;padding:18px 20px;margin-bottom:12px;
+    display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+  .info{flex:1;min-width:220px}
+  .name{font-weight:600;font-size:16px}
+  .meta{color:#9b9ba3;font-size:13px;margin-top:3px}
+  .hook{color:#c9c9cf;font-size:13px;margin-top:6px;font-style:italic}
+  .actions{display:flex;gap:8px;flex:0 0 auto}
+  a.open,button.copy{font:inherit;font-size:13.5px;font-weight:600;padding:9px 16px;border-radius:8px;cursor:pointer;
+    text-decoration:none;border:1px solid #3a3a42;background:#1c1c21;color:#e7e7ea}
+  a.open{background:#f97316;border-color:#f97316;color:#0c0c0e}
+  a.open:hover{background:#fb8c3a}
+  button.copy:hover{border-color:#5a5a64}
+  .status{color:#9b9ba3;font-size:14px}
+  .foot{margin-top:44px;color:#6b6b74;font-size:12.5px}
+  .foot a{color:#9b9ba3}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Tool<span>Crate</span> — hosted sites</h1>
+  <p class="sub">Every preview and spec build currently served on usetoolcrate.com. All are noindexed. This list reads demos.json, so new builds appear here automatically.</p>
+
+  <h2>Demo sites (prospect previews)</h2>
+  <div id="demos" class="status">Loading…</div>
+
+  <h2>Also hosted</h2>
+  <div id="extras" class="status">Loading…</div>
+
+  <p class="foot">Outreach tracking, dial digits and email drafts live in <a href="/admin/">/admin</a> → Demo sites (login required).</p>
+</div>
+<script>
+(function(){
+  function card(name, meta, hook, url){
+    var div = document.createElement("div");
+    div.className = "card";
+    var info = document.createElement("div");
+    info.className = "info";
+    var n = document.createElement("div"); n.className = "name"; n.textContent = name;
+    var m = document.createElement("div"); m.className = "meta"; m.textContent = meta;
+    info.append(n, m);
+    if (hook){ var h = document.createElement("div"); h.className = "hook"; h.textContent = hook; info.appendChild(h); }
+    var actions = document.createElement("div");
+    actions.className = "actions";
+    var open = document.createElement("a");
+    open.className = "open"; open.href = url; open.target = "_blank"; open.rel = "noopener"; open.textContent = "Open";
+    var copy = document.createElement("button");
+    copy.className = "copy"; copy.type = "button"; copy.textContent = "Copy link";
+    copy.addEventListener("click", function(){
+      navigator.clipboard.writeText(url).then(function(){
+        copy.textContent = "Copied";
+        setTimeout(function(){ copy.textContent = "Copy link"; }, 1500);
+      });
+    });
+    actions.append(open, copy);
+    div.append(info, actions);
+    return div;
+  }
+
+  fetch("/demos.json", {cache: "no-store"}).then(function(r){ return r.json(); }).then(function(data){
+    var demos = document.getElementById("demos");
+    demos.textContent = "";
+    demos.classList.remove("status");
+    (data.demos || []).forEach(function(d){
+      demos.appendChild(card(d.business, [d.trade, d.city, d.phone].filter(Boolean).join(" · "), d.hook, d.url));
+    });
+    if (!demos.children.length) demos.textContent = "No demos in the manifest.";
+
+    var extras = document.getElementById("extras");
+    extras.textContent = "";
+    extras.classList.remove("status");
+    (data.extras || []).forEach(function(x){
+      extras.appendChild(card(x.title, x.note || "", "", x.url));
+    });
+    if (!extras.children.length) extras.textContent = "Nothing else hosted.";
+  }).catch(function(){
+    document.getElementById("demos").textContent = "Could not load demos.json.";
+    document.getElementById("extras").textContent = "";
+  });
+})();
+</script>
+</body>
+</html>
