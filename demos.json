@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-19",
+  "updated": "2026-08-25",
   "bridge_number": "(417) 815-0067",
   "demos": [
     {
@@ -74,6 +74,31 @@
         "voicemail": {
           "subject": "Your website and your Google listing - Affordable Heights",
           "body": "Shawn,\n\nI left you a message. Two things I found looking for you online:\n\naffordableheights.com has been dead since around 2018, and you do not have a Google Business Profile at all - so when somebody searches for emergency tree removal in Springfield at night, you do not come up.\n\nI built you a page to show what it could look like:\n\nhttps://usetoolcrate.com/affordable-heights-tree\n\nThe Google listing is free and I will set it up for you whether or not you ever buy a website from me. Worth a five minute call. (417) 409-1721.\n\nAlexander Schottky\nToolCrate\n(417) 409-1721\nusetoolcrate.com"
+        }
+      }
+    },
+    {
+      "slug": "lil-miss-do-it-all",
+      "business": "Lil Miss Do It All",
+      "trade": "Odd jobs / farm & home projects",
+      "city": "Springfield, MO",
+      "phone": "",
+      "hook": "Interactive to-do list \u2014 tap a chore, the marker crosses it off",
+      "url": "https://usetoolcrate.com/lil-miss-do-it-all/",
+      "updated": "2026-08-25",
+      "status": "ready",
+      "size_kb": 838,
+      "sent": false,
+      "bridge_digit": "",
+      "email_to": "",
+      "emails": {
+        "after_call": {
+          "subject": "Your page \u2014 Lil Miss Do It All",
+          "body": "Krislyn,\n\nHere it is:\n\nhttps://usetoolcrate.com/lil-miss-do-it-all\n\nIt's your Facebook post turned into a website \u2014 the whole page is the to-do list your customers keep putting off. Tap the chores and watch what happens. Your tractor photo and the dirty-hands one are on there.\n\nTwo things I still need from you: the number you want people calling, and whatever towns you'll actually drive to.\n\nNothing on it is public to Google. Tell me what to change and I'll change it.\n\nAlexander Schottky\nToolCrate\n(417) 409-1721\nusetoolcrate.com"
+        },
+        "voicemail": {
+          "subject": "Built you something \u2014 Lil Miss Do It All",
+          "body": "Krislyn,\n\nI turned your \"Lil Miss Do It All\" post into a real website to show you what it could look like:\n\nhttps://usetoolcrate.com/lil-miss-do-it-all\n\nCosts nothing to look, it's not on Google, and it's yours to keep or ignore. If you want it live with your number on it, call me.\n\nAlexander Schottky\nToolCrate\n(417) 409-1721\nusetoolcrate.com"
         }
       }
     }
