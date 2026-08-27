@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lil Miss Do It All — Krislyn Barker | Odd jobs, all of 'em</title>
+<meta name="description" content="Krislyn Barker takes over the projects you can't get motivated to do — brush hogging, fences, hay, cleanouts, painting, drywall and more. Competitive pricing, quality work.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://usetoolcrate.com/lil-miss-do-it-all-v3/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23a4331f' stroke='%232b2620' stroke-width='2'/%3E%3Cpath d='M9 17 l5 5 L24 10' stroke='%23f2c14e' stroke-width='3.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Caveat:wght@600;700&family=Karla:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --cream:#faf5ea;
+    --card:#fffdf7;
+    --ink:#2b2620;
+    --rust:#a4331f;
+    --rust-dark:#7d2415;
+    --gold:#f2c14e;
+    --mute:#5d5344;
+    --tan:#e8dcc3;
+  }
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Karla',sans-serif;color:var(--ink);background:var(--cream);
+    -webkit-font-smoothing:antialiased;overflow-x:hidden;
+  }
+  /* subtle paper grain */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.35;
+    background-image:radial-gradient(rgba(43,38,32,.05) 1px, transparent 1.4px);
+    background-size:5px 5px;
+  }
+  a{color:var(--rust);text-decoration:none}
+  ::selection{background:var(--gold);color:var(--ink)}
+
+  @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-8px) rotate(2deg)}}
+  @keyframes stamp{0%{transform:rotate(-14deg) scale(2.4);opacity:0}60%{transform:rotate(-8deg) scale(.92);opacity:1}100%{transform:rotate(-10deg) scale(1);opacity:1}}
+  @keyframes tallypop{0%{transform:rotate(-2deg) scale(1)}40%{transform:rotate(-2deg) scale(1.12)}100%{transform:rotate(-2deg) scale(1)}}
+  @keyframes tapnudge{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+
+  /* scroll reveal */
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .6s ease, transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ---------- header ---------- */
+  header{
+    position:sticky;top:0;z-index:50;background:var(--cream);border-bottom:3px solid var(--ink);
+    display:flex;align-items:center;justify-content:space-between;padding:14px 28px;gap:16px;
+  }
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand .coin{
+    width:52px;height:52px;border-radius:50%;background:var(--rust);border:3px solid var(--ink);
+    box-shadow:3px 3px 0 var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;
+    color:var(--cream);line-height:1;flex:0 0 auto;
+  }
+  .brand .coin .s1{font-family:'Caveat',cursive;font-size:13px;font-weight:700}
+  .brand .coin .s2{font-family:'Alfa Slab One',serif;font-size:8.5px;letter-spacing:.5px}
+  .brand .words{line-height:1.05}
+  .brand .words .l1{font-family:'Alfa Slab One',serif;font-size:18px;color:var(--ink)}
+  .brand .words .l2{font-family:'Caveat',cursive;font-size:16px;color:var(--rust);font-weight:700}
+  .callpill{
+    background:var(--gold);border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);border-radius:999px;
+    padding:10px 20px;font-weight:700;font-size:15px;color:var(--ink);white-space:nowrap;transition:all .15s ease;
+  }
+  .callpill:hover{background:var(--ink);color:var(--gold);transform:translate(1px,1px);box-shadow:2px 2px 0 var(--ink)}
+
+  /* ---------- hero ---------- */
+  .hero{max-width:1200px;margin:0 auto;padding:64px 28px 48px;display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:48px;align-items:center;position:relative;z-index:2}
+  .kicker{font-family:'Caveat',cursive;font-size:28px;color:var(--rust);font-weight:700;transform:rotate(-2deg);display:inline-block}
+  h1{font-family:'Alfa Slab One',serif;font-size:clamp(40px,5.5vw,72px);line-height:1.02;margin:12px 0 20px;color:var(--ink)}
+  h1 .rust{color:var(--rust);position:relative;white-space:nowrap}
+  h1 .rust svg{position:absolute;left:-2%;bottom:.02em;width:104%;height:.16em;z-index:-1;opacity:.85}
+  .done-chip{background:var(--gold);padding:0 10px;box-shadow:4px 4px 0 var(--ink);display:inline-block;transform:rotate(-1deg)}
+  .hero p.lead{font-size:19px;line-height:1.55;max-width:52ch;margin:0 0 28px}
+  .hero-ctas{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .bigcall{
+    background:var(--rust);color:var(--cream);border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);
+    border-radius:12px;padding:16px 28px;font-family:'Alfa Slab One',serif;font-size:18px;letter-spacing:.5px;transition:all .15s ease;
+  }
+  .bigcall:hover{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink);color:var(--gold)}
+  .zero{font-family:'Caveat',cursive;font-size:20px;font-weight:700;color:var(--ink)}
+  .hero-photo{position:relative;justify-self:center}
+  .hero-photo .spark1{position:absolute;top:-18px;left:-22px;font-size:34px;animation:bob 3s ease-in-out infinite;z-index:2}
+  .hero-photo .spark2{position:absolute;bottom:24px;right:-16px;font-size:26px;animation:bob 3.6s ease-in-out infinite;z-index:2}
+  .hero-photo img{
+    width:100%;max-width:420px;display:block;border:4px solid var(--ink);
+    border-radius:220px 220px 18px 18px;box-shadow:8px 8px 0 var(--gold),8px 8px 0 4px var(--ink);object-fit:cover;
+  }
+  .hero-photo .sticker{
+    position:absolute;bottom:-16px;left:50%;transform:translateX(-50%) rotate(-2deg);
+    background:var(--cream);border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink);border-radius:10px;
+    padding:6px 16px;font-family:'Caveat',cursive;font-size:22px;font-weight:700;white-space:nowrap;
+  }
+
+  /* ---------- marquee ---------- */
+  .ticker{background:var(--ink);border-top:3px solid var(--ink);border-bottom:3px solid var(--ink);overflow:hidden;padding:12px 0;position:relative;z-index:2}
+  .ticker .track{display:flex;width:max-content;animation:marquee 22s linear infinite;
+    font-family:'Alfa Slab One',serif;font-size:16px;color:var(--gold);letter-spacing:1px;white-space:nowrap}
+  .ticker:hover .track{animation-play-state:paused}
+  .ticker .track span{padding:0 18px}
+  .ticker.flip{background:var(--gold)}
+  .ticker.flip .track{color:var(--ink);animation-direction:reverse;animation-duration:26s}
+
+  /* ---------- to-don't list (interactive) ---------- */
+  .listwrap{max-width:1200px;margin:0 auto;padding:72px 28px 40px;position:relative;z-index:2}
+  .sec-head{text-align:center;margin-bottom:14px}
+  .sec-head .over{font-family:'Caveat',cursive;font-size:26px;color:var(--rust);font-weight:700}
+  .sec-head h2{font-family:'Alfa Slab One',serif;font-size:clamp(30px,4vw,48px);margin:6px 0 0;color:var(--ink)}
+  .sec-head .under{font-size:17px;color:var(--mute);margin:10px auto 0;max-width:56ch}
+  .tap-cue{
+    display:flex;align-items:center;justify-content:center;gap:10px;margin:18px 0 34px;
+    font-family:'Caveat',cursive;font-size:24px;font-weight:700;color:var(--ink);
+  }
+  .tap-cue .finger{display:inline-block;font-size:26px;animation:tapnudge 1.6s ease-in-out infinite}
+  .jobs{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px}
+  .job{
+    position:relative;background:var(--card);border:3px solid var(--ink);border-radius:14px;
+    box-shadow:5px 5px 0 var(--tan);padding:22px 22px 20px;text-align:left;cursor:pointer;
+    font:inherit;color:inherit;width:100%;transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .job:nth-child(8n+1){transform:rotate(-1deg)}
+  .job:nth-child(8n+2){transform:rotate(.8deg)}
+  .job:nth-child(8n+3){transform:rotate(-.6deg)}
+  .job:nth-child(8n+4){transform:rotate(1deg)}
+  .job:nth-child(8n+5){transform:rotate(-.9deg)}
+  .job:nth-child(8n+6){transform:rotate(.7deg)}
+  .job:nth-child(8n+7){transform:rotate(-.5deg)}
+  .job:nth-child(8n+8){transform:rotate(.9deg)}
+  .job:hover{box-shadow:5px 5px 0 var(--gold);transform:rotate(0) translateY(-3px)}
+  .job:focus-visible{outline:3px solid var(--rust);outline-offset:3px}
+  .job .icon{font-size:30px;line-height:1}
+  .job h3{font-family:'Alfa Slab One',serif;font-size:19px;margin:12px 0 8px;color:var(--ink);position:relative;display:inline-block}
+  .job h3 .jstrike{position:absolute;left:-4px;top:52%;width:calc(100% + 8px);height:10px;pointer-events:none;
+    transform:scaleX(0);transform-origin:left center;transition:transform .3s ease}
+  .job p{margin:0;font-size:15.5px;line-height:1.5;color:var(--mute)}
+  .job .stamp{
+    position:absolute;top:-14px;right:-10px;background:var(--gold);border:3px solid var(--ink);
+    box-shadow:3px 3px 0 var(--ink);border-radius:8px;padding:4px 12px;
+    font-family:'Alfa Slab One',serif;font-size:15px;color:var(--ink);display:none;transform:rotate(-10deg);
+  }
+  .job.done{background:#f6efdd}
+  .job.done h3 .jstrike{transform:scaleX(1)}
+  .job.done h3{color:var(--mute)}
+  .job.done .stamp{display:block;animation:stamp .35s ease forwards}
+  .more-line{text-align:center;margin-top:30px;font-family:'Caveat',cursive;font-size:26px;font-weight:700;color:var(--ink);transform:rotate(-1deg)}
+
+  /* ---------- tally chip ---------- */
+  .tally{
+    position:fixed;right:20px;bottom:20px;z-index:60;background:var(--gold);border:3px solid var(--ink);
+    box-shadow:4px 4px 0 var(--ink);border-radius:14px;padding:14px 18px;max-width:250px;transform:rotate(-2deg);
+  }
+  .tally[hidden]{display:none !important}
+  .tally.pop{animation:tallypop .35s ease}
+  .tally .t-head{font-family:'Alfa Slab One',serif;font-size:14px;letter-spacing:.5px;color:var(--ink)}
+  .tally .t-count{font-family:'Caveat',cursive;font-size:22px;font-weight:700;color:var(--ink);margin:2px 0 8px}
+  .tally a{
+    display:block;text-align:center;background:var(--rust);color:var(--cream);border:3px solid var(--ink);
+    box-shadow:3px 3px 0 var(--ink);border-radius:9px;padding:9px 12px;
+    font-family:'Alfa Slab One',serif;font-size:13px;transition:all .15s ease;
+  }
+  .tally a:hover{transform:translate(1px,1px);box-shadow:2px 2px 0 var(--ink);color:var(--gold)}
+
+  /* ---------- tractor section ---------- */
+  .field{max-width:1200px;margin:0 auto;padding:40px 28px 72px;display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:48px;align-items:center;position:relative;z-index:2}
+  .field-photo{position:relative}
+  .field-photo img{width:100%;display:block;border:4px solid var(--ink);border-radius:18px;
+    box-shadow:-8px 8px 0 var(--rust),-8px 8px 0 4px var(--ink);object-fit:cover;aspect-ratio:4/4.6}
+  .field-photo .acres{
+    position:absolute;top:-16px;right:-10px;background:var(--gold);border:3px solid var(--ink);
+    box-shadow:3px 3px 0 var(--ink);border-radius:999px;padding:8px 18px;
+    font-family:'Alfa Slab One',serif;font-size:14px;transform:rotate(3deg);
+  }
+  .field h2{font-family:'Alfa Slab One',serif;font-size:clamp(28px,3.6vw,44px);margin:6px 0 18px;color:var(--ink)}
+  .field .over{font-family:'Caveat',cursive;font-size:26px;color:var(--rust);font-weight:700}
+  .field p{font-size:18px;line-height:1.6;margin:0 0 16px}
+  .frost-link{font-family:'Alfa Slab One',serif;font-size:16px;color:var(--rust);border-bottom:3px solid var(--gold);padding-bottom:2px}
+  .frost-link:hover{border-bottom-color:var(--rust)}
+
+  /* ---------- how it works ---------- */
+  .how{max-width:1200px;margin:0 auto;padding:0 28px 72px;position:relative;z-index:2}
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px;margin-top:38px}
+  .step{background:var(--card);border:3px solid var(--ink);border-radius:14px;box-shadow:5px 5px 0 var(--tan);
+    padding:26px 24px;position:relative;text-align:center}
+  .step:nth-child(1){transform:rotate(-.8deg)}
+  .step:nth-child(2){transform:rotate(.6deg)}
+  .step:nth-child(3){transform:rotate(-.5deg)}
+  .step .num{
+    position:absolute;top:-18px;left:50%;transform:translateX(-50%) rotate(-4deg);
+    width:38px;height:38px;border-radius:50%;background:var(--rust);color:var(--cream);
+    border:3px solid var(--ink);box-shadow:2px 2px 0 var(--ink);
+    display:flex;align-items:center;justify-content:center;font-family:'Alfa Slab One',serif;font-size:17px;
+  }
+  .step h3{font-family:'Alfa Slab One',serif;font-size:18px;margin:14px 0 8px}
+  .step p{font-size:15.5px;line-height:1.5;color:var(--mute)}
+
+  /* ---------- pull quote ---------- */
+  .quoteband{border-top:3px solid var(--ink);border-bottom:3px solid var(--ink);background:var(--card);position:relative;z-index:2}
+  .quoteband .inner{max-width:900px;margin:0 auto;padding:64px 28px;text-align:center}
+  .quoteband .q{font-family:'Caveat',cursive;font-size:clamp(32px,4.6vw,52px);font-weight:700;line-height:1.25;color:var(--ink)}
+  .quoteband .q .hl{background:linear-gradient(transparent 55%, var(--gold) 55% 92%, transparent 92%);padding:0 4px}
+  .quoteband .attr{margin-top:14px;font-family:'Alfa Slab One',serif;font-size:14px;letter-spacing:1px;color:var(--rust)}
+
+  /* ---------- CTA band ---------- */
+  .ctaband{background:var(--rust);border-top:3px solid var(--ink);border-bottom:3px solid var(--ink);position:relative;z-index:2}
+  .ctaband .inner{max-width:1000px;margin:0 auto;padding:72px 28px;text-align:center;color:var(--cream)}
+  .ctaband .hands{font-size:34px}
+  .ctaband h2{font-family:'Alfa Slab One',serif;font-size:clamp(30px,4.4vw,54px);margin:14px 0 18px;line-height:1.1}
+  .ctaband p{font-size:19px;line-height:1.6;max-width:58ch;margin:0 auto 12px}
+  .ctaband .promise{font-family:'Caveat',cursive;font-size:26px;font-weight:700;margin:0 0 30px;color:var(--gold)}
+  .ctaband .phonebtn{
+    display:inline-block;background:var(--gold);color:var(--ink);border:3px solid var(--ink);
+    box-shadow:5px 5px 0 var(--ink);border-radius:14px;padding:18px 34px;
+    font-family:'Alfa Slab One',serif;font-size:22px;transition:all .15s ease;
+  }
+  .ctaband .phonebtn:hover{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--ink)}
+  .ctaband .texts{font-family:'Caveat',cursive;font-size:20px;margin-top:14px;opacity:.9}
+  .ctaband .yourlist{font-family:'Caveat',cursive;font-size:22px;font-weight:700;color:var(--gold);margin-top:18px;display:none}
+
+  /* ---------- footer ---------- */
+  footer{max-width:1200px;margin:0 auto;padding:28px;display:flex;justify-content:space-between;align-items:center;
+    gap:16px;flex-wrap:wrap;font-size:14px;color:var(--mute);position:relative;z-index:2}
+  footer .fb1{font-family:'Alfa Slab One',serif;color:var(--ink)}
+  footer .fb3{font-family:'Caveat',cursive;font-size:18px;font-weight:700;color:var(--rust)}
+
+  /* ---------- mobile ---------- */
+  @media (max-width:768px){
+    header{padding:12px 14px}
+    .brand{gap:9px}
+    .brand .coin{width:42px;height:42px}
+    .brand .coin .s1{font-size:11px}
+    .brand .coin .s2{font-size:7px}
+    .brand .words .l1{font-size:13px;letter-spacing:.2px}
+    .brand .words .l2{font-size:12.5px}
+    .callpill{padding:9px 13px;font-size:13px}
+    .hero{padding:44px 20px 40px;gap:36px}
+    .hero p.lead{font-size:17px}
+    .listwrap{padding:56px 20px 32px}
+    .field{padding:32px 20px 56px;gap:36px}
+    .how{padding:0 20px 56px}
+    .steps{gap:26px}
+    .quoteband .inner{padding:48px 20px}
+    .ctaband .inner{padding:56px 20px}
+    .tally{
+      right:0;bottom:0;left:0;max-width:none;transform:none;border-radius:0;border-left:none;border-right:none;border-bottom:none;
+      box-shadow:0 -6px 18px rgba(43,38,32,.25);display:flex;align-items:center;gap:12px;padding:10px 14px;
+    }
+    .tally.pop{animation:none}
+    .tally .t-head{font-size:12px;flex:0 0 auto}
+    .tally .t-count{font-size:18px;margin:0;flex:1}
+    .tally a{flex:0 0 auto;font-size:12px;padding:9px 12px}
+    body{padding-bottom:62px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .reveal{opacity:1;transform:none;transition:none}
+    .ticker .track,.hero-photo .spark1,.hero-photo .spark2,.tap-cue .finger{animation:none}
+    .job .stamp,.tally.pop{animation:none}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="coin" aria-hidden="true"><span class="s1">Lil Miss</span><span class="s2">DO IT ALL</span></div>
+    <div class="words">
+      <div class="l1">LIL MISS DO IT ALL</div>
+      <div class="l2">odd jobs &middot; done right &middot; done by Krislyn</div>
+    </div>
+  </div>
+  <a class="callpill" href="tel:5555550123">&#9742; Call ya girl</a>
+</header>
+
+<section class="hero">
+  <div>
+    <div class="kicker">Got projects you just can&#8217;t get motivated to finish?</div>
+    <h1>The chores you&#8217;ve been <span class="rust">dodgin&#8217;<svg viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true"><path d="M3 8 C40 4, 90 10, 140 6 S 185 8, 197 5" stroke="#f2c14e" stroke-width="5" fill="none" stroke-linecap="round"/></svg></span>?<br>Consider &#8217;em <span class="done-chip">DONE.</span></h1>
+    <p class="lead">I&#8217;m talking the stuff y&#8217;all don&#8217;t have the time, <em>nor the desire</em>, to get done. Brush piles, ten-foot weeds, saggy fences, a garage you can&#8217;t park in. Hand it over. <strong>Ya girl has goals to reach</strong> and free time to fill.</p>
+    <div class="hero-ctas">
+      <a class="bigcall" href="tel:5555550123">GIVE ME A CALL &#9742;</a>
+      <div class="zero">Competitive pricing. Quality work. Zero excuses.</div>
+    </div>
+  </div>
+  <div class="hero-photo">
+    <div class="spark1" aria-hidden="true">&#10024;</div>
+    <div class="spark2" aria-hidden="true">&#10024;</div>
+    <img src="krislyn-hands.jpg" alt="Krislyn Barker grinning in her truck, both palms up and covered in work dirt">
+    <div class="sticker">Krislyn Barker &mdash; these hands don&#8217;t quit &#9995;</div>
+  </div>
+</section>
+
+<div class="ticker" aria-hidden="true">
+  <div class="track">
+    <span>BRUSH HOGGIN&#8217; &#10038; FENCE FIXIN&#8217; &#10038; HAY HAULIN&#8217; &#10038; COOP WINTERIZIN&#8217; &#10038; GARAGE CLEANOUTS &#10038; PAINTIN&#8217; &#10038; DRYWALL &#10038; &amp; SO MUCH MORE &#10038;</span>
+    <span>BRUSH HOGGIN&#8217; &#10038; FENCE FIXIN&#8217; &#10038; HAY HAULIN&#8217; &#10038; COOP WINTERIZIN&#8217; &#10038; GARAGE CLEANOUTS &#10038; PAINTIN&#8217; &#10038; DRYWALL &#10038; &amp; SO MUCH MORE &#10038;</span>
+  </div>
+</div>
+
+<section class="listwrap" id="list">
+  <div class="sec-head reveal">
+    <div class="over">hand it over, all of it</div>
+    <h2>THE TO-DON&#8217;T LIST</h2>
+    <p class="under">The stuff you&#8217;re less than enthusiastic to get going. I&#8217;ll take it from here.</p>
+  </div>
+  <div class="tap-cue reveal" aria-hidden="true"><span class="finger">&#128071;</span> tap everything you&#8217;re tired of lookin&#8217; at <span class="finger">&#128071;</span></div>
+  <div class="jobs">
+    <button class="job reveal" type="button" data-name="the brush pile" aria-pressed="false">
+      <span class="stamp" aria-hidden="true">DONE.</span>
+      <div class="icon" aria-hidden="true">&#128293;</div>
+      <h3>BRUSH PILE BEGONE<svg class="jstrike" viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 7 C50 3, 105 10, 160 6 S 250 8, 298 4" stroke="#a4331f" stroke-width="5" fill="none" stroke-linecap="round"/></svg></h3>
+      <p>That eyesore of a brush pile you&#8217;re tired of lookin&#8217; at? Gone. Hauled, burned, or buried &mdash; your call.</p>
+    </button>
+    <button class="job reveal" type="button" data-name="brush hoggin'" aria-pressed="false">
+      <span class="stamp" aria-hidden="true">DONE.</span>
+      <div class="icon" aria-hidden="true">&#128668;</div>
+      <h3>BRUSH HOGGIN&#8217;<svg class="jstrike" viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 5 C60 9, 120 3, 180 7 S 260 5, 298 7" stroke="#a4331f" stroke-width="5" fill="none" stroke-linecap="round"/></svg></h3>
+      <p>Field taken over by weeds and grass as tall as you? I can brush hog up to 10 acres.</p>
+    </button>
+    <button class="job reveal" type="button" data-name="fence fixin'" aria-pressed="false">
+      <span class="stamp" aria-hidden="true">DONE.</span>
+      <div class="icon" aria-hidden="true">&#129717;</div>
+      <h3>FENCE FIXIN&#8217;<svg class="jstrike" viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 6 C45 9, 110 3, 170 7 S 255 9, 298 5" stroke="#a4331f" stroke-width="5" fill="none" stroke-linecap="round"/></svg></h3>
+      <p>Fences needing fixed or flat-out redone before the cold rolls in. Posts, wire, gates &mdash; done right.</p>
+    </button>
+    <button class="job reveal" type="button" data-name="hay haulin'" aria-pressed="false">
+      <span class="stamp" aria-hidden="true">DONE.</span>
+      <div class="icon" aria-hidden="true">&#127806;</div>
+      <h3>HAY HAULIN&#8217;<svg class="jstrike" viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 7 C55 4, 115 9, 175 5 S 255 7, 298 6" stroke="#a4331f" stroke-width="5" fill="none" stroke-linecap="round"/></svg></h3>
+      <p>Hay stacked and moved in for winter, so you&#8217;re not doing it in a sleet storm come November.</p>
+    </button>
+    <button class="job reveal" type="button" data-name="winterizin' critter quarters" aria-pressed="false">
+      <span class="stamp" aria-hidden="true">DONE.</span>
+      <div class="icon" aria-hidden="true">&#128020;</div>
+      <h3>WINTERIZIN&#8217; CRITTER QUARTERS<svg class="jstrike" viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 5 C48 8, 108 4, 168 8 S 252 4, 298 7" stroke="#a4331f" stroke-width="5" fill="none" stroke-linecap="round"/></svg></h3>
+      <p>Ye old chicken coop, goat pen and more &mdash; sealed, bedded, and ready before the first hard freeze.</p>
+    </button>
+    <button class="job reveal" type="button" data-name="the big cleanout" aria-pressed="false">
+      <span class="stamp" aria-hidden="true">DONE.</span>
+      <div class="icon" aria-hidden="true">&#129529;</div>
+      <h3>THE BIG CLEANOUT<svg class="jstrike" viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 6 C58 3, 118 9, 178 5 S 258 8, 298 4" stroke="#a4331f" stroke-width="5" fill="none" stroke-linecap="round"/></svg></h3>
+      <p>Garage, kitchen, basement or shed. If you can&#8217;t see the floor, that&#8217;s my kind of project.</p>
+    </button>
+    <button class="job reveal" type="button" data-name="surprise paint job" aria-pressed="false">
+      <span class="stamp" aria-hidden="true">DONE.</span>
+      <div class="icon" aria-hidden="true">&#127912;</div>
+      <h3>SURPRISE PAINT JOBS<svg class="jstrike" viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 7 C50 4, 108 8, 165 4 S 250 7, 298 5" stroke="#a4331f" stroke-width="5" fill="none" stroke-linecap="round"/></svg></h3>
+      <p>Painting your kiddo&#8217;s room as a back-to-school surprise. Fresh walls, zero effort on your end.</p>
+    </button>
+    <button class="job reveal" type="button" data-name="drywall" aria-pressed="false">
+      <span class="stamp" aria-hidden="true">DONE.</span>
+      <div class="icon" aria-hidden="true">&#128296;</div>
+      <h3>HECK, EVEN DRYWALL<svg class="jstrike" viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 5 C55 8, 112 4, 172 8 S 255 5, 298 7" stroke="#a4331f" stroke-width="5" fill="none" stroke-linecap="round"/></svg></h3>
+      <p>Hung, taped, and mudded. Yes, really. Told you &mdash; Lil Miss Do It <strong>ALL</strong>.</p>
+    </button>
+  </div>
+  <div class="more-line reveal">...&amp; so much more. If it&#8217;s on your list, it&#8217;s off your plate. &#10024;</div>
+</section>
+
+<section class="field">
+  <div class="field-photo reveal">
+    <img src="krislyn-tractor.jpg" alt="View from the seat of Krislyn's tractor, a freshly brush-hogged strip cut through tall grass">
+    <div class="acres">UP TO 10 ACRES</div>
+  </div>
+  <div class="reveal">
+    <div class="over">the office view</div>
+    <h2>WEEDS AS TALL AS YOU? NOT FOR LONG.</h2>
+    <p>That field that got away from you this summer &mdash; I&#8217;ll brush hog up to 10 acres and have it looking like pasture again instead of a jungle. Brush piles, overgrown fence lines, the works.</p>
+    <p>Cold&#8217;s coming. Fences fixed, hay stacked and moved in, coop and goat pen winterized <em>before</em> the first hard frost, not after.</p>
+    <a class="frost-link" href="tel:5555550123">Beat the frost &mdash; call now &#8594;</a>
+  </div>
+</section>
+
+<section class="how">
+  <div class="sec-head reveal">
+    <div class="over">no forms, no fuss</div>
+    <h2>HOW THIS WORKS</h2>
+  </div>
+  <div class="steps">
+    <div class="step reveal">
+      <div class="num">1</div>
+      <div style="font-size:30px" aria-hidden="true">&#128222;</div>
+      <h3>POINT AT IT</h3>
+      <p>Call or text. Read me your list &mdash; the tapped-out chores above are a good start.</p>
+    </div>
+    <div class="step reveal">
+      <div class="num">2</div>
+      <div style="font-size:30px" aria-hidden="true">&#128668;</div>
+      <h3>YA GIRL SHOWS UP</h3>
+      <p>We settle a fair price up front, then I get after it. Competitive pricing, quality work.</p>
+    </div>
+    <div class="step reveal">
+      <div class="num">3</div>
+      <div style="font-size:30px" aria-hidden="true">&#9989;</div>
+      <h3>IT&#8217;S DONE.</h3>
+      <p>You get your weekend back and one less thing to dodge every time you walk past it.</p>
+    </div>
+  </div>
+</section>
+
+<div class="quoteband">
+  <div class="inner reveal">
+    <div class="q">&#8220;Heck, I can even throw up <span class="hl">drywall</span>.&#8221;</div>
+    <div class="attr">&mdash; KRISLYN, IN HER OWN AD. SHE MEANS IT.</div>
+  </div>
+</div>
+
+<section class="ctaband" id="call">
+  <div class="inner reveal">
+    <div class="hands" aria-hidden="true">&#10024; &#9995; &#10024;</div>
+    <h2>YA GIRL HAS GOALS TO REACH.</h2>
+    <p>I&#8217;m looking to fill <strong>ALL</strong> of my free time with work of any sort. Let me take over the projects you&#8217;re less than enthusiastic to get going. You keep your weekend &mdash; I&#8217;ll keep the blisters.</p>
+    <p class="promise">Competitive pricing. Quality work. A &#8220;back to school surprise&#8221; paint job your kiddo will lose it over.</p>
+    <a class="phonebtn" href="tel:5555550123">&#9742; (555) 555-0123</a>
+    <div class="texts">Give Lil Miss Do It All a call &mdash; texts welcome too.</div>
+    <div class="yourlist" id="ctaList"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="fb1">LIL MISS DO IT ALL</div>
+  <div>Owned &amp; operated by Krislyn Barker &middot; Serving the local area &amp; surrounding counties</div>
+  <div class="fb3">No job too odd.</div>
+</footer>
+
+<!-- running tally -->
+<div class="tally" id="tally" role="status" aria-live="polite" hidden>
+  <div class="t-head">YOUR LIST</div>
+  <div class="t-count" id="tallyCount"></div>
+  <a href="#call" id="tallyGo">Hand it to Krislyn</a>
+</div>
+
+<script>
+(function(){
+  var checked = [];
+  var tally = document.getElementById('tally');
+  var tallyCount = document.getElementById('tallyCount');
+  var ctaList = document.getElementById('ctaList');
+
+  function refresh(){
+    if(checked.length === 0){
+      tally.hidden = true;
+      ctaList.style.display = 'none';
+      return;
+    }
+    tally.hidden = false;
+    tallyCount.textContent = checked.length + (checked.length === 1 ? ' thing off your plate' : ' things off your plate');
+    ctaList.style.display = 'block';
+    ctaList.textContent = 'Your list so far: ' + checked.join(', ') + '.';
+    tally.classList.remove('pop');
+    void tally.offsetWidth; /* restart animation */
+    tally.classList.add('pop');
+  }
+
+  document.querySelectorAll('.job').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var name = btn.getAttribute('data-name');
+      var on = btn.classList.toggle('done');
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      if(on){ checked.push(name); }
+      else { checked = checked.filter(function(n){ return n !== name; }); }
+      refresh();
+    });
+  });
+
+  /* scroll reveal */
+  var els = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, {threshold:.12});
+    els.forEach(function(el){ io.observe(el); });
+    /* safety net: nothing stays hidden if IO lags */
+    setTimeout(function(){ els.forEach(function(el){ el.classList.add('in'); }); }, 2500);
+  } else {
+    els.forEach(function(el){ el.classList.add('in'); });
+  }
+})();
+</script>
+</body>
+</html>

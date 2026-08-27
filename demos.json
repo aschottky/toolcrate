@@ -8,7 +8,7 @@
       "trade": "Garage doors",
       "city": "Springfield, MO",
       "phone": "(417) 886-7138",
-      "hook": "Counter price sheet \u2014 1984 lineage, Safe-Way + LiftMaster",
+      "hook": "Counter price sheet — 1984 lineage, Safe-Way + LiftMaster",
       "url": "https://usetoolcrate.com/mcfarland-garage-doors/",
       "updated": "2026-08-19",
       "status": "ready",
@@ -33,7 +33,7 @@
       "trade": "Plumbing",
       "city": "Springfield, MO",
       "phone": "(417) 414-3676",
-      "hook": "Signed letter from Michael \u2014 free second opinion on a quote",
+      "hook": "Signed letter from Michael — free second opinion on a quote",
       "url": "https://usetoolcrate.com/eee-plumbing/",
       "updated": "2026-08-19",
       "status": "ready",
@@ -58,7 +58,7 @@
       "trade": "Tree service",
       "city": "Springfield, MO",
       "phone": "(417) 887-8948",
-      "hook": "24/7 dispatch board \u2014 no Google Business Profile exists yet",
+      "hook": "24/7 dispatch board — no Google Business Profile exists yet",
       "url": "https://usetoolcrate.com/affordable-heights-tree/",
       "updated": "2026-08-19",
       "status": "ready",
@@ -83,7 +83,7 @@
       "trade": "Odd jobs / farm & home projects",
       "city": "Springfield, MO",
       "phone": "",
-      "hook": "Interactive to-do list \u2014 tap a chore, the marker crosses it off",
+      "hook": "Interactive to-do list — tap a chore, the marker crosses it off",
       "url": "https://usetoolcrate.com/lil-miss-do-it-all/",
       "updated": "2026-08-25",
       "status": "ready",
@@ -93,11 +93,11 @@
       "email_to": "",
       "emails": {
         "after_call": {
-          "subject": "Your page \u2014 Lil Miss Do It All",
-          "body": "Krislyn,\n\nHere it is:\n\nhttps://usetoolcrate.com/lil-miss-do-it-all\n\nIt's your Facebook post turned into a website \u2014 the whole page is the to-do list your customers keep putting off. Tap the chores and watch what happens. Your tractor photo and the dirty-hands one are on there.\n\nTwo things I still need from you: the number you want people calling, and whatever towns you'll actually drive to.\n\nNothing on it is public to Google. Tell me what to change and I'll change it.\n\nAlexander Schottky\nToolCrate\n(417) 409-1721\nusetoolcrate.com"
+          "subject": "Your page — Lil Miss Do It All",
+          "body": "Krislyn,\n\nHere it is:\n\nhttps://usetoolcrate.com/lil-miss-do-it-all\n\nIt's your Facebook post turned into a website — the whole page is the to-do list your customers keep putting off. Tap the chores and watch what happens. Your tractor photo and the dirty-hands one are on there.\n\nTwo things I still need from you: the number you want people calling, and whatever towns you'll actually drive to.\n\nNothing on it is public to Google. Tell me what to change and I'll change it.\n\nAlexander Schottky\nToolCrate\n(417) 409-1721\nusetoolcrate.com"
         },
         "voicemail": {
-          "subject": "Built you something \u2014 Lil Miss Do It All",
+          "subject": "Built you something — Lil Miss Do It All",
           "body": "Krislyn,\n\nI turned your \"Lil Miss Do It All\" post into a real website to show you what it could look like:\n\nhttps://usetoolcrate.com/lil-miss-do-it-all\n\nCosts nothing to look, it's not on Google, and it's yours to keep or ignore. If you want it live with your number on it, call me.\n\nAlexander Schottky\nToolCrate\n(417) 409-1721\nusetoolcrate.com"
         }
       }
@@ -105,14 +105,19 @@
   ],
   "extras": [
     {
-      "title": "Lil Miss Do It All \u2014 draft two (Claude Design)",
+      "title": "Lil Miss Do It All — draft three (v2 design + interactive list)",
+      "url": "https://usetoolcrate.com/lil-miss-do-it-all-v3/",
+      "note": "Krislyn-approved v2 look rebuilt as clean HTML, with the tap-to-cross-off To-Don’t List, how-it-works steps and pull quote"
+    },
+    {
+      "title": "Lil Miss Do It All — draft two (Claude Design)",
       "url": "https://usetoolcrate.com/lil-miss-do-it-all-v2/",
       "note": "Comparison draft of the Krislyn page, exported from Claude Design"
     },
     {
       "title": "Willadene's Quilts",
       "url": "https://usetoolcrate.com/willadenes-quilts/",
-      "note": "Nonprofit site (7 pages) \u2014 donate form not yet wired to payments; noindex until launch"
+      "note": "Nonprofit site (7 pages) — donate form not yet wired to payments; noindex until launch"
     }
   ]
 }
