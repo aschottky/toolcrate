@@ -34,6 +34,25 @@
     background-image:radial-gradient(rgba(43,38,32,.05) 1px, transparent 1.4px);
     background-size:5px 5px;
   }
+  /* worked-in dirt patina: soft brown smudges drifting toward the edges */
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
+    background:
+      radial-gradient(420px 260px at 8% 12%, rgba(107,74,47,.055), transparent 70%),
+      radial-gradient(360px 300px at 94% 30%, rgba(107,74,47,.05), transparent 70%),
+      radial-gradient(500px 320px at 12% 78%, rgba(90,62,38,.06), transparent 70%),
+      radial-gradient(380px 260px at 88% 92%, rgba(107,74,47,.055), transparent 70%),
+      radial-gradient(220px 160px at 55% 4%, rgba(107,74,47,.04), transparent 70%);
+  }
+  /* screen-print noise for the flat color bands */
+  .inked{position:relative}
+  .inked::after{
+    content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 0.16 0 0 0 0 0.12 0 0 0 0 0.08 0 0 0 0.22 0'/></filter><rect width='240' height='240' filter='url(%23n)'/></svg>");
+  }
+  /* gritty decorations: boot prints, thumbprints, splats */
+  .gritdec{position:absolute;pointer-events:none;color:#6b4a2f;z-index:0}
+  .gritdec svg{display:block;width:100%;height:100%;fill:currentColor;stroke:currentColor}
   a{color:var(--rust);text-decoration:none}
   ::selection{background:var(--gold);color:var(--ink)}
 
@@ -76,7 +95,7 @@
   h1{font-family:'Alfa Slab One',serif;font-size:clamp(40px,5.5vw,72px);line-height:1.02;margin:12px 0 20px;color:var(--ink)}
   h1 .rust{color:var(--rust);position:relative;white-space:nowrap}
   h1 .rust svg{position:absolute;left:-2%;bottom:.02em;width:104%;height:.16em;z-index:-1;opacity:.85}
-  .done-chip{background:var(--gold);padding:0 10px;box-shadow:4px 4px 0 var(--ink);display:inline-block;transform:rotate(-1deg)}
+  .done-chip{background:var(--gold);padding:0 10px;box-shadow:4px 4px 0 var(--ink);display:inline-block;transform:rotate(-1deg);filter:url(#grit)}
   .hero p.lead{font-size:19px;line-height:1.55;max-width:52ch;margin:0 0 28px}
   .hero-ctas{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
   .bigcall{
@@ -143,7 +162,17 @@
     position:absolute;top:-14px;right:-10px;background:var(--gold);border:3px solid var(--ink);
     box-shadow:3px 3px 0 var(--ink);border-radius:8px;padding:4px 12px;
     font-family:'Alfa Slab One',serif;font-size:15px;color:var(--ink);display:none;transform:rotate(-10deg);
+    filter:url(#grit);
   }
+  /* handled-with-work-gloves: a faint smudge in a corner of each card */
+  .job::after{
+    content:"";position:absolute;width:90px;height:60px;pointer-events:none;border-radius:50%;
+    background:radial-gradient(closest-side, rgba(107,74,47,.10), rgba(107,74,47,.04) 60%, transparent);
+    filter:blur(2px);
+  }
+  .job:nth-child(3n+1)::after{right:-14px;bottom:-10px;transform:rotate(24deg)}
+  .job:nth-child(3n+2)::after{left:-16px;bottom:6px;transform:rotate(-18deg);width:70px;height:48px}
+  .job:nth-child(3n+3)::after{right:10px;top:-8px;transform:rotate(40deg);width:64px;height:40px}
   .job.done{background:#f6efdd}
   .job.done h3 .jstrike{transform:scaleX(1)}
   .job.done h3{color:var(--mute)}
@@ -176,6 +205,11 @@
     position:absolute;top:-16px;right:-10px;background:var(--gold);border:3px solid var(--ink);
     box-shadow:3px 3px 0 var(--ink);border-radius:999px;padding:8px 18px;
     font-family:'Alfa Slab One',serif;font-size:14px;transform:rotate(3deg);
+  }
+  .field-photo .dirtsticker{
+    position:absolute;bottom:-14px;left:-12px;background:var(--cream);border:3px solid var(--ink);
+    box-shadow:3px 3px 0 var(--ink);border-radius:10px;padding:5px 15px;
+    font-family:'Caveat',cursive;font-size:21px;font-weight:700;color:#6b4a2f;transform:rotate(-3deg);white-space:nowrap;
   }
   .field h2{font-family:'Alfa Slab One',serif;font-size:clamp(28px,3.6vw,44px);margin:6px 0 18px;color:var(--ink)}
   .field .over{font-family:'Caveat',cursive;font-size:26px;color:var(--rust);font-weight:700}
@@ -266,6 +300,35 @@
 </head>
 <body>
 
+<!-- grit toolkit: rough-stamp filter + reusable dirt marks -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="grit" x="-6%" y="-10%" width="112%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.05 0.09" numOctaves="2" seed="7" result="t"/>
+      <feDisplacementMap in="SourceGraphic" in2="t" scale="3.5"/>
+    </filter>
+    <symbol id="bootprint" viewBox="0 0 44 96">
+      <path d="M22 2 C33 2 39 11 38 26 C37.4 37 34 46 30 54 L14 54 C9 45 6 35 6 23 C6 9 13 2 22 2 Z" stroke="none"/>
+      <rect x="11" y="64" width="24" height="26" rx="9" stroke="none"/>
+    </symbol>
+    <symbol id="thumbprint" viewBox="0 0 40 48" fill="none">
+      <ellipse cx="20" cy="24" rx="4" ry="6" stroke-width="2.2" stroke-dasharray="6 3"/>
+      <ellipse cx="20" cy="24" rx="8.5" ry="11.5" stroke-width="2.2" stroke-dasharray="9 4"/>
+      <ellipse cx="20" cy="24" rx="13" ry="17" stroke-width="2.2" stroke-dasharray="12 5"/>
+      <ellipse cx="20" cy="24" rx="17" ry="22" stroke-width="2.2" stroke-dasharray="15 6"/>
+    </symbol>
+    <symbol id="splat" viewBox="0 0 80 60">
+      <circle cx="38" cy="30" r="15" stroke="none"/>
+      <circle cx="60" cy="20" r="6" stroke="none"/>
+      <circle cx="63" cy="42" r="4" stroke="none"/>
+      <circle cx="16" cy="18" r="5" stroke="none"/>
+      <circle cx="12" cy="40" r="7" stroke="none"/>
+      <circle cx="72" cy="31" r="2.5" stroke="none"/>
+      <circle cx="28" cy="52" r="3" stroke="none"/>
+    </symbol>
+  </defs>
+</svg>
+
 <header>
   <div class="brand">
     <div class="coin" aria-hidden="true"><span class="s1">Lil Miss</span><span class="s2">DO IT ALL</span></div>
@@ -291,11 +354,12 @@
     <div class="spark1" aria-hidden="true">&#10024;</div>
     <div class="spark2" aria-hidden="true">&#10024;</div>
     <img src="krislyn-hands.jpg" alt="Krislyn Barker grinning in her truck, both palms up and covered in work dirt">
+    <span class="gritdec" style="bottom:22px;left:-30px;width:32px;height:40px;opacity:.18;transform:rotate(-22deg)" aria-hidden="true"><svg><use href="#thumbprint"/></svg></span>
     <div class="sticker">Krislyn Barker &mdash; these hands don&#8217;t quit &#9995;</div>
   </div>
 </section>
 
-<div class="ticker" aria-hidden="true">
+<div class="ticker inked" aria-hidden="true">
   <div class="track">
     <span>BRUSH HOGGIN&#8217; &#10038; FENCE FIXIN&#8217; &#10038; HAY HAULIN&#8217; &#10038; COOP WINTERIZIN&#8217; &#10038; GARAGE CLEANOUTS &#10038; PAINTIN&#8217; &#10038; DRYWALL &#10038; &amp; SO MUCH MORE &#10038;</span>
     <span>BRUSH HOGGIN&#8217; &#10038; FENCE FIXIN&#8217; &#10038; HAY HAULIN&#8217; &#10038; COOP WINTERIZIN&#8217; &#10038; GARAGE CLEANOUTS &#10038; PAINTIN&#8217; &#10038; DRYWALL &#10038; &amp; SO MUCH MORE &#10038;</span>
@@ -303,6 +367,10 @@
 </div>
 
 <section class="listwrap" id="list">
+  <!-- she walked through here -->
+  <span class="gritdec" style="top:34px;right:9%;width:26px;height:56px;opacity:.09;transform:rotate(14deg)" aria-hidden="true"><svg><use href="#bootprint"/></svg></span>
+  <span class="gritdec" style="top:104px;right:5.5%;width:26px;height:56px;opacity:.07;transform:rotate(22deg) scaleX(-1)" aria-hidden="true"><svg><use href="#bootprint"/></svg></span>
+  <span class="gritdec" style="top:60px;left:6%;width:64px;height:48px;opacity:.07;transform:rotate(-12deg)" aria-hidden="true"><svg><use href="#splat"/></svg></span>
   <div class="sec-head reveal">
     <div class="over">hand it over, all of it</div>
     <h2>THE TO-DON&#8217;T LIST</h2>
@@ -359,13 +427,19 @@
       <p>Hung, taped, and mudded. Yes, really. Told you &mdash; Lil Miss Do It <strong>ALL</strong>.</p>
     </button>
   </div>
-  <div class="more-line reveal">...&amp; so much more. If it&#8217;s on your list, it&#8217;s off your plate. &#10024;</div>
+  <div class="more-line reveal" style="position:relative">
+    <span class="gritdec" style="top:-14px;left:calc(50% - 220px);width:30px;height:36px;opacity:.16;transform:rotate(-14deg)" aria-hidden="true"><svg><use href="#thumbprint"/></svg></span>
+    ...&amp; so much more. If it&#8217;s on your list, it&#8217;s off your plate. &#10024;
+    <span class="gritdec" style="top:-10px;right:calc(50% - 224px);width:30px;height:36px;opacity:.13;transform:rotate(18deg)" aria-hidden="true"><svg><use href="#thumbprint"/></svg></span>
+  </div>
 </section>
 
 <section class="field">
   <div class="field-photo reveal">
+    <span class="gritdec" style="bottom:-26px;right:-26px;width:88px;height:66px;opacity:.10;transform:rotate(24deg)" aria-hidden="true"><svg><use href="#splat"/></svg></span>
     <img src="krislyn-tractor.jpg" alt="View from the seat of Krislyn's tractor, a freshly brush-hogged strip cut through tall grass">
     <div class="acres">UP TO 10 ACRES</div>
+    <div class="dirtsticker">dirt don&#8217;t lie &#10024;</div>
   </div>
   <div class="reveal">
     <div class="over">the office view</div>
@@ -376,7 +450,9 @@
   </div>
 </section>
 
-<section class="how">
+<section class="how" style="position:relative">
+  <span class="gritdec" style="top:14px;left:8%;width:24px;height:52px;opacity:.08;transform:rotate(-16deg)" aria-hidden="true"><svg><use href="#bootprint"/></svg></span>
+  <span class="gritdec" style="top:78px;left:11%;width:24px;height:52px;opacity:.06;transform:rotate(-8deg) scaleX(-1)" aria-hidden="true"><svg><use href="#bootprint"/></svg></span>
   <div class="sec-head reveal">
     <div class="over">no forms, no fuss</div>
     <h2>HOW THIS WORKS</h2>
@@ -406,12 +482,14 @@
 <div class="quoteband">
   <div class="inner reveal">
     <div class="q">&#8220;Heck, I can even throw up <span class="hl">drywall</span>.&#8221;</div>
-    <div class="attr">&mdash; KRISLYN, IN HER OWN AD. SHE MEANS IT.</div>
+    <div class="attr" style="position:relative;display:inline-block">&mdash; KRISLYN, IN HER OWN AD. SHE MEANS IT.
+      <span class="gritdec" style="top:-8px;right:-42px;width:28px;height:34px;opacity:.20;transform:rotate(15deg)" aria-hidden="true"><svg><use href="#thumbprint"/></svg></span>
+    </div>
   </div>
 </div>
 
-<section class="ctaband" id="call">
-  <div class="inner reveal">
+<section class="ctaband inked" id="call">
+  <div class="inner reveal" style="position:relative;z-index:1">
     <div class="hands" aria-hidden="true">&#10024; &#9995; &#10024;</div>
     <h2>YA GIRL HAS GOALS TO REACH.</h2>
     <p>I&#8217;m looking to fill <strong>ALL</strong> of my free time with work of any sort. Let me take over the projects you&#8217;re less than enthusiastic to get going. You keep your weekend &mdash; I&#8217;ll keep the blisters.</p>
