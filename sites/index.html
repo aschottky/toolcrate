@@ -34,7 +34,7 @@
 <body>
 <div class="wrap">
   <h1>Tool<span>Crate</span> — hosted sites</h1>
-  <p class="sub">Every preview and spec build currently served on usetoolcrate.com. All are noindexed. This list reads demos.json, so new builds appear here automatically.</p>
+  <p class="sub">Every preview and spec build currently served on usetoolcrate.com. All are noindexed. This list reads the demo manifest, so new builds appear here automatically.</p>
 
   <h2>Demo sites (prospect previews)</h2>
   <div id="demos" class="status">Loading…</div>
@@ -72,7 +72,7 @@
     return div;
   }
 
-  fetch("/demos.json", {cache: "no-store"}).then(function(r){ return r.json(); }).then(function(data){
+  fetch("/sites.json", {cache: "no-store"}).then(function(r){ return r.json(); }).then(function(data){
     var demos = document.getElementById("demos");
     demos.textContent = "";
     demos.classList.remove("status");
@@ -89,7 +89,7 @@
     });
     if (!extras.children.length) extras.textContent = "Nothing else hosted.";
   }).catch(function(){
-    document.getElementById("demos").textContent = "Could not load demos.json.";
+    document.getElementById("demos").textContent = "Could not load the site list.";
     document.getElementById("extras").textContent = "";
   });
 })();

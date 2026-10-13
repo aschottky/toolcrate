@@ -1,0 +1,54 @@
+{
+  "updated": "2026-08-25",
+  "demos": [
+    {
+      "business": "McFarland Enterprises",
+      "trade": "Garage doors",
+      "city": "Springfield, MO",
+      "phone": "(417) 886-7138",
+      "hook": "Counter price sheet — 1984 lineage, Safe-Way + LiftMaster",
+      "url": "https://usetoolcrate.com/mcfarland-garage-doors/"
+    },
+    {
+      "business": "EEE Plumbing LLC",
+      "trade": "Plumbing",
+      "city": "Springfield, MO",
+      "phone": "(417) 414-3676",
+      "hook": "Signed letter from Michael — free second opinion on a quote",
+      "url": "https://usetoolcrate.com/eee-plumbing/"
+    },
+    {
+      "business": "Affordable Heights Tree Service",
+      "trade": "Tree service",
+      "city": "Springfield, MO",
+      "phone": "(417) 887-8948",
+      "hook": "24/7 dispatch board — no Google Business Profile exists yet",
+      "url": "https://usetoolcrate.com/affordable-heights-tree/"
+    },
+    {
+      "business": "Lil Miss Do It All",
+      "trade": "Odd jobs / farm & home projects",
+      "city": "Springfield, MO",
+      "phone": "",
+      "hook": "Interactive to-do list — tap a chore, the marker crosses it off",
+      "url": "https://usetoolcrate.com/lil-miss-do-it-all/"
+    }
+  ],
+  "extras": [
+    {
+      "title": "Lil Miss Do It All — draft three (v2 design + interactive list)",
+      "url": "https://usetoolcrate.com/lil-miss-do-it-all-v3/",
+      "note": "Krislyn-approved v2 look rebuilt as clean HTML, with the tap-to-cross-off To-Don’t List, how-it-works steps and pull quote"
+    },
+    {
+      "title": "Lil Miss Do It All — draft two (Claude Design)",
+      "url": "https://usetoolcrate.com/lil-miss-do-it-all-v2/",
+      "note": "Comparison draft of the Krislyn page, exported from Claude Design"
+    },
+    {
+      "title": "Willadene's Quilts",
+      "url": "https://usetoolcrate.com/willadenes-quilts/",
+      "note": "Nonprofit site (7 pages) — donate form not yet wired to payments; noindex until launch"
+    }
+  ]
+}
