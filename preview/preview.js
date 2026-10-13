@@ -64,7 +64,7 @@ function applyStandardConfirmationCopy(email) {
       email && email !== "your email"
         ? ` We'll send your custom visual concept to <strong class="confirmed-email" id="confirmed-email">${escapeHtml(email)}</strong> shortly.`
         : " You'll receive your custom visual concept shortly.";
-    confirmedCopy.innerHTML = `Alexander has received your request and is personally reviewing your site and goals.${emailBit}`;
+    confirmedCopy.innerHTML = `We've received your request and are reviewing your site and goals.${emailBit}`;
   }
   if (confirmedFooter) {
     confirmedFooter.textContent =
@@ -96,7 +96,7 @@ function applyBlueprintConfirmationCopy(email, companyName, hasExistingSite) {
       email && email !== "your email"
         ? ` We'll send your Blueprint to <strong class="confirmed-email" id="confirmed-email">${escapeHtml(email)}</strong> when it's ready.`
         : "";
-    confirmedCopy.innerHTML = `Alexander is ${action} now. You'll see the Blueprint soon.${emailBit}`;
+    confirmedCopy.innerHTML = `We're ${action} now. You'll see the Blueprint soon.${emailBit}`;
   }
   if (confirmedFooter) {
     confirmedFooter.textContent =
@@ -172,7 +172,7 @@ function showRedesignUnavailable() {
   const copyBlocks = confirmed.querySelectorAll(".confirmed-copy");
   if (copyBlocks[0]) {
     copyBlocks[0].textContent =
-      "We hit a snag building your visual redesign. Your site analysis is still accurate, and Alexander has been notified.";
+      "We hit a snag building your visual redesign. Your site analysis is still accurate, and we've been notified.";
   }
   const bridge = document.getElementById("confirmed-bridge");
   if (bridge) {

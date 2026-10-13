@@ -8,7 +8,7 @@ const emailCta = document.getElementById("email-cta");
 const errorState = document.getElementById("error-state");
 
 const DEFAULT_MESSAGE =
-  "We've received your payment and you'll hear from Alexander within 24 hours to kick things off.";
+  "We've received your payment and you'll hear from us within 24 hours to kick things off.";
 
 function showError() {
   loadingEl.hidden = true;

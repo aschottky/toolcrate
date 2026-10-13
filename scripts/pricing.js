@@ -59,7 +59,7 @@ function renderPartnership() {
       ${featureItem("Changes whenever you need them")}
       ${featureItem("You call me directly, not an account manager")}
     </ul>
-    <a href="/apply/" class="btn-primary pricing-cta pricing-cta-outline">Talk to Alexander First</a>
+    <a href="/apply/" class="btn-primary pricing-cta pricing-cta-outline">Talk to Us First</a>
   `, "pricing-card-partnership");
 }
 

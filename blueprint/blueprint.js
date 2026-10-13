@@ -30,9 +30,9 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PROCESSING_MS = 2400;
 
 const HINT_EXISTING =
-  "Alexander will audit your current site and map out a high-conversion redesign.";
+  "We'll audit your current site and map out a high-conversion redesign.";
 const HINT_FRESH =
-  "Alexander will research your niche and map out a custom concept from scratch.";
+  "We'll research your niche and map out a custom concept from scratch.";
 
 let previewToken = null;
 let blueprintCompany = null;
@@ -110,13 +110,13 @@ function showProcessing(companyName, existingSite) {
   }
   if (processingSub) {
     processingSub.textContent = existingSite
-      ? "Alexander is reviewing your current site and conversion gaps."
-      : "Alexander is researching your niche and mapping your concept.";
+      ? "Reviewing your current site and conversion gaps."
+      : "Researching your niche and mapping your concept.";
   }
   if (contactSub) {
     contactSub.textContent = existingSite
-      ? "Your site audit is in progress. Add your email so Alexander can deliver your Blueprint personally."
-      : "Your concept is taking shape. Add your email so Alexander can deliver your Blueprint personally.";
+      ? "Your site audit is in progress. Add your email so we can deliver your Blueprint to you."
+      : "Your concept is taking shape. Add your email so we can deliver your Blueprint to you.";
   }
   setPanel(processingPanel);
   window.scrollTo({ top: 0, behavior: "smooth" });
