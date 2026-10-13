@@ -8,7 +8,7 @@ import { sendAuditReportEmail, sendNewLeadReviewNotification, sendSubmissionConf
 import { generateAuditPDF } from "./pdf.js";
 import { sendAuditError, sendRedesignError } from "./errors.js";
 import { handleInstantlyWebhook } from "./instantly-webhook.js";
-import { handleInboundEmailWebhook } from "./inbound-email.js";
+import { getForwardTo, handleInboundEmailWebhook } from "./inbound-email.js";
 import { normalizeWebsiteUrl, scrapeWebsiteText } from "./scrape.js";
 import { evaluateLeadSuitability, preflightLogCode } from "./preflight.js";
 import { generateRedesignHtml } from "./redesign-claude.js";
@@ -281,7 +281,7 @@ app.post("/api/apply", async (req, res) => {
     const resend = getResend();
     const { error } = await resend.emails.send({
       from: "ToolCrate <onboarding@usetoolcrate.com>",
-      to: "alexander@usetoolcrate.com",
+      to: getForwardTo(),
       subject: `New Founding Member Application - ${trimmedName}`,
       html,
     });
@@ -387,7 +387,7 @@ app.post("/api/intake", async (req, res) => {
     const resend = getResend();
     const { error } = await resend.emails.send({
       from: "ToolCrate <onboarding@usetoolcrate.com>",
-      to: "alexander@usetoolcrate.com",
+      to: getForwardTo(),
       subject: `New Client Intake - ${trimmedBusinessName} (${trimmedName})`,
       html,
     });

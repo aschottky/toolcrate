@@ -11,7 +11,8 @@ import { getResend } from "./email.js";
 const FORWARD_FROM = "ToolCrate Inbox <inbox@usetoolcrate.com>";
 const OWN_DOMAIN = "usetoolcrate.com";
 
-function getForwardTo() {
+/** Where ToolCrate mail for the owner lands (forwards and internal notifications). */
+export function getForwardTo() {
   return process.env.INBOUND_FORWARD_TO?.trim() || "alex@schottky.com";
 }
 

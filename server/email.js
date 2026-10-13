@@ -5,7 +5,7 @@ import {
   parseBlueprintWebsiteUrl,
 } from "./blueprint.js";
 
-const DEFAULT_FROM = "Alexander <alexander@usetoolcrate.com>";
+const DEFAULT_FROM = "ToolCrate <support@usetoolcrate.com>";
 
 let resendClient;
 
@@ -66,7 +66,7 @@ export async function sendAuditReportEmail(customerEmail, websiteUrl, pdfBuffer)
     <p>Your AI-generated audit for <a href="${websiteUrl}">${websiteUrl}</a> is attached below as <strong>Website-Audit.pdf</strong>.</p>
     <p>Inside you'll find scores across 7 areas — SEO, lead capture, mobile, trust, messaging, performance, and tech security — plus three specific fixes you can tackle right away.</p>
     <p>If anything looks off or you want a second pair of eyes on the recommendations, just reply to this email.</p>
-    <p>— Alexander<br>ToolCrate</p>
+    <p>— ToolCrate</p>
   `.trim();
 
   const text = `Hi there!
@@ -79,8 +79,7 @@ Inside you'll find scores across 7 areas — SEO, lead capture, mobile, trust, m
 
 If anything looks off or you want a second pair of eyes on the recommendations, just reply to this email.
 
-— Alexander
-ToolCrate`;
+— ToolCrate`;
 
   const { data, error } = await resend.emails.send({
     from,
@@ -207,17 +206,17 @@ export async function sendDesignReadyEmail({
   const html = `
 <div style="font-family: sans-serif; max-width: 600px; line-height: 1.6; color: #1a1a1a;">
   <p>${greeting}</p>
-  <p>Your custom conversion redesign is ready — but before you see it, here's what stood out when I reviewed your current site:</p>
+  <p>Your custom conversion redesign is ready — but before you see it, here's what stood out when we reviewed your current site:</p>
   ${bulletLinesHtml}
   <p style="margin: 1.5rem 0 0.75rem;">Now see what it could look like instead:</p>
   <p style="margin: 0 0 1.5rem;">${previewCtaHtml}</p>
-  <p style="margin: 0;">— Alexander<br>ToolCrate</p>
+  <p style="margin: 0;">— ToolCrate</p>
 </div>
   `.trim();
 
   const text = `${greeting}
 
-Your custom conversion redesign is ready — but before you see it, here's what stood out when I reviewed your current site:
+Your custom conversion redesign is ready — but before you see it, here's what stood out when we reviewed your current site:
 
 ${bulletLinesText}
 
@@ -226,8 +225,7 @@ Now see what it could look like instead:
 ${previewCtaLabel}
 ${previewUrl}
 
-— Alexander
-ToolCrate`;
+— ToolCrate`;
 
   const { data, error } = await resend.emails.send({
     from,
@@ -281,51 +279,51 @@ export async function sendWelcomeEmail(email, name, tier) {
   if (tier === "full-build") {
     subject = "You're in - here's what happens next";
     html = welcomeEmailShell(`
-  <p>Hey ${greeting}, Alexander here from ToolCrate.</p>
-  <p>Your payment went through and I'm already looking forward to building something great for your business.</p>
+  <p>Hey ${greeting}, thanks for choosing ToolCrate.</p>
+  <p>Your payment went through and we're already looking forward to building something great for your business.</p>
   <p>Here's what happens next:</p>
   <p>[1] Complete your 5-minute intake form here: <a href="https://usetoolcrate.com/intake">https://usetoolcrate.com/intake</a><br>
-  [2] I'll review it and reach out within 24 hours to confirm scope and timeline.<br>
+  [2] We'll review it and reach out within 24 hours to confirm scope and timeline.<br>
   [3] Your build starts within 3 business days.</p>
   <p>Questions? Just reply to this email.</p>
-  <p>— Alexander</p>
+  <p>— ToolCrate</p>
     `);
-    text = `Hey ${greeting}, Alexander here from ToolCrate.
+    text = `Hey ${greeting}, thanks for choosing ToolCrate.
 
-Your payment went through and I'm already looking forward to building something great for your business.
+Your payment went through and we're already looking forward to building something great for your business.
 
 Here's what happens next:
 [1] Complete your 5-minute intake form here: https://usetoolcrate.com/intake
-[2] I'll review it and reach out within 24 hours to confirm scope and timeline.
+[2] We'll review it and reach out within 24 hours to confirm scope and timeline.
 [3] Your build starts within 3 business days.
 
 Questions? Just reply to this email.
 
-— Alexander`;
+— ToolCrate`;
   } else {
-    subject = "You're all set — Alexander at ToolCrate";
+    subject = "You're all set — ToolCrate";
     html = welcomeEmailShell(`
-  <p>Hey ${greeting}, Alexander here.</p>
-  <p>Your payment went through and your monthly plan is active. Thanks for trusting me with it.</p>
+  <p>Hey ${greeting}, welcome to ToolCrate.</p>
+  <p>Your payment went through and your monthly plan is active. Thanks for trusting us with it.</p>
   <p>Here's what's next:</p>
   <p>[1] Intake form coming your way within the hour.<br>
-  [2] I'll call you within 48 hours to go over the first month.<br>
+  [2] We'll call you within 48 hours to go over the first month.<br>
   [3] Work starts right after that call.</p>
-  <p>Any questions before then, call me at (417) 409-1721.</p>
-  <p>— Alexander</p>
+  <p>Any questions before then, call us at (417) 409-1721.</p>
+  <p>— ToolCrate</p>
     `);
-    text = `Hey ${greeting}, Alexander here.
+    text = `Hey ${greeting}, welcome to ToolCrate.
 
-Your payment went through and your monthly plan is active. Thanks for trusting me with it.
+Your payment went through and your monthly plan is active. Thanks for trusting us with it.
 
 Here's what's next:
 [1] Intake form coming your way within the hour.
-[2] I'll call you within 48 hours to go over the first month.
+[2] We'll call you within 48 hours to go over the first month.
 [3] Work starts right after that call.
 
-Any questions before then, call me at (417) 409-1721.
+Any questions before then, call us at (417) 409-1721.
 
-— Alexander`;
+— ToolCrate`;
   }
 
   const { data, error } = await resend.emails.send({
@@ -529,35 +527,34 @@ export async function sendSubmissionConfirmationEmail({
   const greeting = buildEmailGreeting(firstName);
   const subject = isBlueprint
     ? "Your Blueprint is in the works"
-    : "I'm reviewing your site now";
+    : "We're reviewing your site now";
 
   const focusLine = isBlueprint
     ? companyName?.trim()
-      ? `I'm diving into ${companyName.trim()}'s goals now.`
-      : "I'm diving into your goals now."
+      ? `We're diving into ${companyName.trim()}'s goals now.`
+      : "We're diving into your goals now."
     : websiteUrl
-      ? `I'm diving into ${formatSiteLabel(websiteUrl)} now.`
-      : "I'm diving into your site and goals now.";
+      ? `We're diving into ${formatSiteLabel(websiteUrl)} now.`
+      : "We're diving into your site and goals now.";
 
   const html = `
 <div style="font-family: sans-serif; max-width: 600px; line-height: 1.65; color: #1a1a1a;">
   <p>${greeting}</p>
-  <p>${focusLine} I'll have something visual for you to look at soon.</p>
+  <p>${focusLine} We'll have something visual for you to look at soon.</p>
   <p style="margin: 1.25rem 0 0; padding: 1rem 1.25rem; background: #f4f4f5; border-radius: 8px; color: #3f3f46;">
     <strong>No strings attached.</strong> You'll get a link to your Blueprint. If you love it, we can talk about a build. If not, the strategy and concept are yours to keep — no hard sales, no automated billing.
   </p>
-  <p style="margin: 1.5rem 0 0;">— Alexander<br>ToolCrate</p>
+  <p style="margin: 1.5rem 0 0;">— ToolCrate</p>
 </div>
   `.trim();
 
   const text = `${greeting.replace(/<[^>]+>/g, "")}
 
-${focusLine} I'll have something visual for you to look at soon.
+${focusLine} We'll have something visual for you to look at soon.
 
 No strings attached. You'll get a link to your Blueprint. If you love it, we can talk about a build. If not, the strategy and concept are yours to keep — no hard sales, no automated billing.
 
-— Alexander
-ToolCrate`;
+— ToolCrate`;
 
   const { data, error } = await resend.emails.send({
     from,
@@ -609,22 +606,21 @@ export async function sendFreeAuditEmail(customerEmail, websiteUrl, pdfBuffer) {
 
   const html = `
     <p>Hi there,</p>
-    <p>Per our conversation, attached is the free review I ran on your website.</p>
+    <p>Per our conversation, attached is the free review we ran on your website.</p>
     <p>Your audit for <a href="${websiteUrl}">${websiteUrl}</a> is attached as <strong>Website-Audit.pdf</strong>.</p>
-    <p>Let me know if you have any questions about the fixes!</p>
-    <p>— Alexander<br>ToolCrate</p>
+    <p>Let us know if you have any questions about the fixes!</p>
+    <p>— ToolCrate</p>
   `.trim();
 
   const text = `Hi there,
 
-Per our conversation, attached is the free review I ran on your website.
+Per our conversation, attached is the free review we ran on your website.
 
 Your audit for ${websiteUrl} is attached (Website-Audit.pdf).
 
-Let me know if you have any questions about the fixes!
+Let us know if you have any questions about the fixes!
 
-— Alexander
-ToolCrate`;
+— ToolCrate`;
 
   const { data, error } = await resend.emails.send({
     from,

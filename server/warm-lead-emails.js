@@ -30,11 +30,11 @@ async function sendWarmLeadEmail({ to, subject, bodyText }) {
 export async function sendWarmLeadFollowUp2Email(lead) {
   const bodyText = `Hi there,
 
-Just making sure the PDF review I sent came through? If you want, I can build the fixed version of the page for you — you see it finished before you pay anything. Builds start at $299. Give me a call at (417) 409-1721 if it's easier.`;
+Just making sure the PDF review we sent came through? If you want, we can build the fixed version of the page for you — you see it finished before you pay anything. Builds start at $299. Give us a call at (417) 409-1721 if it's easier.`;
 
   return sendWarmLeadEmail({
     to: lead.email,
-    subject: "Did you get the review I sent?",
+    subject: "Did you get the review we sent?",
     bodyText,
   });
 }
@@ -43,7 +43,7 @@ Just making sure the PDF review I sent came through? If you want, I can build th
 export async function sendWarmLeadFollowUp3Email(lead) {
   const bodyText = `Hey,
 
-I don't want to bug you, just floating this to the top of your inbox one last time. If you want me to take over the website updates and install the Missed-Call text system, just reply and we can get started.`;
+We don't want to bug you, just floating this to the top of your inbox one last time. If you want us to take over the website updates and install the Missed-Call text system, just reply and we can get started.`;
 
   return sendWarmLeadEmail({
     to: lead.email,

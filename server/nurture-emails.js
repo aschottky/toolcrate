@@ -57,16 +57,16 @@ export async function sendNurtureDay2Email(audit) {
   const websiteUrl = audit.website_url;
   const bodyText = `Hi there,
 
-A couple of days ago I sent over the review of ${websiteUrl}. The part worth looking at is the speed score.
+A couple of days ago we sent over the review of ${websiteUrl}. The part worth looking at is the speed score.
 
 Most small business sites are carrying a lot of dead weight — extra scripts, photos straight off a phone at full size. Someone taps your site while standing in their driveway, it takes a few seconds to come up, and they go back and call the next name on the list.
 
-I don't do patch jobs by the hour, because the same thing breaks again in a month. I build the page over, clean, so it loads fast on a phone and puts your number where a thumb lands.
+We don't do patch jobs by the hour, because the same thing breaks again in a month. We build the page over, clean, so it loads fast on a phone and puts your number where a thumb lands.
 
-If that's worth ten minutes, reply here or call me at (417) 409-1721.
+If that's worth ten minutes, reply here or call us at (417) 409-1721.
 
 Best,
-Alexander`;
+ToolCrate`;
 
   return sendNurtureEmail({
     to: audit.email,
@@ -84,16 +84,16 @@ export async function sendNurtureDay4Email(audit) {
 
   const bodyText = `Hi there,
 
-Alexander here. The thing I see most often on sites like ${websiteUrl} is that the phone number is hard to find, or it isn't tappable on a phone — you have to pinch, zoom, and read it out loud to yourself.
+The thing we see most often on sites like ${websiteUrl} is that the phone number is hard to find, or it isn't tappable on a phone — you have to pinch, zoom, and read it out loud to yourself.
 
 You're on a job. Somebody's standing in their kitchen trying to give you money. That should take one tap.
 
-I can build ${company} a page where the number is the first thing you see and it dials when you touch it. You look at the finished page before you pay me anything.
+We can build ${company} a page where the number is the first thing you see and it dials when you touch it. You look at the finished page before you pay anything.
 
-Reply here or call me at (417) 409-1721.
+Reply here or call us at (417) 409-1721.
 
 Best,
-Alexander`;
+ToolCrate`;
 
   return sendNurtureEmail({
     to: audit.email,
@@ -111,19 +111,19 @@ export async function sendNurtureDay7Email(audit) {
 
   const bodyText = `Hi there,
 
-It's been about a week since I sent the review of ${websiteUrl}, so this is the last one from me.
+It's been about a week since we sent the review of ${websiteUrl}, so this is the last one from us.
 
-You're welcome to hand that PDF to whoever built the site and have them fix it — genuinely, that's a fine outcome. If you'd rather I just build the replacement, a one-page site is $299 and a full build is $497, and you see it finished before you pay.
+You're welcome to hand that PDF to whoever built the site and have them fix it — genuinely, that's a fine outcome. If you'd rather we just build the replacement, a one-page site is $299 and a full build is $497, and you see it finished before you pay.
 
-Easiest thing is to call me at (417) 409-1721. If you'd rather put something on the calendar: ${bookingUrl}
+Easiest thing is to call us at (417) 409-1721. If you'd rather put something on the calendar: ${bookingUrl}
 
 Best,
-Alexander`;
+ToolCrate`;
 
   const resend = getResend();
   const html = `${paragraphsToHtml(bodyText).replace(
     bookingUrl,
-    `<a href="${bookingUrl}">book a 15-minute call with me</a>`
+    `<a href="${bookingUrl}">book a 15-minute call with us</a>`
   )}`;
 
   const { data, error } = await resend.emails.send({
