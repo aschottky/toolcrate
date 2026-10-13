@@ -8,6 +8,7 @@ import { sendAuditReportEmail, sendNewLeadReviewNotification, sendSubmissionConf
 import { generateAuditPDF } from "./pdf.js";
 import { sendAuditError, sendRedesignError } from "./errors.js";
 import { handleInstantlyWebhook } from "./instantly-webhook.js";
+import { handleInboundEmailWebhook } from "./inbound-email.js";
 import { normalizeWebsiteUrl, scrapeWebsiteText } from "./scrape.js";
 import { evaluateLeadSuitability, preflightLogCode } from "./preflight.js";
 import { generateRedesignHtml } from "./redesign-claude.js";
@@ -204,6 +205,13 @@ function handleStripeWebhook(req, res) {
 app.post("/api/webhook/stripe", stripeWebhookRaw, handleStripeWebhook);
 // Legacy path — keep until Stripe Dashboard endpoint is updated
 app.post("/webhook", stripeWebhookRaw, handleStripeWebhook);
+
+// Resend inbound mail → forward to a real inbox (raw body needed for signature check)
+app.post(
+  "/api/webhooks/resend-inbound",
+  express.text({ type: "*/*", limit: "1mb" }),
+  handleInboundEmailWebhook
+);
 
 app.use(express.json({ limit: "32kb" }));
 
