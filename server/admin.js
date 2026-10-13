@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { buildAuditPdf } from "./audit-pipeline.js";
 import { sendDesignReadyEmail, sendFreeAuditEmail } from "./email.js";
 import { logRedesignFailure } from "./errors.js";
@@ -1035,6 +1036,12 @@ async function sendDesignReadyNotification(redesignId, logPrefix) {
   }
 }
 
+/** Demo-site manifest with outreach drafts — admin only (public /sites/ reads sites.json). */
+async function listDemos() {
+  const raw = await readFile(new URL("./data/demos.json", import.meta.url), "utf8");
+  return JSON.parse(raw);
+}
+
 export function registerAdminRoutes(app, { verifyCronSecret }) {
   function guard(handler) {
     return async (req, res) => {
@@ -1060,6 +1067,7 @@ export function registerAdminRoutes(app, { verifyCronSecret }) {
   app.post("/api/admin/audits/:id/generate-script", guard(generateScript));
   app.post("/api/admin/generate-script", guard(generateScript));
   app.post("/api/admin/nurture-preview", guard(previewAllNurtureEmails));
+  app.get("/api/admin/demos", guard(listDemos));
   app.get("/api/admin/warm-leads", guard(listWarmLeads));
   app.post("/api/admin/warm-leads", guard(createWarmLead));
   app.post("/api/admin/warm-leads/:id/sync-audit", guard(syncWarmLeadAudit));

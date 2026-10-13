@@ -1297,9 +1297,9 @@ if (getSecret()) {
 }
 
 /* ── Demo sites ──────────────────────────────────────────────────────────────
-   Static spec builds served from this domain at /<slug>/. The manifest is a
-   file in the repo (public/demos.json); per-demo outreach state is local to
-   this browser so it needs no backend. */
+   Static spec builds served from this domain at /<slug>/. The manifest lives
+   in server/data/demos.json and is served behind admin auth via
+   /api/admin/demos; per-demo outreach state is local to this browser. */
 const DEMO_STATE_KEY = "toolcrate_demo_state";
 const demosStatus = document.getElementById("demos-status");
 const demosTableWrap = document.getElementById("demos-table-wrap");
@@ -1447,9 +1447,7 @@ async function loadDemos() {
   demosStatus.hidden = false;
   demosStatus.textContent = "Loading demo sites…";
   try {
-    const response = await fetch(`/demos.json?ts=${Date.now()}`);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = await response.json();
+    const data = await adminFetch("/api/admin/demos");
     const demos = data.demos || [];
     if (!demos.length) {
       demosStatus.textContent = "No demo sites yet.";

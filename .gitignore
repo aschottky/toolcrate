@@ -6,3 +6,6 @@ dist
 toolcrate-website/images/
 client-notes/
 site drafts/
+
+# generated from server/data/demos.json by scripts/sites-manifest.mjs
+public/sites.json
