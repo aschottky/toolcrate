@@ -13,7 +13,6 @@ import { normalizeWebsiteUrl, scrapeWebsiteText } from "./scrape.js";
 import { evaluateLeadSuitability, preflightLogCode } from "./preflight.js";
 import { generateRedesignHtml } from "./redesign-claude.js";
 import { registerAdminRoutes, runPreviewGeneration } from "./admin.js";
-import { registerZohoRoutes } from "./zoho.js";
 import { handleAdminLogin, verifySessionToken } from "./auth.js";
 import { registerCheckoutRoutes } from "./checkout.js";
 import {
@@ -610,7 +609,6 @@ app.post("/api/cron/process-nurture-emails", handleNurtureCron);
 app.post("/api/cron/warm-leads-nurture", handleWarmLeadNurtureCron);
 
 registerAdminRoutes(app, { verifyCronSecret });
-registerZohoRoutes(app, { verifyCronSecret });
 registerCheckoutRoutes(app, { siteOriginFromRequest });
 
 app.post("/api/audit", async (req, res) => {

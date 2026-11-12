@@ -1,7 +1,6 @@
 import { apiUrl, normalizeClientError } from "../scripts/api-config.js";
 
-// Session token from POST /api/admin/login — the same login as /invoices, so
-// one email+password unlocks both pages.
+// Session token from POST /api/admin/login.
 const TOKEN_KEY = "toolcrate_admin_token";
 const TOKEN_EMAIL_KEY = "toolcrate_admin_email";
 

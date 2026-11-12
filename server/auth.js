@@ -1,5 +1,5 @@
 /**
- * Email + password login for the admin pages (/admin, /invoices).
+ * Email + password login for the admin page (/admin).
  *
  * POST /api/admin/login { email, password } → { ok, token, email, expires_at }
  * The token is an HMAC-signed session token (7 days), accepted by
